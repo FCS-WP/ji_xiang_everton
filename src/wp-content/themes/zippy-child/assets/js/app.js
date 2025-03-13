@@ -20,6 +20,10 @@ Main.init();
 
 /* Do not remove this code if use Jquery */
 
+import './applyPostalCode';
+import './customTheme';
+import './miniCart';
+
 "use strict";
 $ = jQuery;
 $(document).ready(function () {
