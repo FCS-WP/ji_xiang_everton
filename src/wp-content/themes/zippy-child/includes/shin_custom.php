@@ -8,6 +8,9 @@ function shin_scripts()
     wp_enqueue_style('main-style-css', THEME_URL . '-child' . '/assets/dist/css/main.min.css', array(), $version, 'all');
 
     wp_enqueue_script('main-scripts-js', THEME_URL . '-child' . '/assets/dist/js/main.min.js', array('jquery'), $version, true);
+
+    wp_enqueue_script('vanilla-calendar-js', THEME_URL . '-child' . '/assets/lib/vanilla-calendar.min.js', [], $version, true);
+    wp_enqueue_style('vanilla-calendar-css', THEME_URL . '-child' . '/assets/lib/vanilla-calendar.min.css', [], $version);
 }
 //Add gallery video for product
 function add_product_video_url_meta_box() {
