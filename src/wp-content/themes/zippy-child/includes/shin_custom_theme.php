@@ -93,18 +93,23 @@ function handle_user_registration() {
             $user_id = wp_create_user($email, $password, $email);
 
             
+            $user_infors = [
+                'billing_first_name' => $firstname,
+                'billing_last_name' => $lastname,
+                'billing_phone' => $telephone,
+                'birthday' => $birthday,
+                'gender' => $gender,
+                'postcode' => $postcode,
+                'billing_address_1' => $address_1,
+                'input_latitude_1' => $input_latitude_1,
+                'input_longitude_1' => $input_longitude_1,
+                'billing_email' => $email,
+                'billing_postcode' => $postcode,
+            ];
 
-            update_user_meta($user_id, 'billing_first_name', $firstname);
-            update_user_meta($user_id, 'billing_last_name', $lastname);
-            update_user_meta($user_id, 'billing_phone', $telephone);
-            update_user_meta($user_id, 'birthday', $birthday);
-            update_user_meta($user_id, 'gender', $gender);
-            update_user_meta($user_id, 'postcode', $postcode);
-            update_user_meta($user_id, 'billing_address_1', $address_1);
-            update_user_meta($user_id, 'input_latitude_1', $input_latitude_1);
-            update_user_meta($user_id, 'input_longitude_1', $input_longitude_1);
-            update_user_meta($user_id, 'billing_email', $email);
-
+            foreach($user_infors as $user_infor => $value ){
+                update_user_meta($user_id, $user_infor, $value);
+            }
             
             wp_set_current_user($user_id);
             wp_set_auth_cookie($user_id);
