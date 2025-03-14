@@ -140,4 +140,71 @@ function save_custom_product_fields($post_id) {
 
 add_action('save_post_product', 'save_custom_product_fields');
 
+//Edit checkout page
+function custom_add_checkout_fields($fields) {
+    // 1. Cutlery (Text Input)
+    $fields['billing']['billing_cutlery'] = array(
+        'type'      => 'hidden',
+        'placeholder' => __('Enter cutlery preference', 'woocommerce'),
+        'default'     => "NO",
+        'required'  => false,
+        'priority'  => 999
+    );
 
+    $fields['billing']['billing_outlet'] = array(
+        'type'      => 'hidden',
+        'placeholder' => __('Enter outlet location', 'woocommerce'),
+        'default'     => $_SESSION['selectOutlet'],
+        'required'  => true,
+        'priority'  => 999
+    );
+
+    $fields['billing']['billing_pickup_date'] = array(
+        'type'      => 'hidden',
+        'placeholder' => __('Enter pick-up date (e.g., 18 Mar 2025)', 'woocommerce'),
+        'default'   => $_SESSION['selectDateTakeaway'],
+        'required'  => true,
+        'priority'  => 999
+    );
+
+    $fields['billing']['billing_pickup_time'] = array(
+        'type'      => 'hidden',
+        'placeholder' => __('Enter pick-up time (e.g., 11:00 AM)', 'woocommerce'),
+        'default'   => $_SESSION['selectTakeAwayTime'],
+        'required'  => true,
+        'priority'  => 999
+    );
+
+    return $fields;
+}
+add_filter('woocommerce_checkout_fields', 'custom_add_checkout_fields');
+
+//Save custom field billing
+function custom_save_checkout_fields($order_id) {
+    if (!empty($_POST['billing_cutlery'])) {
+        update_post_meta($order_id, '_billing_cutlery', sanitize_text_field($_POST['billing_cutlery']));
+    }
+
+    if (!empty($_POST['billing_outlet'])) {
+        update_post_meta($order_id, '_billing_outlet', sanitize_text_field($_POST['billing_outlet']));
+    }
+
+    if (!empty($_POST['billing_pickup_date'])) {
+        update_post_meta($order_id, '_billing_pickup_date', sanitize_text_field($_POST['billing_pickup_date']));
+    }
+
+    if (!empty($_POST['billing_pickup_time'])) {
+        update_post_meta($order_id, '_billing_pickup_time', sanitize_text_field($_POST['billing_pickup_time']));
+    }
+}
+add_action('woocommerce_checkout_update_order_meta', 'custom_save_checkout_fields');
+
+//Display Admin
+function custom_display_order_meta($order) {
+    echo '<h3>' . __('Takeaway Details', 'woocommerce') . '</h3>';
+    echo '<p><strong>Cutlery:</strong> ' . get_post_meta($order->get_id(), '_billing_cutlery', true) . '</p>';
+    echo '<p><strong>Outlet:</strong> ' . get_post_meta($order->get_id(), '_billing_outlet', true) . '</p>';
+    echo '<p><strong>Pick-Up Date:</strong> ' . get_post_meta($order->get_id(), '_billing_pickup_date', true) . '</p>';
+    echo '<p><strong>Pick-Up Time:</strong> ' . get_post_meta($order->get_id(), '_billing_pickup_time', true) . '</p>';
+}
+add_action('woocommerce_admin_order_data_after_billing_address', 'custom_display_order_meta', 10, 1);

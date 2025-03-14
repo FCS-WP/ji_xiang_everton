@@ -38,7 +38,12 @@ function custom_product_short_description_and_price() {
     echo '<div class="product-price">' . $product->get_price_html() . '</div>';
     
     // Display add to cart
-    echo '<div class="cta_add_to_cart"><a class="action-popup-btn" href="#order-popup-' . $product_id . '">Add</a></div>';
+    
+    if($_SESSION['status_popup'] != true){
+        echo '<div class="cta_add_to_cart"><a class="action-popup-btn" productID="' . $product_id . '" href="#order-popup-' . $product_id . '">Add</a></div>';
+    }else{
+        echo do_shortcode('[quickview_button]');
+    }
     echo do_shortcode('[lightbox id="order-popup-' . $product_id . '" width="550px" padding="15px" ][block id="delivery-takeaway"][/lightbox]');
 }
 
@@ -191,4 +196,19 @@ function remove_checkout_coupon_form() {
 }
 add_action('wp', 'remove_checkout_coupon_form');
 
+function flatsome_custom_quickview_button($atts) {
+    global $product;
 
+    if (!$product) return '';
+
+    $product_id = $product->get_id();
+
+    $button = '<div class="cta_add_to_cart"><a href="#" class="quick-view" 
+                  data-prod="' . esc_attr($product_id) . '" 
+                  data-toggle="quick-view">
+                  Add
+               </a></div>';
+
+    return $button;
+}
+add_shortcode('quickview_button', 'flatsome_custom_quickview_button');
