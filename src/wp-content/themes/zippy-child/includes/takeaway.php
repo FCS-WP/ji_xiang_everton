@@ -202,3 +202,10 @@ function get_the_next_day($number, $currentDatePrams = '')
     );
     return $date_time;
   }
+
+function zippy_lightbox_flatsome(){
+    if (!is_admin()) {
+      echo do_shortcode('[lightbox id="takeaway" width="550px"][form_take_away][/lightbox]');
+    }
+}
+add_action('wp_head','zippy_lightbox_flatsome');
