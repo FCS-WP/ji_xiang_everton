@@ -23,6 +23,7 @@ Main.init();
 import './applyPostalCode';
 import './customTheme';
 import './miniCart';
+import './switchCutlery';
 
 "use strict";
 $ = jQuery;

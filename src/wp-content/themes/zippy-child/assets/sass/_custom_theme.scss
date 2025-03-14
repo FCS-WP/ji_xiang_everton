@@ -163,6 +163,30 @@ header {
         display: block;
         text-transform: uppercase;
     }
+
+    form{
+        margin-bottom: 0px;
+    }
+
+    button{
+        width: 100%;
+        background-color: var(--fs-color-primary);
+        border-color: var(--fs-color-primary);
+        font-weight: 600;
+        border-radius: 10px !important;
+        color: #fff;
+        font-size: 14px;
+        margin-top: 10px !important;
+        margin-bottom: 0px;
+        margin-right: 0px;
+        text-align: center;
+        display: block;
+        text-transform: uppercase;
+    }
+
+    a:hover{
+        color: #fff;
+    }
 }
 
 .pop_up_mothod_shipping{
@@ -220,9 +244,6 @@ header {
     }
 }
 
-.image-fade_in_back a, a.woocommerce-LoopProduct-link{
-    cursor: default;
-}
 
 ul{
     .current_page_item{
@@ -323,4 +344,12 @@ ul{
         font-size: 14px;
         font-weight: bolder;
     }
+}
+
+#to-edit-address{
+    font-size: 12px;
+}
+
+.woocommerce-message{
+    display: none;
 }

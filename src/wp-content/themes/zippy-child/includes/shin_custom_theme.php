@@ -38,7 +38,12 @@ function custom_product_short_description_and_price() {
     echo '<div class="product-price">' . $product->get_price_html() . '</div>';
     
     // Display add to cart
-    echo '<div class="cta_add_to_cart"><a class="action-popup-btn" href="#order-popup-' . $product_id . '">Add</a></div>';
+    
+    if($_SESSION['status_popup'] != true){
+        echo '<div class="cta_add_to_cart"><a class="action-popup-btn" productID="' . $product_id . '" href="#order-popup-' . $product_id . '">Add</a></div>';
+    }else{
+        echo do_shortcode('[quickview_button]');
+    }
     echo do_shortcode('[lightbox id="order-popup-' . $product_id . '" width="550px" padding="15px" ][block id="delivery-takeaway"][/lightbox]');
 }
 
@@ -88,18 +93,23 @@ function handle_user_registration() {
             $user_id = wp_create_user($email, $password, $email);
 
             
+            $user_infors = [
+                'billing_first_name' => $firstname,
+                'billing_last_name' => $lastname,
+                'billing_phone' => $telephone,
+                'birthday' => $birthday,
+                'gender' => $gender,
+                'postcode' => $postcode,
+                'billing_address_1' => $address_1,
+                'input_latitude_1' => $input_latitude_1,
+                'input_longitude_1' => $input_longitude_1,
+                'billing_email' => $email,
+                'billing_postcode' => $postcode,
+            ];
 
-            update_user_meta($user_id, 'billing_first_name', $firstname);
-            update_user_meta($user_id, 'billing_last_name', $lastname);
-            update_user_meta($user_id, 'billing_phone', $telephone);
-            update_user_meta($user_id, 'birthday', $birthday);
-            update_user_meta($user_id, 'gender', $gender);
-            update_user_meta($user_id, 'postcode', $postcode);
-            update_user_meta($user_id, 'billing_address_1', $address_1);
-            update_user_meta($user_id, 'input_latitude_1', $input_latitude_1);
-            update_user_meta($user_id, 'input_longitude_1', $input_longitude_1);
-            update_user_meta($user_id, 'billing_email', $email);
-
+            foreach($user_infors as $user_infor => $value ){
+                update_user_meta($user_id, $user_infor, $value);
+            }
             
             wp_set_current_user($user_id);
             wp_set_auth_cookie($user_id);
@@ -191,4 +201,19 @@ function remove_checkout_coupon_form() {
 }
 add_action('wp', 'remove_checkout_coupon_form');
 
+function flatsome_custom_quickview_button($atts) {
+    global $product;
 
+    if (!$product) return '';
+
+    $product_id = $product->get_id();
+
+    $button = '<div class="cta_add_to_cart"><a href="#" class="quick-view" 
+                  data-prod="' . esc_attr($product_id) . '" 
+                  data-toggle="quick-view">
+                  Add
+               </a></div>';
+
+    return $button;
+}
+add_shortcode('quickview_button', 'flatsome_custom_quickview_button');

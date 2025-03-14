@@ -100,7 +100,7 @@ else { ?>
       </div>
       <?php 
       $total_quantity = WC()->cart->get_cart_contents_count();
-      $total_delivery = 100;
+      $total_delivery = 0;
       $total_freeship = 150;
       ?>
 	  <div class="widget_shopping_cart">
@@ -128,49 +128,51 @@ else { ?>
                 </svg>
             </div>
         </div>
-        <div class="box_infor_method_shipping">
+        <?php if(!empty($_SESSION['selectOutlet'])){
+          ?>
+          <div class="box_infor_method_shipping">
             <div class="items_infor_method_shipping">
                 <div class="text_items">
                     <h4>Order Mode:</h4>
                     <p>TakeAway</p>
                 </div>
                 <div class="icon_items">
-                    <button id="to-edit-address" class="btn btn-transparent edit-btn" title="Change Order Mode">Edit</button>
+                  <form method="post">
+                      <button id="to-edit-address" class="btn btn-transparent edit-btn" title="Change Order Mode" type="submit" name="remove_session">Remove</button>
+                  </form>
                 </div>
             </div>
             <div class="items_infor_method_shipping">
                 <div class="text_items">
                     <h4>Select Outlet:</h4>
-                    <p>JI XIANG ANG KU KUEH PTE LTD Block1 Everton Park, 01-33 081001</p>
-                </div>
-                <div class="icon_items">
-                    <button id="to-edit-address" class="btn btn-transparent edit-btn" title="Change Order Mode">Edit</button>
+                    <p><?php echo $_SESSION['selectOutlet'];?></p>
                 </div>
             </div>
             <div class="items_infor_method_shipping">
                 <div class="text_items">
                     <h4>Takeaway Time:</h4>
-                    <p>Mon, 17 Mar 2025<br>02:00 PM to 03:00 PM</p>
-                </div>
-                <div class="icon_items">
-                    <button id="to-edit-address" class="btn btn-transparent edit-btn" title="Change Order Mode">Edit</button>
+                    <p><?php echo $_SESSION['selectDateTakeaway']; ?><br><?php echo $_SESSION['selectTakeAwayTime'];?></p>
                 </div>
             </div>
         </div>
-        <div class="rule_checkout_mini_cart">
-            <div class="minimum_order">
-                <p>$<span id="deliveryNeedMore"><?php echo $total_delivery; ?></span> more for minimum order</p>
-                <div id="minimunOrderProgress" class="bar_process_full">
-                    <div id="minimunOrder" class="bar_process_custom" dataDelivery="<?php echo $total_delivery; ?>"></div>
+          <?php
+        }?>
+        
+          <?php
+            if($total_delivery != 0){
+              ?>
+              <div class="rule_checkout_mini_cart">
+                <div class="minimum_order">
+                  <p>$<span id="deliveryNeedMore"><?php echo $total_delivery; ?></span> more for minimum order</p>
+                  <div id="minimunOrderProgress" class="bar_process_full">
+                      <div id="minimunOrder" class="bar_process_custom" dataDelivery="<?php echo $total_delivery; ?>"></div>
+                  </div>
                 </div>
-            </div>
-            <div class="free_delivery">
-                <p>$<span id="freeshipNeedMore"><?php echo $total_freeship; ?></span> more for Free delivery</p>
-                <div id="freeDeliveryProgress" class="bar_process_full">
-                    <div id="freeDelivery" class="bar_process_custom" dataFreeship="<?php echo $total_freeship; ?>"></div>
-                </div>
-            </div>
-        </div>
+              </div>
+              <?php
+            }
+          ?>
+        
         
 		<div class="widget_shopping_cart_content">
 			<?php woocommerce_mini_cart(); ?>
