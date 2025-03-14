@@ -1,0 +1,44 @@
+#billing_postcode_field {
+    position: relative;
+  }
+
+  /* #results-wrapper {
+    position: absolute;
+    top: 75px;
+    left: 0px;
+    width: 100%;
+    padding: 15px;
+    max-height: 330px;
+    background: #fff;
+    z-index: 2;
+    overflow-y: auto;
+    box-shadow: 0px 8px 8px #ddd;
+  } */
+
+  .result-item {
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin: 5px 0;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .result-item:hover {
+    background-color: rgb(246, 246, 246);
+  }
+
+  .result-item .remove-icon {
+    display: none;
+  }
+
+  .result-item.selected .remove-icon {
+    display: block;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 25px;
+  }
+
+  .result-item.selected {
+    background-color: rgb(246, 246, 246);
+  }
