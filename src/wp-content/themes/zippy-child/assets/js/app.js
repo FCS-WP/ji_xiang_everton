@@ -24,6 +24,7 @@ import './applyPostalCode';
 import './customTheme';
 import './miniCart';
 import './switchCutlery';
+import './calendar';
 
 "use strict";
 $ = jQuery;

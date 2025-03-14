@@ -184,7 +184,7 @@ if ( flatsome_option( 'facebook_login_checkout' ) && get_option( 'woocommerce_en
 										<input type="checkbox" id="switchInput">
 										<span class="slider round" id="switchButton"></span>
 									</label>
-									<p>No, thanks.</p>
+									<p id="labelSwitch">No, thanks.</p>
 								</div>
 								<div class="quickcheckout-order-info">
 									<table>
