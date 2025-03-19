@@ -217,3 +217,27 @@ function flatsome_custom_quickview_button($atts) {
     return $button;
 }
 add_shortcode('quickview_button', 'flatsome_custom_quickview_button');
+
+
+function save_update_address(){
+    if (isset($_POST['update_billing_address'])) {
+        if (!is_user_logged_in()) {
+            return;
+        }
+
+        $current_user_id = get_current_user_id();
+
+        update_user_meta($current_user_id, 'billing_first_name', sanitize_text_field($_POST['billing_first_name']));
+        update_user_meta($current_user_id, 'billing_last_name', sanitize_text_field($_POST['billing_last_name']));
+        update_user_meta($current_user_id, 'billing_address_1', sanitize_text_field($_POST['billing_address_1']));
+        update_user_meta($current_user_id, 'billing_postcode', sanitize_text_field($_POST['billing_postcode']));
+        update_user_meta($current_user_id, 'input_latitude_1', sanitize_text_field($_POST['input_latitude_1']));
+        update_user_meta($current_user_id, 'input_longitude_1', sanitize_text_field($_POST['input_longitude_1']));
+
+        wp_redirect('/my-account/edit-address/');
+        exit;
+    }
+    
+}
+add_action('init', 'save_update_address');
+
