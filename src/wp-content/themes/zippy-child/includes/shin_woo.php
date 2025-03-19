@@ -1,9 +1,4 @@
 <?php
-function set_minimum_quantity_10($args, $product) {
-    $args['min_value'] = 10;
-    return $args;
-}
-add_filter('woocommerce_quantity_input_args', 'set_minimum_quantity_10', 10, 2);
 
 add_action( 'woocommerce_widget_shopping_cart_buttons', function(){
     // Removing Buttons
@@ -206,3 +201,43 @@ function custom_display_order_meta($order) {
     echo '<p><strong>Pick-Up Time:</strong> ' . get_post_meta($productID, '_billing_pickup_time', true) . '</p>';
 }
 add_action('woocommerce_admin_order_data_after_billing_address', 'custom_display_order_meta', 10, 1);
+
+
+
+
+// Add custom field to the product edit page
+add_action('woocommerce_product_options_general_product_data', function() {
+    woocommerce_wp_text_input([
+        'id'                => '_custom_minimum_order_qty',
+        'label'             => __('Minimum Order Quantity', 'woocommerce'),
+        'description'       => __('Enter the minimum quantity required to add this product to the cart.', 'woocommerce'),
+        'type'              => 'number',
+        'custom_attributes' => ['step' => '1', 'min' => '1'],
+    ]);
+});
+
+// Save the custom field value
+add_action('woocommerce_process_product_meta', function($post_id) {
+    if (isset($_POST['_custom_minimum_order_qty'])) {
+        update_post_meta($post_id, '_custom_minimum_order_qty', absint($_POST['_custom_minimum_order_qty']));
+    }
+});
+
+// Validate minimum order quantity when adding to cart
+add_filter('woocommerce_add_to_cart_validation', function($passed, $product_id, $quantity) {
+    $min_qty = get_post_meta($product_id, '_custom_minimum_order_qty', true);
+    if ($min_qty && $quantity < $min_qty) {
+        wc_add_notice(sprintf(__('You must order at least %d of this product.', 'woocommerce'), $min_qty), 'error');
+        return false;
+    }
+    return $passed;
+}, 10, 3);
+
+// Display minimum order quantity on the product page
+add_action('woocommerce_single_product_summary', function() {
+    global $product;
+    $min_qty = get_post_meta($product->get_id(), '_custom_minimum_order_qty', true);
+    if ($min_qty) {
+        echo '<p class="custom-min-qty" style="color: red; font-weight: bold;">' . sprintf(__('Minimum order quantity: %d', 'woocommerce'), $min_qty) . '</p>';
+    }
+}, 25);
