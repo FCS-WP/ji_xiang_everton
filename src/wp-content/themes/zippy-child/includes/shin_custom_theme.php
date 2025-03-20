@@ -38,6 +38,7 @@ function custom_product_short_description_and_price() {
     echo '<div class="product-price">' . $product->get_price_html() . '</div>';
     
     // Display add to cart
+    
     if ($_SESSION['status_popup'] != true) {
         echo '<div class="cta_add_to_cart"><a class="lightbox-zippy-btn" data-product_id="' . $product_id . '" href="#lightbox-zippy-form" >Add</a></div>';
     } else {

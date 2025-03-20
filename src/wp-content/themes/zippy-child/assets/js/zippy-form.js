@@ -1,4 +1,3 @@
-
 $(function(){
     $(document).on('click', '.lightbox-zippy-btn', function(e){
         e.preventDefault()
