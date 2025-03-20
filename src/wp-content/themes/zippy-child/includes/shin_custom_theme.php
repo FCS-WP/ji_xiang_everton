@@ -38,14 +38,19 @@ function custom_product_short_description_and_price() {
     echo '<div class="product-price">' . $product->get_price_html() . '</div>';
     
     // Display add to cart
-    
-    if($_SESSION['status_popup'] != true){
-        echo '<div class="cta_add_to_cart"><a class="action-popup-btn" productID="' . $product_id . '" href="#order-popup-' . $product_id . '">Add</a></div>';
-    }else{
+    if ($_SESSION['status_popup'] != true) {
+        echo '<div class="cta_add_to_cart"><a class="lightbox-zippy-btn" data-product_id="' . $product_id . '" href="#lightbox-zippy-form" >Add</a></div>';
+    } else {
         echo do_shortcode('[quickview_button]');
     }
-    echo do_shortcode('[lightbox id="order-popup-' . $product_id . '" width="550px" padding="15px" ][block id="delivery-takeaway"][/lightbox]');
 }
+
+function lightbox_zippy_form() 
+{
+    echo do_shortcode('[lightbox id="lightbox-zippy-form" width="600px" padding="15px" ][zippy_form][/lightbox]');
+}
+
+add_shortcode( 'lightbox_zippy_form', 'lightbox_zippy_form');
 
 
 function handle_user_registration() {
