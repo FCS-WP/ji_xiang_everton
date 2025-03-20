@@ -11,6 +11,10 @@ function shin_scripts()
 
     wp_enqueue_script('vanilla-calendar-js', THEME_URL . '-child' . '/assets/lib/vanilla-calendar.min.js', [], $version, true);
     wp_enqueue_style('vanilla-calendar-css', THEME_URL . '-child' . '/assets/lib/vanilla-calendar.min.css', [], $version);
+
+    wp_enqueue_script('sweet-alert2-js', THEME_URL . '-child' . '/assets/lib/sweetalert/sweetalert2.all.min.js', [], $version, true);
+    wp_enqueue_style('sweet-alert2-css', THEME_URL . '-child' . '/assets/lib/sweetalert/sweetalert2.min.css', [], $version);
+
 }
 //Add gallery video for product
 function add_product_video_url_meta_box() {
