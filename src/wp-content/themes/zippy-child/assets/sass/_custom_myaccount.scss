@@ -36,6 +36,7 @@
             }
         }
     }
+
 }
 
 .my-account{
@@ -63,4 +64,19 @@
         border-radius: 5px;
     }
 
+
+}
+
+#loginform{
+    #wp-submit{
+        margin-bottom: 0px !important;
+    }
+}
+
+@media(max-width: 768px){
+    .center_element_theme{
+        .col_main_page{
+            width: 100%;
+        }
+    }
 }
