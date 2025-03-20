@@ -3,6 +3,11 @@
 
   $(document).ready(function() {
     const postCode = $('#input_postcode');
+
+    if (!postCode.length) {
+      return; 
+    }
+
     let isLoading = false;
 
     // Create the results container element
