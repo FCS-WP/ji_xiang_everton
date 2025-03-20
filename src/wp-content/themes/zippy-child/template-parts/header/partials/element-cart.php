@@ -128,13 +128,13 @@ else { ?>
                 </svg>
             </div>
         </div>
-        <?php if(!empty($_SESSION['selectOutlet'])){
+        <?php if(!empty($_SESSION['order_mode'])){
           ?>
           <div class="box_infor_method_shipping">
             <div class="items_infor_method_shipping">
                 <div class="text_items">
                     <h4>Order Mode:</h4>
-                    <p>TakeAway</p>
+                    <p><?php echo $_SESSION['order_mode'] ;?></p>
                 </div>
                 <div class="icon_items">
                   <form method="post">
@@ -145,13 +145,13 @@ else { ?>
             <div class="items_infor_method_shipping">
                 <div class="text_items">
                     <h4>Select Outlet:</h4>
-                    <p><?php echo $_SESSION['selectOutlet'];?></p>
+                    <p><?php echo $_SESSION['outlet_name'];?></p>
                 </div>
             </div>
             <div class="items_infor_method_shipping">
                 <div class="text_items">
-                    <h4>Takeaway Time:</h4>
-                    <p><?php echo $_SESSION['selectDateTakeaway']; ?><br><?php echo $_SESSION['selectTakeAwayTime'];?></p>
+                    <h4><?php if($_SESSION['order_mode'] == 'takeaway'){ echo 'Takeaway';}else{echo 'Delivery';}?> Time:</h4>
+                    <p><?php echo $_SESSION['date']; ?><br><?php echo 'From ' . $_SESSION['time']['from'] . ' To ' . $_SESSION['time']['to'];?></p>
                 </div>
             </div>
         </div>

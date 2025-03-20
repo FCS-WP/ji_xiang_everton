@@ -25,6 +25,7 @@ import './customTheme';
 import './miniCart';
 import './switchCutlery';
 import './calendar';
+import './zippy-form';
 
 "use strict";
 $ = jQuery;

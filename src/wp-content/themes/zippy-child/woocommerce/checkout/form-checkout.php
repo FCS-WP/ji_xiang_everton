@@ -191,15 +191,15 @@ if ( flatsome_option( 'facebook_login_checkout' ) && get_option( 'woocommerce_en
 										<tbody>
 											<tr>
 												<td>Outlet:</td>
-												<td><?php echo $_SESSION['selectOutlet']; ?></td>
+												<td><?php echo $_SESSION['outlet_name']; ?></td>
 											</tr>
 											<tr>
 												<td>Pick-Up Date:</td>
-												<td><?php echo $_SESSION['selectDateTakeaway']; ?></td>
+												<td><?php echo $_SESSION['date']; ?></td>
 											</tr>
 											<tr>
 												<td>Pick-Up Time:</td>
-												<td><?php echo $_SESSION['selectTakeAwayTime']; ?></td>
+												<td><?php echo 'From ' . $_SESSION['time']['from'] . ' To ' . $_SESSION['time']['to']; ?></td>
 											</tr>
 										</tbody>
 									</table>
