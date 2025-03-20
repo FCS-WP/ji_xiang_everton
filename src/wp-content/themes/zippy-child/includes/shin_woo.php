@@ -241,3 +241,28 @@ add_action('woocommerce_single_product_summary', function() {
         echo '<p class="custom-min-qty" style="color: red; font-weight: bold;">' . sprintf(__('Minimum order quantity: %d', 'woocommerce'), $min_qty) . '</p>';
     }
 }, 25);
+
+add_action( 'wp', 'add_to_cart_from_session' );
+
+function add_to_cart_from_session() {
+    if (empty($_SESSION) || empty($_SESSION['product_id'])) {
+        return;
+    }
+
+    if ( ! class_exists( 'WooCommerce' ) || ! WC()->cart ) {
+        return;
+    }
+
+    if ( isset( $_SESSION['product_id'] ) ) {
+        $product_id = intval( $_SESSION['product_id'] );
+        $min_qty = get_post_meta($product_id, '_custom_minimum_order_qty', true);
+        $quantity = ($min_qty && $min_qty > 0 ? $min_qty : 1);
+
+        $product = wc_get_product( $product_id );
+        if ( $product ) {
+            WC()->cart->add_to_cart( $product_id, $quantity );
+            // Delete session after add to cart
+            unset( $_SESSION['product_id'] );
+        }
+    }
+}
