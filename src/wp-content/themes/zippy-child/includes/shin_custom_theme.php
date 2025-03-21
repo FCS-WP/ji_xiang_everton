@@ -40,7 +40,7 @@ function custom_product_short_description_and_price()
 
     // Display add to cart
 
-    if (isset($_SESSION['status_popup']) && $_SESSION['status_popup'] != true) {
+    if (!isset($_SESSION['status_popup']) && $_SESSION['status_popup'] != true) {
         echo '<div class="cta_add_to_cart"><a class="lightbox-zippy-btn" data-product_id="' . $product_id . '" href="#lightbox-zippy-form" >Add</a></div>';
     } else {
         echo do_shortcode('[quickview_button]');
