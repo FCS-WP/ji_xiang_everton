@@ -227,6 +227,29 @@ function custom_save_checkout_fields($order_id) {
 }
 add_action('woocommerce_checkout_update_order_meta', 'custom_save_checkout_fields');
 
+add_filter('woocommerce_package_rates', 'custom_fixed_shipping_cost', 10, 2);
+
+function custom_fixed_shipping_cost($rates, $package) {
+    if (!isset($_SESSION["order_mode"])) {
+        return $rates; 
+    }
+
+    $order_mode = $_SESSION["order_mode"];
+    $shipping_fee = $_SESSION["shipping_fee"] ?? 0;
+
+    foreach ($rates as $rate_id => $rate) {
+        if ($order_mode === 'takeaway') {
+            $rates[$rate_id]->label = 'Takeaway Fee';
+            $rates[$rate_id]->cost = 0;
+        } else {
+            $rates[$rate_id]->label = 'Delivery Fee';
+            $rates[$rate_id]->cost = $shipping_fee;
+        }
+    }
+
+    return $rates;
+}
+
 //Display Admin
 function custom_display_order_meta($order) {
     $productID = $order->get_id();
@@ -243,9 +266,6 @@ function custom_display_order_meta($order) {
     echo '<p><strong>Time:</strong> ' . get_post_meta($productID, '_billing_time', true) . '</p>';
 }
 add_action('woocommerce_admin_order_data_after_billing_address', 'custom_display_order_meta', 10, 1);
-
-
-
 
 // Add custom field to the product edit page
 add_action('woocommerce_product_options_general_product_data', function() {
@@ -264,16 +284,6 @@ add_action('woocommerce_process_product_meta', function($post_id) {
         update_post_meta($post_id, '_custom_minimum_order_qty', absint($_POST['_custom_minimum_order_qty']));
     }
 });
-
-// Validate minimum order quantity when adding to cart
-add_filter('woocommerce_add_to_cart_validation', function($passed, $product_id, $quantity) {
-    $min_qty = get_post_meta($product_id, '_custom_minimum_order_qty', true);
-    if ($min_qty && $quantity < $min_qty) {
-        wc_add_notice(sprintf(__('You must order at least %d of this product.', 'woocommerce'), $min_qty), 'error');
-        return false;
-    }
-    return $passed;
-}, 10, 3);
 
 // Display minimum order quantity on the product page
 add_action('woocommerce_single_product_summary', function() {
@@ -308,3 +318,40 @@ function add_to_cart_from_session() {
         }
     }
 }
+
+add_filter('woocommerce_quantity_input_args', function ($args, $product) {
+    $min_qty = get_post_meta($product->get_id(), '_custom_minimum_order_qty', true);
+    
+    if ($min_qty) {
+        $cart = WC()->cart->get_cart();
+        $cart_qty = 0;
+
+        foreach ($cart as $cart_item) {
+            if ($cart_item['product_id'] == $product->get_id()) {
+                $cart_qty += $cart_item['quantity'];
+            }
+        }
+
+        if ($cart_qty < $min_qty) {
+            $args['min_value'] = max(1, $min_qty - $cart_qty);
+        }
+    }
+
+    return $args;
+}, 10, 2);
+
+
+add_action('woocommerce_after_cart_item_quantity_update', function ($cart_item_key, $quantity) {
+    $cart = WC()->cart->get_cart();
+    
+    foreach ($cart as $key => $cart_item) {
+        $product_id = $cart_item['product_id'];
+        $min_qty = get_post_meta($product_id, '_custom_minimum_order_qty', true);
+
+        if (!empty($min_qty) && $quantity < $min_qty) {
+            WC()->cart->remove_cart_item($cart_item_key);
+        }
+    }
+}, 10, 2);
+
+

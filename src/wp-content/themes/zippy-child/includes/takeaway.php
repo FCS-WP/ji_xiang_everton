@@ -65,17 +65,19 @@ function handle_submit_takeaway()
     $_SESSION['selectOutlet'] = $outlet;
     $_SESSION['selectDateTakeaway'] = $formatted_date;
   }
-  if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['remove_session'])) {
-
-    session_unset();
-    session_destroy();
-    WC()->cart->empty_cart();
-    header("Location: " . $_SERVER['PHP_SELF']);
-    exit;
-  }
 }
 add_action('init', 'handle_submit_takeaway');
 
+
+function remove_cart_session() {
+  session_unset();
+  session_destroy();
+  WC()->cart->empty_cart();
+
+  wp_send_json_success(['message' => 'Cart session removed']);
+}
+add_action('wp_ajax_remove_cart_session', 'remove_cart_session');
+add_action('wp_ajax_nopriv_remove_cart_session', 'remove_cart_session');
 
 function script_rule_popup_session()
 {
