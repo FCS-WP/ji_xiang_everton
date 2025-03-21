@@ -149,24 +149,56 @@ function custom_add_checkout_fields($fields) {
     $fields['billing']['billing_outlet'] = array(
         'type'      => 'hidden',
         'placeholder' => __('Enter outlet location', 'woocommerce'),
-        'default'     => $_SESSION['selectOutlet'],
+        'default'     => $_SESSION['outlet_name'],
         'required'  => true,
         'priority'  => 999
     );
 
-    $fields['billing']['billing_pickup_date'] = array(
+    $fields['billing']['billing_outlet_address'] = array(
+        'type'      => 'hidden',
+        'placeholder' => __('Enter outlet location', 'woocommerce'),
+        'default'     => $_SESSION['outlet_name'],
+        'required'  => true,
+        'priority'  => 999
+    );
+
+    $fields['billing']['billing_date'] = array(
         'type'      => 'hidden',
         'placeholder' => __('Enter pick-up date (e.g., 18 Mar 2025)', 'woocommerce'),
-        'default'   => $_SESSION['selectDateTakeaway'],
+        'default'   => $_SESSION['date'],
         'required'  => true,
         'priority'  => 999
     );
 
-    $fields['billing']['billing_pickup_time'] = array(
+    $fields['billing']['billing_time'] = array(
         'type'      => 'hidden',
         'placeholder' => __('Enter pick-up time (e.g., 11:00 AM)', 'woocommerce'),
-        'default'   => $_SESSION['selectTakeAwayTime'],
+        'default'   => 'From ' . $_SESSION['time']['from'] . ' To ' . $_SESSION['time']['to'],
         'required'  => true,
+        'priority'  => 999
+    );
+
+    $fields['billing']['billing_method_shipping'] = array(
+        'type'      => 'hidden',
+        'placeholder' => __('Enter pick-up time (e.g., 11:00 AM)', 'woocommerce'),
+        'default'   => $_SESSION['order_mode'],
+        'required'  => true,
+        'priority'  => 999
+    );
+
+    $fields['billing']['billing_shipping_fee'] = array(
+        'type'      => 'hidden',
+        'placeholder' => __('', 'woocommerce'),
+        'default'   => $_SESSION['shipping_fee'],
+        'required'  => false,
+        'priority'  => 999
+    );
+
+    $fields['billing']['billing_delivery_address'] = array(
+        'type'      => 'hidden',
+        'placeholder' => __('', 'woocommerce'),
+        'default'   => $_SESSION['delivery_address'],
+        'required'  => false,
         'priority'  => 999
     );
 
@@ -179,8 +211,12 @@ function custom_save_checkout_fields($order_id) {
     $fields = [
         'billing_cutlery',
         'billing_outlet',
-        'billing_pickup_date',
-        'billing_pickup_time',
+        'billing_date',
+        'billing_time',
+        'billing_outlet_address',
+        'billing_method_shipping',
+        'billing_shipping_fee',
+        'billing_delivery_address',
     ];
 
     foreach( $fields as $field){
@@ -194,11 +230,17 @@ add_action('woocommerce_checkout_update_order_meta', 'custom_save_checkout_field
 //Display Admin
 function custom_display_order_meta($order) {
     $productID = $order->get_id();
-    echo '<h3>' . __('Takeaway Details', 'woocommerce') . '</h3>';
+    $methodShipping = get_post_meta($productID, '_billing_method_shipping', true);
+    echo '<h3>' . __('Shipping Details', 'woocommerce') . '</h3>';
+    echo '<p><strong>Method Shipping:</strong> ' . get_post_meta($productID, '_billing_method_shipping', true) . '</p>';
     echo '<p><strong>Cutlery:</strong> ' . get_post_meta($productID, '_billing_cutlery', true) . '</p>';
-    echo '<p><strong>Outlet:</strong> ' . get_post_meta($productID, '_billing_outlet', true) . '</p>';
-    echo '<p><strong>Pick-Up Date:</strong> ' . get_post_meta($productID, '_billing_pickup_date', true) . '</p>';
-    echo '<p><strong>Pick-Up Time:</strong> ' . get_post_meta($productID, '_billing_pickup_time', true) . '</p>';
+    if($methodShipping == 'delivery'){
+        echo '<p><strong>Delivery Address:</strong> ' . get_post_meta($productID, '_billing_delivery_address', true) . '</p>';
+    }
+    echo '<p><strong>Outlet Name:</strong> ' . get_post_meta($productID, '_billing_outlet', true) . '</p>';
+    echo '<p><strong>Outlet Address:</strong> ' . get_post_meta($productID, '_billing_outlet_address', true) . '</p>';
+    echo '<p><strong>Date:</strong> ' . get_post_meta($productID, '_billing_date', true) . '</p>';
+    echo '<p><strong>Time:</strong> ' . get_post_meta($productID, '_billing_time', true) . '</p>';
 }
 add_action('woocommerce_admin_order_data_after_billing_address', 'custom_display_order_meta', 10, 1);
 
