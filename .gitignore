@@ -21,6 +21,8 @@ src/wp-content/*
 # Ignore plugins default
 src/wp-content/plugins/akismet
 
+src/wp-content/plugins/zippy-addons/
+
 src/wp-content/plugins/hello.php
 
 # Ignore themes default
