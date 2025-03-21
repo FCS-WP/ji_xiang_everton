@@ -80,7 +80,7 @@ add_action('init', 'handle_submit_takeaway');
 function script_rule_popup_session()
 {
 
-  if ($_SESSION['status_popup'] == false) {
+  if (isset($_SESSION['status_popup']) && $_SESSION['status_popup'] == false) {
   ?>
 
     <script>
