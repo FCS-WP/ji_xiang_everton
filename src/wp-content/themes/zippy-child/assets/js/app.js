@@ -26,6 +26,7 @@ import './miniCart';
 import './switchCutlery';
 import './calendar';
 import './zippy-form';
+import './comfirmMethodShipping';
 
 "use strict";
 $ = jQuery;
