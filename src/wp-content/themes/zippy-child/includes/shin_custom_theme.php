@@ -49,7 +49,7 @@ function custom_product_short_description_and_price()
 
 function lightbox_zippy_form()
 {
-    echo do_shortcode('[lightbox id="lightbox-zippy-form" width="600px" padding="15px" ][zippy_form][/lightbox]');
+    echo do_shortcode('[lightbox id="lightbox-zippy-form" width="600px" padding="20px 0px"][zippy_form][/lightbox]');
 }
 
 add_shortcode('lightbox_zippy_form', 'lightbox_zippy_form');
