@@ -148,12 +148,36 @@ else { ?>
                     <p><?php echo $_SESSION['outlet_name'];?></p>
                 </div>
             </div>
+            <?php
+            if($_SESSION['order_mode'] == 'delivery'){
+              ?>
+              <div class="items_infor_method_shipping">
+                <div class="text_items">
+                    <h4>Delivery Address:</h4>
+                    <p><?php echo $_SESSION["delivery_address"];?></p>
+                </div>
+              </div>
+              <?php
+            }
+            ?>
             <div class="items_infor_method_shipping">
                 <div class="text_items">
                     <h4><?php if($_SESSION['order_mode'] == 'takeaway'){ echo 'Takeaway';}else{echo 'Delivery';}?> Time:</h4>
                     <p><?php echo $_SESSION['date']; ?><br><?php echo 'From ' . $_SESSION['time']['from'] . ' To ' . $_SESSION['time']['to'];?></p>
                 </div>
             </div>
+            <?php 
+              if(!empty($_SESSION ["shipping_fee"])){
+                ?>
+                <div class="items_infor_method_shipping">
+                  <div class="text_items">
+                      <h4>Shipping Fee:</h4>
+                      <p>$<?php echo $_SESSION ["shipping_fee"];?></p>
+                  </div>
+              </div>
+                <?php
+              }
+            ?>
         </div>
           <?php
         }?>
