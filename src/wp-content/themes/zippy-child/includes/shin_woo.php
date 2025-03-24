@@ -321,7 +321,7 @@ function add_to_cart_from_session() {
 
 add_filter('woocommerce_quantity_input_args', function ($args, $product) {
     $min_qty = get_post_meta($product->get_id(), '_custom_minimum_order_qty', true);
-    
+
     if ($min_qty) {
         $cart = WC()->cart->get_cart();
         $cart_qty = 0;
@@ -332,26 +332,13 @@ add_filter('woocommerce_quantity_input_args', function ($args, $product) {
             }
         }
 
+        $required_qty = max(1, $min_qty - $cart_qty);
+
         if ($cart_qty < $min_qty) {
-            $args['min_value'] = max(1, $min_qty - $cart_qty);
+            $args['min_value'] = $required_qty;
+            $args['input_value'] = $required_qty; // Đặt giá trị mặc định của input
         }
     }
 
     return $args;
 }, 10, 2);
-
-
-add_action('woocommerce_after_cart_item_quantity_update', function ($cart_item_key, $quantity) {
-    $cart = WC()->cart->get_cart();
-    
-    foreach ($cart as $key => $cart_item) {
-        $product_id = $cart_item['product_id'];
-        $min_qty = get_post_meta($product_id, '_custom_minimum_order_qty', true);
-
-        if (!empty($min_qty) && $quantity < $min_qty) {
-            WC()->cart->remove_cart_item($cart_item_key);
-        }
-    }
-}, 10, 2);
-
-
