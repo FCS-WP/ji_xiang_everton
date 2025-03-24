@@ -336,7 +336,7 @@ add_filter('woocommerce_quantity_input_args', function ($args, $product) {
 
         if ($cart_qty < $min_qty) {
             $args['min_value'] = $required_qty;
-            $args['input_value'] = $required_qty; // Đặt giá trị mặc định của input
+            $args['input_value'] = $required_qty;
         }
     }
 
