@@ -137,9 +137,7 @@ else { ?>
                     <p><?php echo $_SESSION['order_mode'] ;?></p>
                 </div>
                 <div class="icon_items">
-                  <form method="post">
-                      <button id="to-edit-address" class="btn btn-transparent edit-btn" title="Change Order Mode" type="submit" name="remove_session">Remove</button>
-                  </form>
+                  <div><button id="removeMethodShipping" >Remove</button></div>
                 </div>
             </div>
             <div class="items_infor_method_shipping">
