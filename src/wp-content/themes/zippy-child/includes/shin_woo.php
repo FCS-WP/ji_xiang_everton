@@ -13,7 +13,11 @@ add_action( 'woocommerce_widget_shopping_cart_buttons', function(){
 function custom_widget_shopping_cart_proceed_to_checkout() {
     
     $subtotal = WC()->cart->get_subtotal();
-    $total_delivery = 100;
+    if($_SESSION['order_mode'] != 'delivery'){
+        $total_delivery = 0;  
+      }else{
+        $total_delivery = 100;  
+      }
     echo do_shortcode('[script_js_minicart]');
     if($subtotal < $total_delivery){
         return;
@@ -74,7 +78,11 @@ add_shortcode('script_js_minicart','script_js_minicart');
 
 function rule_minimun_checkout_on_cart_page(){
     $subtotal = WC()->cart->get_subtotal();
-    $total_delivery = 100;
+    if($_SESSION['order_mode'] != 'delivery'){
+        $total_delivery = 0;  
+      }else{
+        $total_delivery = 100;  
+      }
     if($subtotal < $total_delivery){
         remove_action( 'woocommerce_proceed_to_checkout', 'woocommerce_button_proceed_to_checkout', 20 );    
     }else{
@@ -86,7 +94,11 @@ add_action('woocommerce_after_calculate_totals','rule_minimun_checkout_on_cart_p
 
 function rule_minimun_checkout_all_site() {
     $subtotal = WC()->cart->get_subtotal();
-    $total_delivery = 100;
+    if($_SESSION['order_mode'] != 'delivery'){
+        $total_delivery = 0;  
+      }else{
+        $total_delivery = 100;  
+      }
     if (is_page('checkout') && ($subtotal < $total_delivery)) {
         wp_redirect(home_url());
         exit;
