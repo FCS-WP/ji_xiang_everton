@@ -96,45 +96,6 @@ function rule_minimun_checkout_all_site() {
 }
 add_action('template_redirect', 'rule_minimun_checkout_all_site');
 
-function add_custom_product_fields() {
-    add_meta_box(
-        'product_availability_dates',
-        'Product Availability',
-        'custom_product_fields_callback',
-        'product',
-        'normal',
-        'high'
-    );
-}
-
-function custom_product_fields_callback($post) {
-    $start_date = get_post_meta($post->ID, '_start_date_available', true);
-    $end_date = get_post_meta($post->ID, '_end_date_available', true);
-    ?>
-    <p>
-        <label for="start_date_available">Start Date Available:</label>
-        <input type="date" id="start_date_available" name="start_date_available" value="<?php echo esc_attr($start_date); ?>" />
-    </p>
-    <p>
-        <label for="end_date_available">End Date Available:</label>
-        <input type="date" id="end_date_available" name="end_date_available" value="<?php echo esc_attr($end_date); ?>" />
-    </p>
-    <?php
-}
-
-add_action('add_meta_boxes', 'add_custom_product_fields');
-
-function save_custom_product_fields($post_id) {
-    if (isset($_POST['start_date_available'])) {
-        update_post_meta($post_id, '_start_date_available', sanitize_text_field($_POST['start_date_available']));
-    }
-    if (isset($_POST['end_date_available'])) {
-        update_post_meta($post_id, '_end_date_available', sanitize_text_field($_POST['end_date_available']));
-    }
-}
-
-add_action('save_post_product', 'save_custom_product_fields');
-
 //Edit checkout page
 function custom_add_checkout_fields($fields) {
     
