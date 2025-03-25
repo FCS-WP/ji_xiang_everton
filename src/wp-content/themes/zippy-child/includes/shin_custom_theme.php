@@ -9,26 +9,6 @@ function custom_product_short_description_and_price()
     $date = new DateTime();
 
     $product_id = $product->get_id();
-    $start_date = get_post_meta($product_id, '_start_date_available', true);
-    $end_date = get_post_meta($product_id, '_end_date_available', true);
-
-    if (empty($start_date)) {
-        $start_date = $date->format("Y-m-d");
-    }
-
-    $formatted_date_begin = date("d M y", strtotime($start_date));
-
-    if (empty($end_date)) {
-        $formatted_date_end = ' to future';
-    } else {
-        $formatted_date_end = ' to ' . date("d M y", strtotime($end_date));
-    }
-
-
-
-    $available_date_text = 'Available for order<br>from ' . $formatted_date_begin . $formatted_date_end;
-
-    echo '<div class="product-text-available">' . $available_date_text . '</div>';
 
     // Display short description
     if ($product->get_short_description()) {
@@ -233,21 +213,3 @@ function save_update_address()
 }
 add_action('init', 'save_update_address');
 
-
-function remove_checkout_fields($fields)
-{
-    unset($fields['billing']['billing_company']);
-    unset($fields['billing']['billing_address_2']);
-    unset($fields['billing']['billing_city']);
-    unset($fields['billing']['billing_state']);
-    unset($fields['order']);
-
-    return $fields;
-}
-add_filter('woocommerce_checkout_fields', 'remove_checkout_fields');
-
-function remove_checkout_coupon_form()
-{
-    remove_action('woocommerce_checkout_order_review', 'woocommerce_order_review', 10);
-}
-add_action('wp', 'remove_checkout_coupon_form');
