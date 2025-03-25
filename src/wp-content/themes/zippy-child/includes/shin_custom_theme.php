@@ -3,30 +3,31 @@
 // Add short description and price after product title in loop
 add_action('woocommerce_after_shop_loop_item_title', 'custom_product_short_description_and_price', 15);
 
-function custom_product_short_description_and_price() {
+function custom_product_short_description_and_price()
+{
     global $product;
     $date = new DateTime();
-    
+
     $product_id = $product->get_id();
     $start_date = get_post_meta($product_id, '_start_date_available', true);
     $end_date = get_post_meta($product_id, '_end_date_available', true);
 
-    if(empty($start_date)){
-        $start_date = $date->format("Y-m-d");     
+    if (empty($start_date)) {
+        $start_date = $date->format("Y-m-d");
     }
 
     $formatted_date_begin = date("d M y", strtotime($start_date));
 
-    if(empty($end_date)){
+    if (empty($end_date)) {
         $formatted_date_end = ' to future';
-    }else{
-        $formatted_date_end = ' to '. date("d M y", strtotime($end_date));  
+    } else {
+        $formatted_date_end = ' to ' . date("d M y", strtotime($end_date));
     }
 
-    
 
-    $available_date_text = 'Available for order<br>from '. $formatted_date_begin . $formatted_date_end;
-    
+
+    $available_date_text = 'Available for order<br>from ' . $formatted_date_begin . $formatted_date_end;
+
     echo '<div class="product-text-available">' . $available_date_text . '</div>';
 
     // Display short description
@@ -36,29 +37,30 @@ function custom_product_short_description_and_price() {
 
     // Display product price
     echo '<div class="product-price">' . $product->get_price_html() . '</div>';
-    
+
     // Display add to cart
-    
-    if ($_SESSION['status_popup'] != true) {
+
+    if (!isset($_SESSION['status_popup']) && $_SESSION['status_popup'] != true) {
         echo '<div class="cta_add_to_cart"><a class="lightbox-zippy-btn" data-product_id="' . $product_id . '" href="#lightbox-zippy-form" >Add</a></div>';
     } else {
         echo do_shortcode('[quickview_button]');
     }
 }
 
-function lightbox_zippy_form() 
+function lightbox_zippy_form()
 {
-    echo do_shortcode('[lightbox id="lightbox-zippy-form" width="600px" padding="15px" ][zippy_form][/lightbox]');
+    echo do_shortcode('[lightbox id="lightbox-zippy-form" width="600px" padding="20px 0px"][zippy_form][/lightbox]');
 }
 
-add_shortcode( 'lightbox_zippy_form', 'lightbox_zippy_form');
+add_shortcode('lightbox_zippy_form', 'lightbox_zippy_form');
 
 
-function handle_user_registration() {
+function handle_user_registration()
+{
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
-        
+
         if (isset($_POST['firstname'], $_POST['lastname'], $_POST['email'], $_POST['password'], $_POST['confirm'], $_POST['input_latitude_1'], $_POST['input_longitude_1'])) {
-            
+
             $firstname = sanitize_text_field($_POST['firstname']);
             $lastname = sanitize_text_field($_POST['lastname']);
             $email = sanitize_email($_POST['email']);
@@ -73,7 +75,7 @@ function handle_user_registration() {
             $input_longitude_1 = sanitize_text_field($_POST['input_longitude_1']);
             $newsletter = isset($_POST['newsletter']) ? 1 : 0;
             $agree = isset($_POST['agree']) ? 1 : 0;
-            
+
             if (empty($firstname) || empty($lastname) || empty($email) || empty($password) || empty($confirm_password)) {
                 echo "<script>alert('Please fill in all required information.');</script>";
                 return;
@@ -89,16 +91,16 @@ function handle_user_registration() {
                 return;
             }
 
-            
+
             if (email_exists($email)) {
                 echo "<script>alert('This email has been registered.');</script>";
                 return;
             }
 
-            
+
             $user_id = wp_create_user($email, $password, $email);
 
-            
+
             $user_infors = [
                 'billing_first_name' => $firstname,
                 'billing_last_name' => $lastname,
@@ -113,10 +115,10 @@ function handle_user_registration() {
                 'billing_postcode' => $postcode,
             ];
 
-            foreach($user_infors as $user_infor => $value ){
+            foreach ($user_infors as $user_infor => $value) {
                 update_user_meta($user_id, $user_infor, $value);
             }
-            
+
             wp_set_current_user($user_id);
             wp_set_auth_cookie($user_id);
 
@@ -128,7 +130,8 @@ function handle_user_registration() {
 add_action('init', 'handle_user_registration');
 
 
-function add_custom_billing_fields_to_woocommerce($fields) {
+function add_custom_billing_fields_to_woocommerce($fields)
+{
     $fields['billing']['fields']['birthday'] = array(
         'label'       => 'Date of birth',
         'description' => 'Customer date of birth.',
@@ -166,7 +169,8 @@ function add_custom_billing_fields_to_woocommerce($fields) {
 }
 add_filter('woocommerce_customer_meta_fields', 'add_custom_billing_fields_to_woocommerce');
 
-function save_custom_fields_on_edit_account($user_id) {
+function save_custom_fields_on_edit_account($user_id)
+{
     if (isset($_POST['birthday'])) {
         update_user_meta($user_id, 'birthday', sanitize_text_field($_POST['birthday']));
     }
@@ -207,7 +211,8 @@ function flatsome_custom_quickview_button($atts) {
 add_shortcode('quickview_button', 'flatsome_custom_quickview_button');
 
 
-function save_update_address(){
+function save_update_address()
+{
     if (isset($_POST['update_billing_address'])) {
         if (!is_user_logged_in()) {
             return;
@@ -225,7 +230,6 @@ function save_update_address(){
         wp_redirect('/my-account/edit-address/');
         exit;
     }
-    
 }
 add_action('init', 'save_update_address');
 

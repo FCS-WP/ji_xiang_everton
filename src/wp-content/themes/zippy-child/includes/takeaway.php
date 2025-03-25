@@ -82,7 +82,7 @@ add_action('wp_ajax_nopriv_remove_cart_session', 'remove_cart_session');
 function script_rule_popup_session()
 {
 
-  if ($_SESSION['status_popup'] == false) {
+  if (!isset($_SESSION['status_popup']) && $_SESSION['status_popup'] == false) {
   ?>
 
     <script>
