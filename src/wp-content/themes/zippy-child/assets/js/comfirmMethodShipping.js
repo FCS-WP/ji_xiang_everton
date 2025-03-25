@@ -11,7 +11,10 @@ $(document).ready(function() {
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes!',
-            cancelButtonText: 'Cancel'
+            cancelButtonText: 'Cancel',
+            customClass: {
+                popup: 'confirmRemovePopup', 
+            }
         }).then((result) => {
             if (result.isConfirmed) {
                 
@@ -22,7 +25,15 @@ $(document).ready(function() {
                         action: 'remove_cart_session'
                     },
                     success: function(response) {
-                        Swal.fire('Deleted!', 'Your cart has been cleared.', 'success')
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: 'Your cart has been cleared.',
+                            icon: 'success',
+                            customClass: {
+                                popup: 'popupAlertDeleteSuccess', 
+                            }
+                        })
+                        
                         .then(() => {
                             location.reload(); 
                         });
@@ -35,12 +46,4 @@ $(document).ready(function() {
         });
     });
 
-    function showAlertRemoveProduct(minimunQuanity) {
-        Swal.fire({
-            title: 'Warning',
-            text: 'This product requires a minimum of ' + minimunQuanity,
-            icon: 'warning',
-            confirmButtonText: 'OK'
-        });
-    }
 });
