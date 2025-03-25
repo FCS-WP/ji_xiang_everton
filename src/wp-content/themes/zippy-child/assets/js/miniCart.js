@@ -8,7 +8,7 @@ $(document).ready(function($) {
     let dataFreeship = $('#freeDelivery').attr('dataFreeship');
     let elementMinimunOrder = $('#minimunOrder');
     let elementFreeship = $('#freeDelivery');
-    
+
     let widthPercentageDelivery = (subTotalPriceValue / dataDelivery) * 100;
     widthPercentageDelivery = Math.min(widthPercentageDelivery, 100);
 

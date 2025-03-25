@@ -189,24 +189,6 @@ function save_custom_fields_on_edit_account($user_id) {
 }
 add_action('woocommerce_save_account_details', 'save_custom_fields_on_edit_account');
 
-
-function remove_checkout_fields($fields) {
-    unset($fields['billing']['billing_company']);  
-    unset($fields['billing']['billing_address_2']); 
-    unset($fields['billing']['billing_city']);      
-    unset($fields['billing']['billing_state']);   
-    unset( $fields['order'] ); 
-
-    return $fields;
-}
-add_filter('woocommerce_checkout_fields', 'remove_checkout_fields');
-
-function remove_checkout_coupon_form() {
-    remove_action('woocommerce_checkout_order_review', 'woocommerce_order_review', 10);
-
-}
-add_action('wp', 'remove_checkout_coupon_form');
-
 function flatsome_custom_quickview_button($atts) {
     global $product;
 

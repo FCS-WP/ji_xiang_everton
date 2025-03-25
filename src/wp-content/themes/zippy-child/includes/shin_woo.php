@@ -13,7 +13,7 @@ add_action( 'woocommerce_widget_shopping_cart_buttons', function(){
 function custom_widget_shopping_cart_proceed_to_checkout() {
     
     $subtotal = WC()->cart->get_subtotal();
-    $total_delivery = 0;
+    $total_delivery = 100;
     echo do_shortcode('[script_js_minicart]');
     if($subtotal < $total_delivery){
         return;
@@ -74,7 +74,7 @@ add_shortcode('script_js_minicart','script_js_minicart');
 
 function rule_minimun_checkout_on_cart_page(){
     $subtotal = WC()->cart->get_subtotal();
-    $total_delivery = 0;
+    $total_delivery = 100;
     if($subtotal < $total_delivery){
         remove_action( 'woocommerce_proceed_to_checkout', 'woocommerce_button_proceed_to_checkout', 20 );    
     }else{
@@ -86,7 +86,7 @@ add_action('woocommerce_after_calculate_totals','rule_minimun_checkout_on_cart_p
 
 function rule_minimun_checkout_all_site() {
     $subtotal = WC()->cart->get_subtotal();
-    $total_delivery = 0;
+    $total_delivery = 100;
     if (is_page('checkout') && ($subtotal < $total_delivery)) {
         wp_redirect(home_url());
         exit;
@@ -137,6 +137,7 @@ add_action('save_post_product', 'save_custom_product_fields');
 
 //Edit checkout page
 function custom_add_checkout_fields($fields) {
+    
     // 1. Cutlery (Text Input)
     $fields['billing']['billing_cutlery'] = array(
         'type'      => 'hidden',
@@ -336,9 +337,30 @@ add_filter('woocommerce_quantity_input_args', function ($args, $product) {
 
         if ($cart_qty < $min_qty) {
             $args['min_value'] = $required_qty;
-            $args['input_value'] = $required_qty;
+            $args['input_value'] = $required_qty; 
         }
     }
 
     return $args;
 }, 10, 2);
+
+function remove_checkout_fields($fields) {
+    unset($fields['billing']['billing_company']);  
+    unset($fields['billing']['billing_address_2']); 
+    unset($fields['billing']['billing_city']);      
+    unset($fields['billing']['billing_state']);  
+    unset($fields['billing']['billing_postcode']); 
+    unset($fields['billing']['billing_address_1']); 
+    unset($fields['billing']['billing_address_2']); 
+    unset($fields['billing']['billing_country']); 
+    unset( $fields['order'] ); 
+
+    return $fields;
+}
+add_filter('woocommerce_checkout_fields', 'remove_checkout_fields');
+
+function remove_checkout_coupon_form() {
+    remove_action('woocommerce_checkout_order_review', 'woocommerce_order_review', 10);
+
+}
+add_action('wp', 'remove_checkout_coupon_form');
