@@ -13,9 +13,9 @@ add_action( 'woocommerce_widget_shopping_cart_buttons', function(){
 function custom_widget_shopping_cart_proceed_to_checkout() {
     
     $subtotal = WC()->cart->get_subtotal();
-    $total_delivery = 100;
+    $rule = get_minimum_rule_by_order_mode();
     echo do_shortcode('[script_js_minicart]');
-    if($subtotal < $total_delivery){
+    if($subtotal < $rule['minimun_total_to_order']){
         return;
     }else{
         $original_link = wc_get_checkout_url();
@@ -74,8 +74,8 @@ add_shortcode('script_js_minicart','script_js_minicart');
 
 function rule_minimun_checkout_on_cart_page(){
     $subtotal = WC()->cart->get_subtotal();
-    $total_delivery = 100;
-    if($subtotal < $total_delivery){
+    $rule = get_minimum_rule_by_order_mode();
+    if($subtotal < $rule['minimun_total_to_order']){
         remove_action( 'woocommerce_proceed_to_checkout', 'woocommerce_button_proceed_to_checkout', 20 );    
     }else{
         return;
@@ -86,8 +86,8 @@ add_action('woocommerce_after_calculate_totals','rule_minimun_checkout_on_cart_p
 
 function rule_minimun_checkout_all_site() {
     $subtotal = WC()->cart->get_subtotal();
-    $total_delivery = 100;
-    if (is_page('checkout') && ($subtotal < $total_delivery)) {
+    $rule = get_minimum_rule_by_order_mode();
+    if (is_page('checkout') && ($subtotal < $rule['minimun_total_to_order'])) {
         wp_redirect(home_url());
         exit;
     }else{
@@ -325,3 +325,19 @@ function remove_checkout_coupon_form() {
 
 }
 add_action('wp', 'remove_checkout_coupon_form');
+
+
+
+function get_minimum_rule_by_order_mode(){
+    
+    $respon = [
+        'minimun_total_to_order' => 0,
+        'minimun_total_to_freeship' => 0,
+    ];
+    
+    if(!empty($_SESSION) && $_SESSION['order_mode'] == 'delivery'){
+        $respon['minimun_total_to_order'] = 100;
+        $respon['minimun_total_to_freeship'] = 150;
+    }
+    return $respon;
+}

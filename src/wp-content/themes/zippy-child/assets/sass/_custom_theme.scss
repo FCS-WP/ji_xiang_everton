@@ -353,3 +353,48 @@ ul {
 #removeMethodShipping{
   font-size: 13px;
 }
+
+.sticky_menu_product_category{
+  display: flex;
+  justify-content: space-between !important;
+  align-items: center;
+  width: 100%;
+}
+
+#currentCategory{
+  color: #fff;
+  font-weight: bolder;
+}
+
+.nav.header-bottom-nav.nav-center.mobile-nav.nav-uppercase *{
+  width: 100%;
+}
+
+#accordingCategoryMenu li{
+  text-align: center;
+  
+}
+
+#accordingCategoryMenu li a{
+  color: #fff;
+}
+
+#accordingCategoryMenu button{
+  color: #fff;
+  text-align: right;
+}
+
+#accordingCategoryMenu{
+  position: relative;
+  display: flex;
+  justify-content: end;
+}
+
+#accordingCategoryMenu ul{
+  position: absolute;
+  list-style: none;
+  background-color: #000;
+  width: 120px;
+  top: 35px;
+  right: -10px;
+}
