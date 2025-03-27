@@ -322,14 +322,7 @@ ul {
 }
 
 .rule_checkout_mini_cart {
-  padding: 15px;
-  background: #e5e5e5;
-  border-radius: 7px;
-  margin-bottom: 20px;
-
-  .minimum_order {
-    margin-bottom: 15px;
-  }
+  
 
   p {
     margin-bottom: 0px;
@@ -375,8 +368,8 @@ ul {
   
 }
 
-#accordingCategoryMenu li a{
-  color: #fff;
+#categoryList li a{
+  color: #000;
 }
 
 #accordingCategoryMenu button{
@@ -390,11 +383,94 @@ ul {
   justify-content: end;
 }
 
-#accordingCategoryMenu ul{
+#categoryList{
   position: absolute;
   list-style: none;
-  background-color: #000;
-  width: 120px;
+  background-color: #fff;
+  width: 110%;
   top: 35px;
-  right: -10px;
+  left: -15px;
+  padding: 13px;
+}
+
+.miniCartOnPage{
+  background: #f6f6f6;
+  border-radius: 10px;
+  padding: 0px !important;
+
+  .widget_shopping_cart{
+    overflow: auto;
+    scrollbar-color: #ec7265 #f6f6f6;
+    scrollbar-width: thin;
+    height: 90vh;
+  }
+
+  .row_mini_cart_custom{
+    margin: 20px 20px 20px 20px;
+    p{
+      margin-bottom: 0px;
+    }
+  }
+
+  .box_infor_method_shipping{
+    margin: 0px 20px 20px 20px;
+  }
+
+  .inforMinimunRule{
+    padding: 20px;
+    background: #e5e5e5;
+    margin-bottom: 20px;
+
+    .rule_checkout_mini_cart:first-child{
+      margin-bottom: 20px;
+      
+    }
+
+    p{
+      margin-bottom: 5px;
+    }
+  }
+
+  .widget_shopping_cart_content{
+    margin: 0px 20px 20px 20px;
+
+    .woocommerce-mini-cart-item{
+      margin-left: 0px;
+    }
+  }
+}
+
+.product-short-description{
+  min-height: 42px;
+}
+
+.disabled-button-custom{
+  cursor: not-allowed !important;
+  opacity: 0.7;
+  text-transform: capitalize !important;
+  width: 100%;
+  border-radius: 10px !important;
+  margin-bottom: 0px !important;
+}
+
+.disabled-button-custom:hover{
+  opacity: 0.7 !important; 
+}
+
+.woocommerce-mini-cart__buttons {
+  a{
+    text-transform: capitalize;
+  }
+}
+
+.button-checkout-minicart{
+  line-height: 25px !important;
+  padding: 10px !important;
+}
+
+
+@media(max-width: 768px){
+  .miniCartOnPage{
+    display: none;
+  }
 }
