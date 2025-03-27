@@ -64,7 +64,7 @@ function script_js_minicart(){
             elementFreeshipNeedMore.text("Yay! You've hit the min order for free delivery");
             elementFreeship.css('background-color', '#2ba862');
         }else{
-            elementFreeshipNeedMore.text("$" +(dataFreeship - subTotalPriceValue).toFixed(2) + " more for freeship");
+            elementFreeshipNeedMore.text("$" +(dataFreeship - subTotalPriceValue).toFixed(2) + " more for free shipping");
             elementFreeship.css('background-color', '#f1b32c');
         }
 
