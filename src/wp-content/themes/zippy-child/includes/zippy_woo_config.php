@@ -29,4 +29,5 @@ function remove_checkout_coupon_form()
 {
   remove_action('woocommerce_checkout_order_review', 'woocommerce_order_review', 10);
 }
+
 add_action('wp', 'remove_checkout_coupon_form');

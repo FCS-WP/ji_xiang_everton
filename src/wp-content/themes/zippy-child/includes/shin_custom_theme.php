@@ -213,3 +213,9 @@ function save_update_address()
     }
 }
 add_action('init', 'save_update_address');
+
+
+function format_date_DdMY($date_string) {
+    $timestamp = strtotime($date_string);
+    return date('D, d M Y', $timestamp);
+}

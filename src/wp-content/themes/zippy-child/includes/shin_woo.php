@@ -6,13 +6,13 @@ function custom_widget_shopping_cart_proceed_to_checkout()
 
     $subtotal = WC()->cart->get_subtotal();
     $rule = get_minimum_rule_by_order_mode();
+    $original_link = wc_get_checkout_url();
+    $custom_link = home_url( '/checkout' ); 
     echo do_shortcode('[script_js_minicart]');
-    if ($subtotal < $rule['minimun_total_to_order']) {
-        return;
-    } else {
-        $original_link = wc_get_checkout_url();
-        $custom_link = home_url('/checkout'); // HERE replacing checkout link
-        echo '<a href="' . esc_url($custom_link) . '" class="button checkout wc-forward">' . esc_html__('Checkout', 'woocommerce') . '</a>';
+    if($subtotal < $rule['minimun_total_to_order']){
+        echo '<p href="" class="button checkout wc-forward disabled-button-custom">Hit Minimum Order to Checkout</p>';
+    }else{
+        echo '<a href="' . esc_url( $custom_link ) . '" class="button checkout wc-forward button-checkout-minicart">Proceed to Checkout Page<br>Order for ' . format_date_DdMY($_SESSION['date']) . ' ' . $_SESSION['time']['from']. '</a>';
     }
 }
 
@@ -42,14 +42,21 @@ function script_js_minicart()
             let widthPercentageFreeship = (subTotalPriceValue / dataFreeship) * 100;
             widthPercentageFreeship = Math.min(widthPercentageFreeship, 100);
 
-            elementMinimunOrder.css('width', widthPercentageDelivery + '%');
-            elementFreeship.css('width', widthPercentageFreeship + '%');
+        if((dataDelivery - subTotalPriceValue) <= 0){
+            elementDeliveryNeedMore.text("Yay! You've hit the min order of $" + dataDelivery);
+            elementMinimunOrder.css('background-color', '#2ba862');
+        }else{
+            elementDeliveryNeedMore.text("$" + (dataDelivery - subTotalPriceValue).toFixed(2) + " more for minimum order");
+            elementMinimunOrder.css('background-color', '#f1b32c');
+        }
 
-            if ((dataDelivery - subTotalPriceValue) <= 0) {
-                elementDeliveryNeedMore.text('0');
-            } else {
-                elementDeliveryNeedMore.text((dataDelivery - subTotalPriceValue).toFixed(2));
-            }
+        if((dataFreeship - subTotalPriceValue) <= 0){
+            elementFreeshipNeedMore.text("Yay! You've hit the min order for free delivery");
+            elementFreeship.css('background-color', '#2ba862');
+        }else{
+            elementFreeshipNeedMore.text("$" +(dataFreeship - subTotalPriceValue).toFixed(2) + " more for free shipping");
+            elementFreeship.css('background-color', '#f1b32c');
+        }
 
             if ((dataFreeship - subTotalPriceValue) <= 0) {
                 elementFreeshipNeedMore.text('0');
@@ -69,9 +76,10 @@ function rule_minimun_checkout_on_cart_page()
 {
     $subtotal = WC()->cart->get_subtotal();
     $rule = get_minimum_rule_by_order_mode();
-    if ($subtotal < $rule['minimun_total_to_order']) {
-        remove_action('woocommerce_proceed_to_checkout', 'woocommerce_button_proceed_to_checkout', 20);
-    } else {
+    if($subtotal < $rule['minimun_total_to_order']){
+        remove_action( 'woocommerce_proceed_to_checkout', 'woocommerce_button_proceed_to_checkout', 20 );    
+        
+    }else{
         return;
     }
 }
