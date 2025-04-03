@@ -7,12 +7,12 @@ function custom_widget_shopping_cart_proceed_to_checkout()
     $subtotal = WC()->cart->get_subtotal();
     $rule = get_minimum_rule_by_order_mode();
     $original_link = wc_get_checkout_url();
-    $custom_link = home_url( '/checkout' ); 
+    $custom_link = home_url('/checkout');
     echo do_shortcode('[script_js_minicart]');
-    if($subtotal < $rule['minimun_total_to_order']){
+    if ($subtotal < $rule['minimun_total_to_order']) {
         echo '<p href="" class="button checkout wc-forward disabled-button-custom">Hit Minimum Order to Checkout</p>';
-    }else{
-        echo '<a href="' . esc_url( $custom_link ) . '" class="button checkout wc-forward button-checkout-minicart">Proceed to Checkout Page<br>Order for ' . format_date_DdMY($_SESSION['date']) . ' ' . $_SESSION['time']['from']. '</a>';
+    } else {
+        echo '<a href="' . esc_url($custom_link) . '" class="button checkout wc-forward button-checkout-minicart">Proceed to Checkout Page<br>Order for ' . format_date_DdMY($_SESSION['date']) . ' ' . $_SESSION['time']['from'] . '</a>';
     }
 }
 
@@ -25,47 +25,51 @@ function script_js_minicart()
         "use strict";
         $ = jQuery;
 
-        $(document).ready(function($) {
+        jQuery(document).ready(function($) {
             let priceText = $('.woocommerce-mini-cart__total .woocommerce-Price-amount bdi').text();
-            let subTotalPriceValue = parseFloat(priceText.replace(/[^0-9.]/g, ''));
-            let dataDelivery = $('#minimunOrder').attr('dataDelivery');
-            let dataFreeship = $('#freeDelivery').attr('dataFreeship');
+            let subTotalPriceValue = parseFloat(priceText.replace(/[^0-9.]/g, '')) || 0;
+
+            let dataDelivery = parseFloat($('#minimunOrder').attr('dataDelivery')) || 0;
+            let dataFreeship = parseFloat($('#freeDelivery').attr('dataFreeship')) || 0;
+
             let elementMinimunOrder = $('#minimunOrder');
             let elementFreeship = $('#freeDelivery');
             let elementDeliveryNeedMore = $('#deliveryNeedMore');
             let elementFreeshipNeedMore = $('#freeshipNeedMore');
-            let elementTotal_quanity_cart = $('#total_quanity_cart');
+            let elementTotalQuantityCart = $('#total_quanity_cart');
 
-            let widthPercentageDelivery = (subTotalPriceValue / dataDelivery) * 100;
-            widthPercentageDelivery = Math.min(widthPercentageDelivery, 100);
+            // Calculate Progress Width
+            let widthPercentageDelivery = Math.min((subTotalPriceValue / dataDelivery) * 100, 100);
+            let widthPercentageFreeship = Math.min((subTotalPriceValue / dataFreeship) * 100, 100);
 
-            let widthPercentageFreeship = (subTotalPriceValue / dataFreeship) * 100;
-            widthPercentageFreeship = Math.min(widthPercentageFreeship, 100);
-
-        if((dataDelivery - subTotalPriceValue) <= 0){
-            elementDeliveryNeedMore.text("Yay! You've hit the min order of $" + dataDelivery);
-            elementMinimunOrder.css('background-color', '#2ba862');
-        }else{
-            elementDeliveryNeedMore.text("$" + (dataDelivery - subTotalPriceValue).toFixed(2) + " more for minimum order");
-            elementMinimunOrder.css('background-color', '#f1b32c');
-        }
-
-        if((dataFreeship - subTotalPriceValue) <= 0){
-            elementFreeshipNeedMore.text("Yay! You've hit the min order for free delivery");
-            elementFreeship.css('background-color', '#2ba862');
-        }else{
-            elementFreeshipNeedMore.text("$" +(dataFreeship - subTotalPriceValue).toFixed(2) + " more for free shipping");
-            elementFreeship.css('background-color', '#f1b32c');
-        }
-
-            if ((dataFreeship - subTotalPriceValue) <= 0) {
-                elementFreeshipNeedMore.text('0');
+            // Update Minimum Order Status
+            if (subTotalPriceValue >= dataDelivery) {
+                elementDeliveryNeedMore.text(`Yay! You've hit the min order of $${dataDelivery}`);
+                elementMinimunOrder.css('background-color', '#2ba862');
             } else {
-                elementFreeshipNeedMore.text((dataFreeship - subTotalPriceValue).toFixed(2));
+                elementDeliveryNeedMore.text(`$${(dataDelivery - subTotalPriceValue).toFixed(2)} more for minimum order`);
+                elementMinimunOrder.css('background-color', '#f1b32c');
             }
 
-            elementTotal_quanity_cart.text(<?php echo $total_quantity; ?>);
+            // Update Free Shipping Status
+            if (subTotalPriceValue >= dataFreeship) {
+                elementFreeshipNeedMore.text(`Yay! You've hit the min order for free delivery`);
+                elementFreeship.css('background-color', '#2ba862');
+            } else {
+                elementFreeshipNeedMore.text(`$${(dataFreeship - subTotalPriceValue).toFixed(2)} more for free shipping`);
+                elementFreeship.css('background-color', '#f1b32c');
+            }
 
+            // Ensure Free Shipping "0" Display Logic
+            // elementFreeshipNeedMore.text(subTotalPriceValue >= dataFreeship ? '0' : (dataFreeship - subTotalPriceValue).toFixed(2));
+
+
+            // Set Progress Bar Widths
+            elementMinimunOrder.css('width', widthPercentageDelivery + '%');
+            elementFreeship.css('width', widthPercentageFreeship + '%');
+
+            // Update Total Quantity Cart
+            elementTotalQuantityCart.text(<?php echo intval($total_quantity); ?>);
         });
     </script>
 <?php
@@ -76,10 +80,9 @@ function rule_minimun_checkout_on_cart_page()
 {
     $subtotal = WC()->cart->get_subtotal();
     $rule = get_minimum_rule_by_order_mode();
-    if($subtotal < $rule['minimun_total_to_order']){
-        remove_action( 'woocommerce_proceed_to_checkout', 'woocommerce_button_proceed_to_checkout', 20 );    
-        
-    }else{
+    if ($subtotal < $rule['minimun_total_to_order']) {
+        remove_action('woocommerce_proceed_to_checkout', 'woocommerce_button_proceed_to_checkout', 20);
+    } else {
         return;
     }
 }
@@ -286,6 +289,3 @@ add_filter('woocommerce_quantity_input_args', function ($args, $product) {
 
     return $args;
 }, 10, 2);
-
-
-
