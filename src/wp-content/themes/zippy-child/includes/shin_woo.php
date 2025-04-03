@@ -1,104 +1,99 @@
 <?php
 
-add_action( 'woocommerce_widget_shopping_cart_buttons', function(){
-    // Removing Buttons
-    remove_action( 'woocommerce_widget_shopping_cart_buttons', 'woocommerce_widget_shopping_cart_proceed_to_checkout', 20 );
-
-    // Adding customized Buttons
-    add_action( 'woocommerce_widget_shopping_cart_buttons', 'custom_widget_shopping_cart_proceed_to_checkout', 20 );
-}, 1 );
-
-
 // Custom Checkout button
-function custom_widget_shopping_cart_proceed_to_checkout() {
-    
+function custom_widget_shopping_cart_proceed_to_checkout()
+{
+
     $subtotal = WC()->cart->get_subtotal();
     $rule = get_minimum_rule_by_order_mode();
     echo do_shortcode('[script_js_minicart]');
-    if($subtotal < $rule['minimun_total_to_order']){
+    if ($subtotal < $rule['minimun_total_to_order']) {
         return;
-    }else{
+    } else {
         $original_link = wc_get_checkout_url();
-        $custom_link = home_url( '/checkout' ); // HERE replacing checkout link
-        echo '<a href="' . esc_url( $custom_link ) . '" class="button checkout wc-forward">' . esc_html__( 'Checkout', 'woocommerce' ) . '</a>';
+        $custom_link = home_url('/checkout'); // HERE replacing checkout link
+        echo '<a href="' . esc_url($custom_link) . '" class="button checkout wc-forward">' . esc_html__('Checkout', 'woocommerce') . '</a>';
     }
 }
 
 
-function script_js_minicart(){
+function script_js_minicart()
+{
     $total_quantity = WC()->cart->get_cart_contents_count();
-    ?>
+?>
     <script>
-    "use strict";
-    $ = jQuery;
+        "use strict";
+        $ = jQuery;
 
-    $(document).ready(function($) {
-        let priceText = $('.woocommerce-mini-cart__total .woocommerce-Price-amount bdi').text();
-        let subTotalPriceValue = parseFloat(priceText.replace(/[^0-9.]/g, ''));
-        let dataDelivery = $('#minimunOrder').attr('dataDelivery');
-        let dataFreeship = $('#freeDelivery').attr('dataFreeship');
-        let elementMinimunOrder = $('#minimunOrder');
-        let elementFreeship = $('#freeDelivery');
-        let elementDeliveryNeedMore = $('#deliveryNeedMore');
-        let elementFreeshipNeedMore = $('#freeshipNeedMore');
-        let elementTotal_quanity_cart = $('#total_quanity_cart');
-        
-        let widthPercentageDelivery = (subTotalPriceValue / dataDelivery) * 100;
-        widthPercentageDelivery = Math.min(widthPercentageDelivery, 100);
+        $(document).ready(function($) {
+            let priceText = $('.woocommerce-mini-cart__total .woocommerce-Price-amount bdi').text();
+            let subTotalPriceValue = parseFloat(priceText.replace(/[^0-9.]/g, ''));
+            let dataDelivery = $('#minimunOrder').attr('dataDelivery');
+            let dataFreeship = $('#freeDelivery').attr('dataFreeship');
+            let elementMinimunOrder = $('#minimunOrder');
+            let elementFreeship = $('#freeDelivery');
+            let elementDeliveryNeedMore = $('#deliveryNeedMore');
+            let elementFreeshipNeedMore = $('#freeshipNeedMore');
+            let elementTotal_quanity_cart = $('#total_quanity_cart');
 
-        let widthPercentageFreeship = (subTotalPriceValue / dataFreeship) * 100;
-        widthPercentageFreeship = Math.min(widthPercentageFreeship, 100);
+            let widthPercentageDelivery = (subTotalPriceValue / dataDelivery) * 100;
+            widthPercentageDelivery = Math.min(widthPercentageDelivery, 100);
 
-        elementMinimunOrder.css('width', widthPercentageDelivery + '%');
-        elementFreeship.css('width', widthPercentageFreeship + '%');
+            let widthPercentageFreeship = (subTotalPriceValue / dataFreeship) * 100;
+            widthPercentageFreeship = Math.min(widthPercentageFreeship, 100);
 
-        if((dataDelivery - subTotalPriceValue) <= 0){
-            elementDeliveryNeedMore.text('0');
-        }else{
-            elementDeliveryNeedMore.text((dataDelivery - subTotalPriceValue).toFixed(2));
-        }
+            elementMinimunOrder.css('width', widthPercentageDelivery + '%');
+            elementFreeship.css('width', widthPercentageFreeship + '%');
 
-        if((dataFreeship - subTotalPriceValue) <= 0){
-            elementFreeshipNeedMore.text('0');
-        }else{
-            elementFreeshipNeedMore.text((dataFreeship - subTotalPriceValue).toFixed(2));
-        }
+            if ((dataDelivery - subTotalPriceValue) <= 0) {
+                elementDeliveryNeedMore.text('0');
+            } else {
+                elementDeliveryNeedMore.text((dataDelivery - subTotalPriceValue).toFixed(2));
+            }
 
-        elementTotal_quanity_cart.text(<?php echo $total_quantity; ?>);
-        
-    }); 
+            if ((dataFreeship - subTotalPriceValue) <= 0) {
+                elementFreeshipNeedMore.text('0');
+            } else {
+                elementFreeshipNeedMore.text((dataFreeship - subTotalPriceValue).toFixed(2));
+            }
+
+            elementTotal_quanity_cart.text(<?php echo $total_quantity; ?>);
+
+        });
     </script>
-    <?php
+<?php
 }
-add_shortcode('script_js_minicart','script_js_minicart');
+add_shortcode('script_js_minicart', 'script_js_minicart');
 
-function rule_minimun_checkout_on_cart_page(){
+function rule_minimun_checkout_on_cart_page()
+{
     $subtotal = WC()->cart->get_subtotal();
     $rule = get_minimum_rule_by_order_mode();
-    if($subtotal < $rule['minimun_total_to_order']){
-        remove_action( 'woocommerce_proceed_to_checkout', 'woocommerce_button_proceed_to_checkout', 20 );    
-    }else{
+    if ($subtotal < $rule['minimun_total_to_order']) {
+        remove_action('woocommerce_proceed_to_checkout', 'woocommerce_button_proceed_to_checkout', 20);
+    } else {
         return;
     }
-    
 }
-add_action('woocommerce_after_calculate_totals','rule_minimun_checkout_on_cart_page');
+add_action('woocommerce_after_calculate_totals', 'rule_minimun_checkout_on_cart_page');
 
-function rule_minimun_checkout_all_site() {
+function rule_minimun_checkout_all_site()
+{
     $subtotal = WC()->cart->get_subtotal();
     $rule = get_minimum_rule_by_order_mode();
     if (is_page('checkout') && ($subtotal < $rule['minimun_total_to_order'])) {
         wp_redirect(home_url());
         exit;
-    }else{
+    } else {
         return;
     }
 }
 add_action('template_redirect', 'rule_minimun_checkout_all_site');
 
 //Edit checkout page
-function custom_add_checkout_fields($fields) {
-    
+function custom_add_checkout_fields($fields)
+{
+
     // 1. Cutlery (Text Input)
     $fields['billing']['billing_cutlery'] = array(
         'type'      => 'hidden',
@@ -169,7 +164,8 @@ function custom_add_checkout_fields($fields) {
 add_filter('woocommerce_checkout_fields', 'custom_add_checkout_fields');
 
 //Save custom field billing
-function custom_save_checkout_fields($order_id) {
+function custom_save_checkout_fields($order_id)
+{
     $fields = [
         'billing_cutlery',
         'billing_outlet',
@@ -181,9 +177,9 @@ function custom_save_checkout_fields($order_id) {
         'billing_delivery_address',
     ];
 
-    foreach( $fields as $field){
+    foreach ($fields as $field) {
         if (!empty($_POST[$field])) {
-            update_post_meta($order_id, '_' . $field , sanitize_text_field($_POST[$field]));
+            update_post_meta($order_id, '_' . $field, sanitize_text_field($_POST[$field]));
         }
     }
 }
@@ -191,9 +187,10 @@ add_action('woocommerce_checkout_update_order_meta', 'custom_save_checkout_field
 
 add_filter('woocommerce_package_rates', 'custom_fixed_shipping_cost', 10, 2);
 
-function custom_fixed_shipping_cost($rates, $package) {
+function custom_fixed_shipping_cost($rates, $package)
+{
     if (!isset($_SESSION["order_mode"])) {
-        return $rates; 
+        return $rates;
     }
 
     $order_mode = $_SESSION["order_mode"];
@@ -213,13 +210,14 @@ function custom_fixed_shipping_cost($rates, $package) {
 }
 
 //Display Admin
-function custom_display_order_meta($order) {
+function custom_display_order_meta($order)
+{
     $productID = $order->get_id();
     $methodShipping = get_post_meta($productID, '_billing_method_shipping', true);
     echo '<h3>' . __('Shipping Details', 'woocommerce') . '</h3>';
     echo '<p><strong>Method Shipping:</strong> ' . get_post_meta($productID, '_billing_method_shipping', true) . '</p>';
     echo '<p><strong>Cutlery:</strong> ' . get_post_meta($productID, '_billing_cutlery', true) . '</p>';
-    if($methodShipping == 'delivery'){
+    if ($methodShipping == 'delivery') {
         echo '<p><strong>Delivery Address:</strong> ' . get_post_meta($productID, '_billing_delivery_address', true) . '</p>';
     }
     echo '<p><strong>Outlet Name:</strong> ' . get_post_meta($productID, '_billing_outlet', true) . '</p>';
@@ -230,7 +228,7 @@ function custom_display_order_meta($order) {
 add_action('woocommerce_admin_order_data_after_billing_address', 'custom_display_order_meta', 10, 1);
 
 // Add custom field to the product edit page
-add_action('woocommerce_product_options_general_product_data', function() {
+add_action('woocommerce_product_options_general_product_data', function () {
     woocommerce_wp_text_input([
         'id'                => '_custom_minimum_order_qty',
         'label'             => __('Minimum Order Quantity', 'woocommerce'),
@@ -241,14 +239,14 @@ add_action('woocommerce_product_options_general_product_data', function() {
 });
 
 // Save the custom field value
-add_action('woocommerce_process_product_meta', function($post_id) {
+add_action('woocommerce_process_product_meta', function ($post_id) {
     if (isset($_POST['_custom_minimum_order_qty'])) {
         update_post_meta($post_id, '_custom_minimum_order_qty', absint($_POST['_custom_minimum_order_qty']));
     }
 });
 
 // Display minimum order quantity on the product page
-add_action('woocommerce_single_product_summary', function() {
+add_action('woocommerce_single_product_summary', function () {
     global $product;
     $min_qty = get_post_meta($product->get_id(), '_custom_minimum_order_qty', true);
     if ($min_qty) {
@@ -256,30 +254,6 @@ add_action('woocommerce_single_product_summary', function() {
     }
 }, 25);
 
-add_action( 'wp', 'add_to_cart_from_session' );
-
-function add_to_cart_from_session() {
-    if (empty($_SESSION) || empty($_SESSION['product_id'])) {
-        return;
-    }
-
-    if ( ! class_exists( 'WooCommerce' ) || ! WC()->cart ) {
-        return;
-    }
-
-    if ( isset( $_SESSION['product_id'] ) ) {
-        $product_id = intval( $_SESSION['product_id'] );
-        $min_qty = get_post_meta($product_id, '_custom_minimum_order_qty', true);
-        $quantity = ($min_qty && $min_qty > 0 ? $min_qty : 1);
-
-        $product = wc_get_product( $product_id );
-        if ( $product ) {
-            WC()->cart->add_to_cart( $product_id, $quantity );
-            // Delete session after add to cart
-            unset( $_SESSION['product_id'] );
-        }
-    }
-}
 
 add_filter('woocommerce_quantity_input_args', function ($args, $product) {
     $min_qty = get_post_meta($product->get_id(), '_custom_minimum_order_qty', true);
@@ -298,46 +272,12 @@ add_filter('woocommerce_quantity_input_args', function ($args, $product) {
 
         if ($cart_qty < $min_qty) {
             $args['min_value'] = $required_qty;
-            $args['input_value'] = $required_qty; 
+            $args['input_value'] = $required_qty;
         }
     }
 
     return $args;
 }, 10, 2);
 
-function remove_checkout_fields($fields) {
-    unset($fields['billing']['billing_company']);  
-    unset($fields['billing']['billing_address_2']); 
-    unset($fields['billing']['billing_city']);      
-    unset($fields['billing']['billing_state']);  
-    unset($fields['billing']['billing_postcode']); 
-    unset($fields['billing']['billing_address_1']); 
-    unset($fields['billing']['billing_address_2']); 
-    unset($fields['billing']['billing_country']); 
-    unset( $fields['order'] ); 
-
-    return $fields;
-}
-add_filter('woocommerce_checkout_fields', 'remove_checkout_fields');
-
-function remove_checkout_coupon_form() {
-    remove_action('woocommerce_checkout_order_review', 'woocommerce_order_review', 10);
-
-}
-add_action('wp', 'remove_checkout_coupon_form');
 
 
-
-function get_minimum_rule_by_order_mode(){
-    
-    $respon = [
-        'minimun_total_to_order' => 0,
-        'minimun_total_to_freeship' => 0,
-    ];
-    
-    if(!empty($_SESSION) && $_SESSION['order_mode'] == 'delivery'){
-        $respon['minimun_total_to_order'] = 100;
-        $respon['minimun_total_to_freeship'] = 150;
-    }
-    return $respon;
-}

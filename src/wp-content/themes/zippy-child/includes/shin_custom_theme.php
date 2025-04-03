@@ -20,7 +20,7 @@ function custom_product_short_description_and_price()
 
     // Display add to cart
 
-    if (!isset($_SESSION['status_popup']) && $_SESSION['status_popup'] != true) {
+    if (!isset($_SESSION['status_popup'])) {
         echo '<div class="cta_add_to_cart"><a class="lightbox-zippy-btn" data-product_id="' . $product_id . '" href="#lightbox-zippy-form" >Add</a></div>';
     } else {
         echo do_shortcode('[quickview_button]');
@@ -173,7 +173,8 @@ function save_custom_fields_on_edit_account($user_id)
 }
 add_action('woocommerce_save_account_details', 'save_custom_fields_on_edit_account');
 
-function flatsome_custom_quickview_button($atts) {
+function flatsome_custom_quickview_button($atts)
+{
     global $product;
 
     if (!$product) return '';
@@ -212,4 +213,3 @@ function save_update_address()
     }
 }
 add_action('init', 'save_update_address');
-
