@@ -3,6 +3,8 @@ $ = jQuery;
 
 $(document).ready(function () {
   $(document).on("click", "#removeMethodShipping", function () {
+    console.log("shin");
+    $(document.body).trigger("update_checkout").trigger("wc_fragment_refresh");
     Swal.fire({
       title: "Are you sure to change order mode?",
       text: "Your current cart will be cleared",

@@ -11,8 +11,10 @@ function customize_shipping_rates($rates)
     foreach ($rates as $rate_key => $rate) {
       if ($rate->method_id == 'free_shipping') {
         unset($rates[$rate_key]);
+        
       }
     }
   }
+
   return $rates;
 }

@@ -98,32 +98,7 @@ function custom_save_checkout_fields($order_id)
 }
 add_action('woocommerce_checkout_update_order_meta', 'custom_save_checkout_fields');
 
-// add_filter('woocommerce_package_rates', 'custom_fixed_shipping_cost', 10, 2);
-
-function custom_fixed_shipping_cost($rates, $package)
-{
-  if (!isset($_SESSION["order_mode"])) {
-    return $rates;
-  }
-
-  $order_mode = $_SESSION["order_mode"];
-  $shipping_fee = isset($_SESSION['minimum_order_to_delivery']) ? $_SESSION['minimum_order_to_delivery'] : 10;
-
-  foreach ($rates as $rate_id => $rate) {
-    if ($order_mode === 'takeaway') {
-      $rates[$rate_id]->label = 'Takeaway Fee';
-      $rates[$rate_id]->cost = 0;
-    } else {
-      $rates[$rate_id]->label = 'Delivery Fee';
-      $rates[$rate_id]->cost = $shipping_fee;
-    }
-  }
-
-  return $rates;
-}
-
-
-add_action('woocommerce_cart_calculate_fees', 'add_extra_fee_after_tax', 999);
+// add_action('woocommerce_cart_calculate_fees', 'add_extra_fee_after_tax', 999);
 
 function add_extra_fee_after_tax($cart)
 {
@@ -187,7 +162,6 @@ add_action('woocommerce_single_product_summary', function () {
     echo '<p class="custom-min-qty" style="color: red; font-weight: bold;">' . sprintf(__('Minimum order quantity: %d', 'woocommerce'), $min_qty) . '</p>';
   }
 }, 25);
-
 
 add_filter('woocommerce_quantity_input_args', function ($args, $product) {
   $min_qty = get_post_meta($product->get_id(), '_custom_minimum_order_qty', true);
