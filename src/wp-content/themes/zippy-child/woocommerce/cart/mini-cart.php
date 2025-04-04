@@ -23,8 +23,7 @@ defined('ABSPATH') || exit;
 $total_quantity = WC()->cart->get_cart_contents_count();
 $rules = get_minimum_rule_by_order_mode();
 $conditions = array(
-  'total_cart' =>  WC()->cart->get_total(''),
-  // 'quantity' => $total_quantity,
+  'total_cart' => get_subtotal_cart(),
   'rules' => $rules,
 );
 do_action('woocommerce_before_mini_cart');
@@ -47,11 +46,12 @@ do_action('woocommerce_before_mini_cart');
   </div>
 
   <!-- User Infor  -->
-  <?php get_template_part('template-parts/cart/user-info',''); ?>
+  <?php get_template_part('template-parts/cart/user-info', ''); ?>
 
   <!-- Condition free shipping and Mini order Items -->
-  <?php get_template_part('template-parts/cart/conditions-info', '', $conditions); ?>
-
+  <?php if ($total_quantity > 0): ?>
+    <?php get_template_part('template-parts/cart/conditions-info', '', $conditions); ?>
+  <?php endif; ?>
   <!-- // Mini Cart Here  -->
   <div class="widget_shopping_cart_content">
     <?php if (! WC()->cart->is_empty()) : ?>
@@ -119,16 +119,35 @@ do_action('woocommerce_before_mini_cart');
 
       <div class="ux-mini-cart-footer">
         <?php do_action('flatsome_before_mini_cart_total'); ?>
+        <!-- Tax -->
+
+        <?php if (wc_tax_enabled() && ! WC()->cart->display_prices_including_tax()) : ?>
+          <?php if ('itemized' === get_option('woocommerce_tax_total_display')) : ?>
+            <?php foreach (WC()->cart->get_tax_totals() as $code => $tax) : // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited 
+            ?>
+              <p class="woocommerce-mini-cart__total tax <?php echo esc_attr(sanitize_title($code)); ?>">
+                <span><?php echo esc_html($tax->label); ?></span>
+                <span><?php echo wp_kses_post($tax->formatted_amount); ?></span>
+              </p>
+            <?php endforeach; ?>
+          <?php else : ?>
+            <p class="woocommerce-mini-cart__total tax">
+              <span><?php echo esc_html(WC()->countries->tax_or_vat()); ?></span>
+              <span><?php wc_cart_totals_taxes_total_html(); ?></span>
+            </p>
+          <?php endif; ?>
+        <?php endif; ?>
+        <!-- Fee -->
+        <?php foreach (WC()->cart->get_fees() as $fee) : ?>
+          <p class="woocommerce-mini-cart__total fee">
+            <span><?php echo esc_html($fee->name); ?></span>
+            <span><?php wc_cart_totals_fee_html($fee); ?></span>
+          </p>
+        <?php endforeach; ?>
+        <!-- Subtotal -->
 
         <p class="woocommerce-mini-cart__total total">
-          <?php
-          /**
-           * Hook: woocommerce_widget_shopping_cart_total.
-           *
-           * @hooked woocommerce_widget_shopping_cart_subtotal - 10
-           */
-          do_action('woocommerce_widget_shopping_cart_total');
-          ?>
+          <?php do_action('woocommerce_widget_shopping_cart_total'); ?>
         </p>
 
         <?php do_action('woocommerce_widget_shopping_cart_before_buttons'); ?>

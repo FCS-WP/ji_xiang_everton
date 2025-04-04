@@ -37,7 +37,7 @@ function remove_checkout_fields($fields)
 
   return $fields;
 }
-add_filter('woocommerce_checkout_fields', 'remove_checkout_fields');
+// add_filter('woocommerce_checkout_fields', 'remove_checkout_fields');
 
 function remove_checkout_coupon_form()
 {
