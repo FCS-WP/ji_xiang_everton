@@ -1,20 +1,6 @@
 <?php
 
-// Custom Checkout button
-function custom_widget_shopping_cart_proceed_to_checkout()
-{
 
-    $subtotal = WC()->cart->get_subtotal();
-    $rule = get_minimum_rule_by_order_mode();
-    $original_link = wc_get_checkout_url();
-    $custom_link = home_url('/checkout');
-    echo do_shortcode('[script_js_minicart]');
-    if ($subtotal < $rule['minimun_total_to_order']) {
-        echo '<p href="" class="button checkout wc-forward disabled-button-custom">Hit Minimum Order to Checkout</p>';
-    } else {
-        echo '<a href="' . esc_url($custom_link) . '" class="button checkout wc-forward button-checkout-minicart">Proceed to Checkout Page<br>Order for ' . format_date_DdMY($_SESSION['date']) . ' ' . $_SESSION['time']['from'] . '</a>';
-    }
-}
 
 
 //Edit checkout page

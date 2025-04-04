@@ -1,0 +1,250 @@
+html {
+  scroll-behavior: smooth;
+}
+
+.disabled * {
+  cursor: not-allowed !important;
+  filter: grayscale(1);
+}
+
+.disabled .box-image div:hover {
+  background: #fff !important;
+  border-color: #fff !important;
+}
+
+.disabled .box-image div:hover img {
+  filter: grayscale(1);
+}
+
+.menu_link_category a span {
+  display: inline;
+}
+
+.menu_link_category > div {
+  display: block;
+  padding: 10px !important;
+}
+
+.menu_link_category a {
+  display: inline;
+}
+
+@media (max-width: 768px) {
+  .menu_link_category {
+    flex-wrap: wrap;
+  }
+}
+
+#top-bar .container {
+  width: 100%;
+  max-width: 100% !important;
+  margin-left: 0px !important;
+  margin-right: 0px !important;
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+#top-bar .container ul li,
+#top-bar .container ul,
+#top-bar .container .flex-center {
+  width: 100%;
+}
+
+.faq_content .accordion-title span {
+  font-size: 16px;
+  display: inline-block;
+  min-height: 51px;
+}
+
+.account-link-mobile {
+  border-color: var(--fs-color-primary) !important;
+  padding-top: 8px;
+}
+
+.account-link-mobile i {
+  color: var(--fs-color-primary);
+  font-size: 25px !important;
+}
+
+#footer .footer-1 #custom_html-7 {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  #footer .footer-1 #custom_html-3,
+  #footer .footer-1 #custom_html-4 {
+    width: 50%;
+  }
+
+  #footer .footer-1 #custom_html-4 .social_icon_footer {
+    display: none;
+  }
+
+  #footer .footer-1 #custom_html-7 {
+    display: flex;
+    justify-content: center;
+  }
+
+  #footer .footer-1 #custom_html-7 .social_icon_footer {
+    text-align: center;
+  }
+}
+
+.woocommerce-message {
+  display: block !important;
+}
+
+.select_method_shipping label {
+  text-transform: capitalize;
+}
+
+@media (max-width: 768px) {
+  .cart_custom thead th {
+    font-weight: bolder;
+    font-size: 12px;
+  }
+}
+
+#removeMethodShipping {
+  font-size: 13px;
+}
+
+.items_infor_method_shipping .text_items p {
+  text-transform: capitalize;
+}
+
+.sticky_menu_product_category ul {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+}
+
+.sticky_menu_product_category ul li {
+  margin: 10px 5px;
+  text-align: center;
+}
+
+.sticky_menu_product_category ul li a {
+  color: #fff;
+  font-weight: bolder;
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  #wide-nav {
+    background: #ff3300 !important;
+  }
+}
+
+#categoryList {
+  list-style: none;
+  padding: 15px;
+  background: #fff;
+  position: absolute;
+  left: -15px;
+  width: 110%;
+}
+
+#categoryList li a {
+  color: #000;
+  text-transform: uppercase;
+  font-weight: bolder;
+}
+
+#currentCategory {
+  text-transform: uppercase;
+  font-weight: bolder;
+}
+
+#openCateSticky {
+  margin-right: 0px;
+  padding: 0px;
+}
+
+.miniCartOnPage .widget_shopping_cart {
+  overflow: auto;
+  scrollbar-color: #ec7265 #f6f6f6;
+  scrollbar-width: thin;
+  height: 85vh;
+}
+
+.row_mini_cart_custom p {
+  margin-bottom: 0px;
+}
+
+.inforMinimunRule {
+  padding: 20px;
+  background: #e5e5e5;
+  margin-bottom: 20px;
+}
+
+.rule_checkout_mini_cart {
+  padding: 0px;
+  margin-bottom: 0px;
+}
+
+.rule_checkout_mini_cart:first-child {
+  margin-bottom: 20px;
+}
+
+.inforMinimunRule p {
+  margin-bottom: 5px;
+}
+
+.miniCartOnPage {
+  background: #f6f6f6;
+  border-radius: 10px;
+  padding: 0px !important;
+}
+
+.widget_shopping_cart_content .woocommerce-mini-cart-item {
+  margin-left: 0px;
+}
+
+.product-short-description {
+  min-height: 42px;
+}
+
+.box_infor_method_shipping .items_infor_method_shipping .text_items h4 {
+  font-size: 15px !important;
+}
+
+.box_infor_method_shipping .items_infor_method_shipping .text_items p {
+  font-size: 13px !important;
+}
+
+.shop_table .shipping__table {
+  display: none;
+}
+
+@media (min-width: 850px) {
+  .is-sticky-column:not([data-sticky-mode]) {
+    top: calc(var(--flatsome-scroll-padding-top) + -5px);
+    transition: top 0.6s;
+  }
+
+  .miniCartOnPage {
+    position: fixed;
+    right: 0px;
+  }
+}
+
+.loop_products_custom .product-title a {
+  font-size: 15px !important;
+  min-height: 40px;
+}
+
+@media (min-width: 1024px) {
+  #header {
+    position: fixed;
+    background: #fff;
+  }
+
+  #main {
+    padding-top: 120px;
+  }
+}
+
+.row-relative-homepage {
+  position: relative;
+}
