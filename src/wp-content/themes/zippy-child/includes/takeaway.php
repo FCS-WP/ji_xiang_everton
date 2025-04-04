@@ -20,7 +20,8 @@ function handle_submit_takeaway()
 add_action('init', 'handle_submit_takeaway');
 
 
-function remove_cart_session() {
+function remove_cart_session()
+{
   session_unset();
   session_destroy();
   WC()->cart->empty_cart();
@@ -33,7 +34,7 @@ add_action('wp_ajax_nopriv_remove_cart_session', 'remove_cart_session');
 function script_rule_popup_session()
 {
 
-  if (!isset($_SESSION['status_popup']) && $_SESSION['status_popup'] == false) {
+  if (!isset($_SESSION['status_popup'])) {
   ?>
 
     <script>
