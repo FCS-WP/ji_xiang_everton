@@ -1,55 +1,6 @@
 <?php
 session_start();
 
-function form_take_away()
-{
-?>
-  <form method="POST">
-    <div class="method_shipping_popup">
-      <div class="method_shipping_popup_section row_title_form">
-        <div class="method_shipping_popup_back">
-          <button>Back</button>
-        </div>
-        <div class="method_shipping_popup_title">
-          <h3>Takeaway</h3>
-        </div>
-        <div class="method_shipping_popup_exit">
-          <button>Exit</button>
-        </div>
-      </div>
-      <div class="content_form_popup">
-        <div class="method_shipping_popup_section">
-          <input type="hidden" name="submit_take_away">
-          <label>Select an Outlet</label>
-          <select name="selectOutlet" id="selectOutlet">
-            <option value="JI XIANG ANG KU KUEH PTE LTD (Block1  Everton Park, 01-33)">JI XIANG ANG KU KUEH PTE LTD (Block1 Everton Park, 01-33)</option>
-          </select>
-        </div>
-        <div class="method_shipping_popup_section">
-          <?php echo do_shortcode('[pickup_date_calander]'); ?>
-          <input name="selectDateTakeaway" id="selectDateTakeaway" type="hidden">
-        </div>
-        <input name="selectProductID" id="selectProductID" type="hidden">
-        <div class="method_shipping_popup_section">
-          <label>Select Takeaway Time</label>
-          <select name="selectTakeAwayTime" id="selectTakeAwayTime">
-            <option value="11:00 AM to 12:00 PM">11:00 AM to 12:00 PM</option>
-            <option value="12:00 PM to 1:00 PM">12:00 PM to 1:00 PM</option>
-            <option value="1:00 PM to 2:00 PM">1:00 PM to 2:00 PM</option>
-            <option value="2:00 PM to 3:00 PM">2:00 PM to 3:00 PM</option>
-          </select>
-        </div>
-      </div>
-      <div class="method_shipping_popup_section">
-        <button type="submit" class="button_action_confirm">Confirm</button>
-      </div>
-    </div>
-  </form>
-  <?php
-}
-
-add_shortcode('form_take_away', 'form_take_away');
-
 
 function handle_submit_takeaway()
 {
@@ -69,7 +20,8 @@ function handle_submit_takeaway()
 add_action('init', 'handle_submit_takeaway');
 
 
-function remove_cart_session() {
+function remove_cart_session()
+{
   session_unset();
   session_destroy();
   WC()->cart->empty_cart();
@@ -82,7 +34,7 @@ add_action('wp_ajax_nopriv_remove_cart_session', 'remove_cart_session');
 function script_rule_popup_session()
 {
 
-  if (!isset($_SESSION['status_popup']) && $_SESSION['status_popup'] == false) {
+  if (!isset($_SESSION['status_popup'])) {
   ?>
 
     <script>
@@ -202,11 +154,3 @@ function get_the_next_day($number, $currentDatePrams = '')
   );
   return $date_time;
 }
-
-function zippy_lightbox_flatsome()
-{
-  if (!is_admin()) {
-    echo do_shortcode('[lightbox id="takeaway" width="550px"][form_take_away][/lightbox]');
-  }
-}
-add_action('wp_head', 'zippy_lightbox_flatsome');

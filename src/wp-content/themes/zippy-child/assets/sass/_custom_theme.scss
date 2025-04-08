@@ -253,6 +253,7 @@ ul {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 20px;
 
   .title_mini_cart_custom {
     h3 {
@@ -260,6 +261,8 @@ ul {
     }
 
     p {
+      margin-bottom: 0px;
+
       font-size: 14px;
     }
   }
@@ -322,15 +325,6 @@ ul {
 }
 
 .rule_checkout_mini_cart {
-  padding: 15px;
-  background: #e5e5e5;
-  border-radius: 7px;
-  margin-bottom: 20px;
-
-  .minimum_order {
-    margin-bottom: 15px;
-  }
-
   p {
     margin-bottom: 0px;
     font-size: 14px;
@@ -350,6 +344,121 @@ ul {
   padding: 15px !important;
 }
 
-#removeMethodShipping{
+#removeMethodShipping {
   font-size: 13px;
+}
+
+.sticky_menu_product_category {
+  display: flex;
+  justify-content: space-between !important;
+  align-items: center;
+  width: 100%;
+}
+
+#currentCategory {
+  color: #fff;
+  font-weight: bolder;
+}
+
+.nav.header-bottom-nav.nav-center.mobile-nav.nav-uppercase * {
+  width: 100%;
+}
+
+#accordingCategoryMenu li {
+  text-align: center;
+}
+
+#categoryList li a {
+  color: #000;
+}
+
+#accordingCategoryMenu button {
+  color: #fff;
+  text-align: right;
+}
+
+#accordingCategoryMenu {
+  position: relative;
+  display: flex;
+  justify-content: end;
+}
+
+#categoryList {
+  position: absolute;
+  list-style: none;
+  background-color: #fff;
+  width: 110%;
+  top: 35px;
+  left: -15px;
+  padding: 13px;
+}
+
+.miniCartOnPage {
+  background: #f6f6f6;
+  border-radius: 10px;
+  padding: 0px !important;
+
+  .widget_shopping_cart {
+    overflow: auto;
+    scrollbar-color: #ec7265 #f6f6f6;
+    scrollbar-width: thin;
+    height: 90vh;
+  }
+
+  .inforMinimunRule {
+    padding: 20px;
+    background: #e5e5e5;
+    margin-bottom: 20px;
+
+    .rule_checkout_mini_cart:first-child {
+      margin-bottom: 20px;
+    }
+
+    p {
+      margin-bottom: 5px;
+    }
+  }
+
+  .widget_shopping_cart_content {
+    .widget_shopping_cart {
+      padding: 20px;
+    }
+    .woocommerce-mini-cart-item {
+      margin-left: 0px;
+    }
+  }
+}
+
+.product-short-description {
+  min-height: 42px;
+}
+
+.disabled-button-custom {
+  cursor: not-allowed !important;
+  opacity: 0.7;
+  text-transform: capitalize !important;
+  width: 100%;
+  border-radius: 10px !important;
+  margin-bottom: 0px !important;
+}
+
+.disabled-button-custom:hover {
+  opacity: 0.7 !important;
+}
+
+.woocommerce-mini-cart__buttons {
+  a {
+    text-transform: capitalize;
+  }
+}
+
+.button-checkout-minicart {
+  line-height: 25px !important;
+  padding: 10px !important;
+}
+
+@media (max-width: 768px) {
+  .miniCartOnPage {
+    display: none;
+  }
 }
