@@ -22,8 +22,10 @@
 defined('ABSPATH') || exit;
 $total_quantity = WC()->cart->get_cart_contents_count();
 $rules = get_minimum_rule_by_order_mode();
+$total_order = floatval(get_subtotal_cart());
+$minimum_order = floatval($rules['minimun_total_to_order']);
 $conditions = array(
-  'total_cart' => get_subtotal_cart(),
+  'total_cart' => $total_order,
   'rules' => $rules,
 );
 do_action('woocommerce_before_mini_cart');
@@ -151,8 +153,17 @@ do_action('woocommerce_before_mini_cart');
         </p>
 
         <?php do_action('woocommerce_widget_shopping_cart_before_buttons'); ?>
-
-        <p class="woocommerce-mini-cart__buttons buttons"><?php do_action('woocommerce_widget_shopping_cart_buttons'); ?></p>
+        <!-- Mini Cart button  -->
+        <p class="woocommerce-mini-cart__buttons buttons">
+          <?php
+          echo ' <a href="' . esc_url(wc_get_cart_url()) . '" class="button wc-forward">View cart</a>';
+          if ($total_order > $minimum_order) {
+            echo '<a href="' . esc_url(wc_get_checkout_url()) . '" class="button checkout wc-forward button-checkout-minicart">Proceed to Checkout Page<br>Order for ' . format_date_DdMY($_SESSION['date']) . ' ' . $_SESSION['time']['from'] . '</a>';
+          } else {
+            echo ' <a disabled class="button checkout wc-forward disabled-button-custom">Hit Minimum Order to Checkout</a>';
+          }
+          ?>
+        </p>
 
         <?php do_action('woocommerce_widget_shopping_cart_after_buttons'); ?>
       </div>

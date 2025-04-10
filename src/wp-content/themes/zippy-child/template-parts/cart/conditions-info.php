@@ -8,7 +8,7 @@ function handle_process_bar_notification($current, $total, $type)
   if ($current >= $total) {
     return [
       'message' => match ($type) {
-        'order' => "Yay! You've hit the min order of",
+        'order' => "Yay! You've hit the min order of $" . $total,
         'delivery' => "Yay! You've hit the min order for free delivery",
         default => '',
       },
@@ -53,7 +53,7 @@ if (
             </span>
           </p>
           <div id="freeDeliveryProgress" class="bar_process_full">
-            <div id="freeDelivery" style=" <?php echo  $shipping_condition_info['style'];?>" class="bar_process_custom"></div>
+            <div id="freeDelivery" style=" <?php echo  $shipping_condition_info['style']; ?>" class="bar_process_custom"></div>
           </div>
         </div>
       </div>
@@ -70,7 +70,7 @@ if (
             </span>
           </p>
           <div id="minimunOrderProgress" class="bar_process_full">
-            <div id="minimunOrder" style=" <?php echo  $order_condition_info['style'];?>" class="bar_process_custom"></div>
+            <div id="minimunOrder" style=" <?php echo  $order_condition_info['style']; ?>" class="bar_process_custom"></div>
           </div>
         </div>
       </div>
