@@ -18,3 +18,4 @@ function add_extra_fee_after_tax($cart)
   // // Add fee after tax
   $cart->add_fee($fee_name, $extra_fee + $tax_amount, true);
 }
+
