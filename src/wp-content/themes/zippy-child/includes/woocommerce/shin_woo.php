@@ -98,26 +98,6 @@ function custom_save_checkout_fields($order_id)
 }
 add_action('woocommerce_checkout_update_order_meta', 'custom_save_checkout_fields');
 
-// add_action('woocommerce_cart_calculate_fees', 'add_extra_fee_after_tax', 999);
-
-function add_extra_fee_after_tax($cart)
-{
-  if (is_admin() && !defined('DOING_AJAX')) {
-    return;
-  }
-
-  $fee_name = __('Extra Fee ', 'your-textdomain');
-
-  $extra_fee = 10;
-
-  $tax_rate = get_tax_percent();
-
-  $tax_amount = ($extra_fee * $tax_rate->tax_rate) / 100;
-
-  // // Add fee after tax
-  $cart->add_fee($fee_name, $extra_fee + $tax_amount, true);
-}
-
 //Display Admin
 function custom_display_order_meta($order)
 {

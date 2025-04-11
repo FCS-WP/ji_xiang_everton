@@ -91,5 +91,5 @@ function get_tax_percent()
 
 function get_subtotal_cart()
 {
-  return WC()->cart->get_total('');
+  return WC()->cart->get_subtotal('');
 }
