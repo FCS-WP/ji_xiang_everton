@@ -5,10 +5,8 @@ function autofill_address_line_1_from_session($fields) {
     if (is_user_logged_in() && isset($_SESSION['delivery_address']) && !empty($_SESSION['delivery_address'])) {
         $delivery_address = sanitize_text_field($_SESSION['delivery_address']);
         
-        var_dump($fields['billing']['billing_address_1']['value']);
         if (empty($fields['billing']['billing_address_1']['value'])) {
             $fields['billing']['billing_address_1']['value'] = $delivery_address;
-            var_dump($fields['billing']['billing_address_1']);
         }
 
         if (empty($fields['shipping']['shipping_address_1']['value'])) {
