@@ -8,7 +8,7 @@ function add_extra_fee_with_gst($cart)
     return;
   }
 
-  $fee_name = __('Extra Fee');
+  $fee_name = "Extra Fee";
   $extra_fee = isset($_SESSION['extra_fee']) ? $_SESSION['extra_fee'] : 0;
 
   $cart->add_fee($fee_name, $extra_fee, true);
