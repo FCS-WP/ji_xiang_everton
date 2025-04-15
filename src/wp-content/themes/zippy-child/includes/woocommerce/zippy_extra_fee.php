@@ -13,3 +13,4 @@ function add_extra_fee_with_gst($cart)
 
   $cart->add_fee($fee_name, $extra_fee, true);
 }
+
