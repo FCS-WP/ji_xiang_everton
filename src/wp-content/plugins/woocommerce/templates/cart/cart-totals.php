@@ -54,7 +54,6 @@ defined( 'ABSPATH' ) || exit;
 			</tr>
 
 		<?php endif; ?>
-
 		<?php foreach ( WC()->cart->get_fees() as $fee ) : ?>
 			<tr class="fee">
 				<th><?php echo esc_html( $fee->name ); ?></th>
