@@ -1,20 +1,15 @@
 <?php
-// add_action('woocommerce_cart_calculate_fees', 'add_extra_fee_after_tax', 999);
+add_action('woocommerce_cart_calculate_fees', 'add_extra_fee_with_gst');
 
-function add_extra_fee_after_tax($cart)
+
+function add_extra_fee_with_gst($cart)
 {
   if (is_admin() && !defined('DOING_AJAX')) {
     return;
   }
 
-  $fee_name = __('Extra Fee ', 'your-textdomain');
+  $fee_name = __('Extra Fee', 'your-textdomain');
+  $extra_fee = isset($_SESSION['extra_fee']) ? $_SESSION['extra_fee'] : 0;
 
-  $extra_fee = 10;
-
-  $tax_rate = get_tax_percent();
-
-  $tax_amount = ($extra_fee * $tax_rate->tax_rate) / 100;
-
-  // // Add fee after tax
-  $cart->add_fee($fee_name, $extra_fee + $tax_amount, true);
+  $cart->add_fee($fee_name, $extra_fee, true);
 }
