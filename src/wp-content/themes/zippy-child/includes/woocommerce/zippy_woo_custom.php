@@ -23,6 +23,7 @@ add_action('wp_footer', 'check_input_value_js');
 function check_input_value_js()
 {
     if (is_checkout() && is_user_logged_in() && isset($_SESSION['delivery_address']) && !empty($_SESSION['delivery_address'])) {
+     
 ?>
        <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {

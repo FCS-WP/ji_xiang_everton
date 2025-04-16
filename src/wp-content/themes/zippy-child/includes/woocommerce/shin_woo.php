@@ -4,77 +4,18 @@
 
 
 //Edit checkout page
-function custom_add_checkout_fields($fields)
-{
-
-  // 1. Cutlery (Text Input)
-  $fields['billing']['billing_cutlery'] = array(
-    'type'      => 'hidden',
-    'placeholder' => __('Enter cutlery preference', 'woocommerce'),
-    'default'     => "NO",
-    'required'  => false,
-    'priority'  => 999
-  );
-
-  $fields['billing']['billing_outlet'] = array(
-    'type'      => 'hidden',
-    'placeholder' => __('Enter outlet location', 'woocommerce'),
-    'default'     => $_SESSION['outlet_name'],
-    'required'  => true,
-    'priority'  => 999
-  );
-
-  $fields['billing']['billing_outlet_address'] = array(
-    'type'      => 'hidden',
-    'placeholder' => __('Enter outlet location', 'woocommerce'),
-    'default'     => $_SESSION['outlet_name'],
-    'required'  => true,
-    'priority'  => 999
-  );
-
-  $fields['billing']['billing_date'] = array(
-    'type'      => 'hidden',
-    'placeholder' => __('Enter pick-up date (e.g., 18 Mar 2025)', 'woocommerce'),
-    'default'   => $_SESSION['date'],
-    'required'  => true,
-    'priority'  => 999
-  );
-
-  $fields['billing']['billing_time'] = array(
-    'type'      => 'hidden',
-    'placeholder' => __('Enter pick-up time (e.g., 11:00 AM)', 'woocommerce'),
-    'default'   => 'From ' . $_SESSION['time']['from'] . ' To ' . $_SESSION['time']['to'],
-    'required'  => true,
-    'priority'  => 999
-  );
-
-  $fields['billing']['billing_method_shipping'] = array(
-    'type'      => 'hidden',
-    'placeholder' => __('Enter pick-up time (e.g., 11:00 AM)', 'woocommerce'),
-    'default'   => $_SESSION['order_mode'],
-    'required'  => true,
-    'priority'  => 999
-  );
-
-  $fields['billing']['billing_shipping_fee'] = array(
-    'type'      => 'hidden',
-    'placeholder' => __('', 'woocommerce'),
-    'default'   => $_SESSION['shipping_fee'],
-    'required'  => false,
-    'priority'  => 999
-  );
-
-  $fields['billing']['billing_delivery_address'] = array(
-    'type'      => 'hidden',
-    'placeholder' => __('', 'woocommerce'),
-    'default'   => $_SESSION['delivery_address'],
-    'required'  => false,
-    'priority'  => 999
-  );
-
-  return $fields;
+add_action('woocommerce_after_order_notes', 'custom_hidden_fields_from_session');
+function custom_hidden_fields_from_session($checkout) {
+    ?>
+    <input type="hidden" name="billing_cutlery" value="NO">
+    <input type="hidden" name="billing_outlet" value="<?php echo esc_attr($_SESSION['outlet_name'] ?? ''); ?>">
+    <input type="hidden" name="billing_outlet_address" value="<?php echo esc_attr($_SESSION['outlet_address'] ?? ''); ?>">
+    <input type="hidden" name="billing_date" value="<?php echo esc_attr($_SESSION['date'] ?? ''); ?>">
+    <input type="hidden" name="billing_time" value="<?php echo esc_attr('From ' . ($_SESSION['time']['from'] ?? '') . ' To ' . ($_SESSION['time']['to'] ?? '')); ?>">
+    <input type="hidden" name="billing_method_shipping" value="<?php echo esc_attr($_SESSION['order_mode'] ?? ''); ?>">
+    <input type="hidden" name="billing_shipping_fee" value="<?php echo esc_attr($_SESSION['shipping_fee'] ?? ''); ?>">
+    <?php
 }
-add_filter('woocommerce_checkout_fields', 'custom_add_checkout_fields');
 
 //Save custom field billing
 function custom_save_checkout_fields($order_id)
@@ -89,7 +30,7 @@ function custom_save_checkout_fields($order_id)
     'billing_shipping_fee',
     'billing_delivery_address',
   ];
-
+   
   foreach ($fields as $field) {
     if (!empty($_POST[$field])) {
       update_post_meta($order_id, '_' . $field, sanitize_text_field($_POST[$field]));
@@ -106,9 +47,6 @@ function custom_display_order_meta($order)
   echo '<h4>' . __('Shipping Details', 'woocommerce') . '</h4>';
   echo '<p><strong>Method Shipping:</strong> ' . get_post_meta($productID, '_billing_method_shipping', true) . '</p>';
   echo '<p><strong>Cutlery:</strong> ' . get_post_meta($productID, '_billing_cutlery', true) . '</p>';
-  if ($methodShipping == 'delivery') {
-    echo '<p><strong>Delivery Address:</strong> ' . get_post_meta($productID, '_billing_delivery_address', true) . '</p>';
-  }
   echo '<p><strong>Outlet Name:</strong> ' . get_post_meta($productID, '_billing_outlet', true) . '</p>';
   echo '<p><strong>Outlet Address:</strong> ' . get_post_meta($productID, '_billing_outlet_address', true) . '</p>';
   echo '<p><strong>Date:</strong> ' . get_post_meta($productID, '_billing_date', true) . '</p>';
