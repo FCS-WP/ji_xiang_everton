@@ -103,7 +103,7 @@ function custom_display_order_meta($order)
 {
   $productID = $order->get_id();
   $methodShipping = get_post_meta($productID, '_billing_method_shipping', true);
-  echo '<h3>' . __('Shipping Details', 'woocommerce') . '</h3>';
+  echo '<h4>' . __('Shipping Details', 'woocommerce') . '</h4>';
   echo '<p><strong>Method Shipping:</strong> ' . get_post_meta($productID, '_billing_method_shipping', true) . '</p>';
   echo '<p><strong>Cutlery:</strong> ' . get_post_meta($productID, '_billing_cutlery', true) . '</p>';
   if ($methodShipping == 'delivery') {
@@ -114,7 +114,7 @@ function custom_display_order_meta($order)
   echo '<p><strong>Date:</strong> ' . get_post_meta($productID, '_billing_date', true) . '</p>';
   echo '<p><strong>Time:</strong> ' . get_post_meta($productID, '_billing_time', true) . '</p>';
 }
-add_action('woocommerce_admin_order_data_after_billing_address', 'custom_display_order_meta', 10, 1);
+add_action('woocommerce_admin_order_data_after_shipping_address', 'custom_display_order_meta', 10, 1);
 
 // Add custom field to the product edit page
 add_action('woocommerce_product_options_general_product_data', function () {
