@@ -7,36 +7,37 @@
 add_action('woocommerce_after_order_notes', 'custom_hidden_fields_from_session');
 function custom_hidden_fields_from_session($checkout) {
     ?>
-    <input type="hidden" name="billing_cutlery" value="NO">
-    <input type="hidden" name="billing_outlet" value="<?php echo esc_attr($_SESSION['outlet_name'] ?? ''); ?>">
-    <input type="hidden" name="billing_outlet_address" value="<?php echo esc_attr($_SESSION['outlet_address'] ?? ''); ?>">
-    <input type="hidden" name="billing_date" value="<?php echo esc_attr($_SESSION['date'] ?? ''); ?>">
-    <input type="hidden" name="billing_time" value="<?php echo esc_attr('From ' . ($_SESSION['time']['from'] ?? '') . ' To ' . ($_SESSION['time']['to'] ?? '')); ?>">
-    <input type="hidden" name="billing_method_shipping" value="<?php echo esc_attr($_SESSION['order_mode'] ?? ''); ?>">
-    <input type="hidden" name="billing_shipping_fee" value="<?php echo esc_attr($_SESSION['shipping_fee'] ?? ''); ?>">
+    <input type="hidden" name="billing_cutlery" id="billing_cutlery" value="NO">
+    <input type="hidden" name="billing_outlet" id="billing_outlet" value="<?php echo esc_attr($_SESSION['outlet_name'] ?? ''); ?>">
+    <input type="hidden" name="billing_outlet_address" id="billing_outlet_address" value="<?php echo esc_attr($_SESSION['outlet_address'] ?? ''); ?>">
+    <input type="hidden" name="billing_date" id="billing_date" value="<?php echo esc_attr($_SESSION['date'] ?? ''); ?>">
+    <input type="hidden" name="billing_time" id="billing_time" value="<?php echo esc_attr('From ' . ($_SESSION['time']['from'] ?? '') . ' To ' . ($_SESSION['time']['to'] ?? '')); ?>">
+    <input type="hidden" name="billing_method_shipping" id="billing_method_shipping" value="<?php echo esc_attr($_SESSION['order_mode'] ?? ''); ?>">
+    <input type="hidden" name="billing_shipping_fee" id="billing_shipping_fee" value="<?php echo esc_attr($_SESSION['shipping_fee'] ?? ''); ?>">
     <?php
 }
 
 //Save custom field billing
 function custom_save_checkout_fields($order_id)
 {
-  $fields = [
-    'billing_cutlery',
-    'billing_outlet',
-    'billing_date',
-    'billing_time',
-    'billing_outlet_address',
-    'billing_method_shipping',
-    'billing_shipping_fee',
-    'billing_delivery_address',
-  ];
-   
-  foreach ($fields as $field) {
+    $fields = [
+        'billing_cutlery',
+        'billing_outlet',
+        'billing_date',
+        'billing_time',
+        'billing_outlet_address',
+        'billing_method_shipping',
+        'billing_shipping_fee',
+        'billing_delivery_address',
+    ];
+
+    foreach ($fields as $field) {
     if (!empty($_POST[$field])) {
-      update_post_meta($order_id, '_' . $field, sanitize_text_field($_POST[$field]));
+            update_post_meta($order_id, '_' . $field, sanitize_text_field($_POST[$field]));
+        }
     }
-  }
 }
+
 add_action('woocommerce_checkout_update_order_meta', 'custom_save_checkout_fields');
 
 //Display Admin

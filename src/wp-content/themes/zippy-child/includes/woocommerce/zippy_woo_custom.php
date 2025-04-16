@@ -23,40 +23,40 @@ add_action('wp_footer', 'check_input_value_js');
 function check_input_value_js()
 {
     if (is_checkout() && is_user_logged_in() && isset($_SESSION['delivery_address']) && !empty($_SESSION['delivery_address'])) {
-     
+
 ?>
-       <script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', function() {
-        var billingField = document.getElementById('billing_address_1');
-        var shippingField = document.getElementById('shipping_address_1');
-        var postcodeField = document.getElementById('shipping_postcode');
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                var billingField = document.getElementById('billing_address_1');
+                var shippingField = document.getElementById('shipping_address_1');
+                var postcodeField = document.getElementById('shipping_postcode');
 
-        var address = "<?php echo esc_js($_SESSION['delivery_address']); ?>";
+                var address = "<?php echo esc_js($_SESSION['delivery_address']); ?>";
 
-        if (billingField && billingField.value === "") {
-            billingField.value = address;
-        }
+                if (billingField && billingField.value === "") {
+                    billingField.value = address;
+                }
 
-        if (shippingField && shippingField.value === "") {
-            shippingField.value = address;
-        }
+                if (shippingField && shippingField.value === "") {
+                    shippingField.value = address;
+                }
 
-        if (postcodeField) {
-            var match = address.match(/(\d+)\s*$/);
-            var postcode = match ? match[1] : '';
-            
-            postcodeField.value = postcode;
-        }
+                if (postcodeField) {
+                    var match = address.match(/(\d+)\s*$/);
+                    var postcode = match ? match[1] : '';
 
-        [shippingField, postcodeField].forEach(function(input) {
-            if (input) {
-                input.setAttribute('readonly', true);
-                input.style.backgroundColor = '#f5f5f5';
-                input.style.cursor = 'not-allowed';
-            }
-        });
-    });
-</script>
+                    postcodeField.value = postcode;
+                }
+
+                [shippingField, postcodeField].forEach(function(input) {
+                    if (input) {
+                        input.setAttribute('readonly', true);
+                        input.style.backgroundColor = '#f5f5f5';
+                        input.style.cursor = 'not-allowed';
+                    }
+                });
+            });
+        </script>
 
 <?php
     }
