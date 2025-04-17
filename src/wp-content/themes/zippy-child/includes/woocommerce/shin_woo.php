@@ -105,3 +105,31 @@ add_filter('woocommerce_quantity_input_args', function ($args, $product) {
 
   return $args;
 }, 10, 2);
+
+
+add_action('woocommerce_checkout_process', 'validate_required_session_data');
+
+function validate_required_session_data() {
+    $required_sessions = [
+        'outlet_name',
+        'date',
+        'time'
+    ];
+
+    if (isset($_SESSION['order_mode']) && $_SESSION['order_mode'] === 'delivery') {
+        $required_sessions[] = 'delivery_address';
+    }
+
+    foreach ($required_sessions as $session_key) {
+        if (!isset($_SESSION[$session_key]) || empty($_SESSION[$session_key])) {
+            wc_add_notice(__('Missing required information: ' . $session_key, 'woocommerce'), 'error');
+        }
+    }
+
+    if (
+        isset($_SESSION['time']) &&
+        (!isset($_SESSION['time']['from']) || !isset($_SESSION['time']['to']) || empty($_SESSION['time']['from']) || empty($_SESSION['time']['to']))
+    ) {
+        wc_add_notice(__('Missing required delivery time information.', 'woocommerce'), 'error');
+    }
+}

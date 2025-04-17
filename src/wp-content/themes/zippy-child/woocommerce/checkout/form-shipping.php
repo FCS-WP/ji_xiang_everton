@@ -18,9 +18,20 @@
  */
 
 defined('ABSPATH') || exit;
-$delivery_address = sanitize_text_field($_SESSION['delivery_address']);
-preg_match('/(\d+)\s*$/', $delivery_address, $matches);
-$extracted_postcode = isset($matches[1]) ? $matches[1] : '';
+
+$delivery_address = isset($_SESSION['shipping_address_1'])
+	? $_SESSION['shipping_address_1']
+	: $checkout->get_value('shipping_address_1');
+
+// Tách postcode từ địa chỉ nếu có
+if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $matches)) {
+	$extracted_postcode = $matches[1];
+} else {
+	$extracted_postcode = $checkout->get_value('shipping_postcode');
+	if (empty($extracted_postcode)) {
+		$extracted_postcode = '';
+	}
+}
 ?>
 <div class="woocommerce-shipping-fields">
 	<?php if (true === WC()->cart->needs_shipping_address()) : ?>
@@ -35,22 +46,22 @@ $extracted_postcode = isset($matches[1]) ? $matches[1] : '';
 			<div class="woocommerce-shipping-fields__field-wrapper">
 				<p class="form-row form-row-first">
 					<label for="shipping_first_name">First name <abbr class="required" title="required">*</abbr></label>
-					<input type="text" class="input-text" name="shipping_first_name" id="shipping_first_name" value="<?php echo esc_attr($checkout->get_value('shipping_first_name')); ?>" />
+					<input type="text" class="input-text" required  name="shipping_first_name" id="shipping_first_name" value="<?php echo esc_attr($checkout->get_value('shipping_first_name')); ?>" />
 				</p>
 
 				<p class="form-row form-row-last">
 					<label for="shipping_last_name">Last name <abbr class="required" title="required">*</abbr></label>
-					<input type="text" class="input-text" name="shipping_last_name" id="shipping_last_name" value="<?php echo esc_attr($checkout->get_value('shipping_last_name')); ?>" />
+					<input type="text" class="input-text" required  name="shipping_last_name" id="shipping_last_name" value="<?php echo esc_attr($checkout->get_value('shipping_last_name')); ?>" />
 				</p>
 
 				<p class="form-row form-row-wide">
 					<label for="shipping_address_1">Street address <abbr class="required" title="required">*</abbr></label>
-					<input type="text" readonly class="input-text" name="shipping_address_1" id="shipping_address_1" value="<?php echo $delivery_address; ?>" />
+					<input type="text" readonly required  class="input-text" name="shipping_address_1" id="shipping_address_1" value="<?php echo $delivery_address; ?>" />
 				</p>
 
 				<p class="form-row form-row-wide">
 					<label for="shipping_postcode">Postcode / ZIP <abbr class="required" title="required">*</abbr></label>
-					<input type="text" readonly class="input-text" name="shipping_postcode" id="shipping_postcode" value="<?php echo $extracted_postcode; ?>" />
+					<input type="text" readonly required class="input-text" name="shipping_postcode" id="shipping_postcode" value="<?php echo $extracted_postcode; ?>" />
 				</p>
 			</div>
 
