@@ -32,7 +32,9 @@ if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $m
 		$extracted_postcode = '';
 	}
 }
+
 ?>
+<?php if ($_SESSION['order_mode'] !== "takeaway"): ?>
 <div class="woocommerce-shipping-fields">
 	<?php if (true === WC()->cart->needs_shipping_address()) : ?>
 
@@ -72,6 +74,7 @@ if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $m
 
 	<?php endif; ?>
 </div>
+<?php endif; ?>
 <div class="woocommerce-additional-fields">
 	<?php do_action('woocommerce_before_order_notes', $checkout); ?>
 
@@ -93,3 +96,5 @@ if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $m
 
 	<?php do_action('woocommerce_after_order_notes', $checkout); ?>
 </div>
+
+

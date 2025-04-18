@@ -109,6 +109,14 @@ add_filter('woocommerce_quantity_input_args', function ($args, $product) {
 
 add_action('woocommerce_checkout_process', 'validate_required_session_data');
 
+add_filter( 'woocommerce_cart_needs_shipping', 'custom_force_cart_not_need_shipping' );
+function custom_force_cart_not_need_shipping( $needs_shipping ) {
+	if ( isset($_SESSION['order_mode']) && $_SESSION['order_mode'] === 'takeaway' ) {
+		return false;
+	}
+	return $needs_shipping;
+}
+
 function validate_required_session_data() {
     $required_sessions = [
         'outlet_name',
