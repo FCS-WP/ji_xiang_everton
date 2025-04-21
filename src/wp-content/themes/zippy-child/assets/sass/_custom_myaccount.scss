@@ -80,3 +80,13 @@
         }
     }
 }
+.custom-form-address {
+    display: flex;
+    justify-content: center;
+    .custom-woo-address {
+        width: 50%;
+        @media(max-width: 768px){
+            width: 100%;
+        }
+    }
+}
