@@ -44,7 +44,7 @@ if (isset($_POST['update_billing_address']) && wp_verify_nonce($_POST['billing_a
 
 <?php if (! wc_ship_to_billing_address_only() && wc_shipping_enabled()) : ?>
     <div class="custom-form-address">
-        <div class="custom-woo-address">
+        <div class="custom-woo-column">
             <form method="POST">
                 <?php wp_nonce_field('update_billing_address', 'billing_address_nonce'); ?>
 

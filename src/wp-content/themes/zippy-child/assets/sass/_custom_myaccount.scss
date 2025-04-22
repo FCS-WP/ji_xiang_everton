@@ -80,13 +80,28 @@
         }
     }
 }
-.custom-form-address {
+.custom-form-address,
+.custom-login-container {
     display: flex;
     justify-content: center;
-    .custom-woo-address {
+    .custom-woo-column {
         width: 50%;
         @media(max-width: 768px){
             width: 100%;
         }
     }
+}
+
+.login-function-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.woocommerce-form-login .button {
+    padding: 0 40px;
+}
+
+.link-create-account {
+    margin-left: 10px;
 }
