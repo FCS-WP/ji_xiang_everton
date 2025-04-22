@@ -456,7 +456,11 @@ ul {
   line-height: 25px !important;
   padding: 10px !important;
 }
-
+.noborder{
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0px !important;
+}
 @media (max-width: 768px) {
   .miniCartOnPage {
     display: none;

@@ -131,7 +131,7 @@ if (flatsome_option('facebook_login_checkout') && get_option('woocommerce_enable
 						$rule = get_minimum_rule_by_order_mode();
 						$fee_delivery = 0;
 						$extra_fee = isset($_SESSION['extra_fee']) ? $_SESSION['extra_fee'] : 0;
-					    
+
 						if ($cart_subtotal < $rule["minimum_order_to_delivery"]) {
 							if ($_SESSION['order_mode'] !== 'takeaway') {
 								$fee_delivery = $_SESSION['shipping_fee'];
@@ -158,7 +158,7 @@ if (flatsome_option('facebook_login_checkout') && get_option('woocommerce_enable
 							<td colspan="4" class="text-right"><strong>GST:</strong></td>
 							<td><?php echo wc_cart_totals_taxes_total_html(); ?></td>
 						</tr>
-						
+
 						<tr>
 							<td colspan="4" class="text-right"><strong>Total:</strong></td>
 							<td><strong><?php echo wc_cart_totals_order_total_html() ?></strong></td>
@@ -253,7 +253,13 @@ if (flatsome_option('facebook_login_checkout') && get_option('woocommerce_enable
 										</tr>
 										<tr>
 											<td>Time:</td>
-											<td><?php echo 'From ' . $_SESSION['time']['from'] . ' To ' . $_SESSION['time']['to']; ?></td>
+											<td>
+												<?php
+												echo 'From ' . date("H:i", strtotime($_SESSION['time']['from'])) .
+													' To ' . date("H:i", strtotime($_SESSION['time']['to']));
+												?>
+											</td>
+
 										</tr>
 									</tbody>
 								</table>

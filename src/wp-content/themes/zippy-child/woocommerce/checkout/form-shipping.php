@@ -22,8 +22,10 @@ defined('ABSPATH') || exit;
 $delivery_address = isset($_SESSION['shipping_address_1'])
 	? $_SESSION['shipping_address_1']
 	: $checkout->get_value('shipping_address_1');
+$date = $_SESSION['date'];
+$time = $_SESSION['time'];
 
-// Tách postcode từ địa chỉ nếu có
+
 if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $matches)) {
 	$extracted_postcode = $matches[1];
 } else {
@@ -35,45 +37,57 @@ if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $m
 
 ?>
 <?php if ($_SESSION['order_mode'] !== "takeaway"): ?>
-<div class="woocommerce-shipping-fields">
-	<?php if (true === WC()->cart->needs_shipping_address()) : ?>
+	<div class="woocommerce-shipping-fields">
+		<?php if (true === WC()->cart->needs_shipping_address()) : ?>
 
-		<h3 id="ship-to-different-address">
-			Delivery Address
-		</h3>
+			<h3 id="ship-to-different-address">
+				Delivery Address
+			</h3>
 
-		<div class="shipping_address">
+			<div class="shipping_address">
 
-			<?php do_action('woocommerce_before_checkout_shipping_form', $checkout); ?>
-			<div class="woocommerce-shipping-fields__field-wrapper">
-				<p class="form-row form-row-first">
-					<label for="shipping_first_name">First name <abbr class="required" title="required">*</abbr></label>
-					<input type="text" class="input-text" required  name="shipping_first_name" id="shipping_first_name" value="<?php echo esc_attr($checkout->get_value('shipping_first_name')); ?>" />
-				</p>
+				<?php do_action('woocommerce_before_checkout_shipping_form', $checkout); ?>
+				<div class="woocommerce-shipping-fields__field-wrapper">
+					<p class="form-row form-row-first">
+						<label for="shipping_first_name">First name <abbr class="required" title="required">*</abbr></label>
+						<input type="text" class="input-text" required name="shipping_first_name" id="shipping_first_name" value="<?php echo esc_attr($checkout->get_value('shipping_first_name')); ?>" />
+					</p>
 
-				<p class="form-row form-row-last">
-					<label for="shipping_last_name">Last name <abbr class="required" title="required">*</abbr></label>
-					<input type="text" class="input-text" required  name="shipping_last_name" id="shipping_last_name" value="<?php echo esc_attr($checkout->get_value('shipping_last_name')); ?>" />
-				</p>
+					<p class="form-row form-row-last">
+						<label for="shipping_last_name">Last name <abbr class="required" title="required">*</abbr></label>
+						<input type="text" class="input-text" required name="shipping_last_name" id="shipping_last_name" value="<?php echo esc_attr($checkout->get_value('shipping_last_name')); ?>" />
+					</p>
 
-				<p class="form-row form-row-wide">
-					<label for="shipping_address_1">Street address <abbr class="required" title="required">*</abbr></label>
-					<input type="text" readonly required  class="input-text" name="shipping_address_1" id="shipping_address_1" value="<?php echo $delivery_address; ?>" />
-				</p>
+					<p class="form-row form-row-wide">
+						<label for="shipping_address_1">Street address <abbr class="required" title="required">*</abbr></label>
+						<input type="text" readonly required class="input-text noborder" name="shipping_address_1" id="shipping_address_1" value="<?php echo $delivery_address; ?>" />
+					</p>
 
-				<p class="form-row form-row-wide">
-					<label for="shipping_postcode">Postcode / ZIP <abbr class="required" title="required">*</abbr></label>
-					<input type="text" readonly required class="input-text" name="shipping_postcode" id="shipping_postcode" value="<?php echo $extracted_postcode; ?>" />
-				</p>
+					<p class="form-row form-row-wide">
+						<label for="shipping_postcode">Postcode / ZIP <abbr class="required" title="required">*</abbr></label>
+						<input type="text" readonly required class="input-text noborder" name="shipping_postcode" id="shipping_postcode" value="<?php echo $extracted_postcode; ?>" />
+					</p>
+					<p class="form-row form-row-wide">
+						<label for="shipping_address_1">Date <abbr class="required" title="required">*</abbr></label>
+						<span class="date"><?php echo $date; ?></span>
+					</p>
+
+					<p class="form-row form-row-wide">
+						<label for="shipping_address_1">Date <abbr class="required" title="required">*</abbr></label>
+						<span class="time">
+							From <?php echo date("H:i", strtotime($time['from'])); ?> to <?php echo date("H:i", strtotime($time['to'])); ?>
+						</span>
+
+					</p>
+				</div>
+
+
+				<?php do_action('woocommerce_after_checkout_shipping_form', $checkout); ?>
+
 			</div>
 
-
-			<?php do_action('woocommerce_after_checkout_shipping_form', $checkout); ?>
-
-		</div>
-
-	<?php endif; ?>
-</div>
+		<?php endif; ?>
+	</div>
 <?php endif; ?>
 <div class="woocommerce-additional-fields">
 	<?php do_action('woocommerce_before_order_notes', $checkout); ?>
@@ -96,5 +110,3 @@ if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $m
 
 	<?php do_action('woocommerce_after_order_notes', $checkout); ?>
 </div>
-
-
