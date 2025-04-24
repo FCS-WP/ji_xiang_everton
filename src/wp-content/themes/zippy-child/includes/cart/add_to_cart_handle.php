@@ -6,13 +6,13 @@ function get_minimum_rule_by_order_mode()
 {
 
   $response = array(
-    'minimun_total_to_order' => 0,
-    'minimun_total_to_freeship' => 0
+    'minimum_total_to_order' => 0,
+    'minimum_total_to_freeship' => 0
   );
 
   if (isset($_SESSION['order_mode']) && $_SESSION['order_mode'] == 'delivery') {
-    $response['minimun_total_to_order'] = isset($_SESSION['minimum_order_to_delivery']) ? $_SESSION['minimum_order_to_delivery'] : 0;
-    $response['minimun_total_to_freeship'] = isset($_SESSION['minimum_order_to_freeship']) ? $_SESSION['minimum_order_to_freeship'] : 0;
+    $response['minimum_total_to_order'] = isset($_SESSION['minimum_order_to_delivery']) ? $_SESSION['minimum_order_to_delivery'] : 0;
+    $response['minimum_total_to_freeship'] = isset($_SESSION['minimum_order_to_freeship']) ? $_SESSION['minimum_order_to_freeship'] : 0;
   }
 
   return $response;

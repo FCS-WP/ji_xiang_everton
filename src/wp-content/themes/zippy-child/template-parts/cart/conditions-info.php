@@ -31,9 +31,9 @@ function handle_process_bar_notification($current, $total, $type)
 
 //Prepare param 
 
-$minium_order = $args['rules']['minimun_total_to_order'];
+$minium_order = $args['rules']['minimum_total_to_order'];
 
-$minium_delivery = $args['rules']['minimun_total_to_freeship'];
+$minium_delivery = $args['rules']['minimum_total_to_freeship'];
 
 $total_cart = $args['total_cart'];
 

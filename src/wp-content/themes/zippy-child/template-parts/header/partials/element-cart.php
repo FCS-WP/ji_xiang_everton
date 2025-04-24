@@ -103,8 +103,8 @@ else { ?>
       
       $rule = get_minimum_rule_by_order_mode(); 
 
-      $minimun_total_to_order = $rule['minimun_total_to_order'];
-      $minimun_total_to_freeship = $rule['minimun_total_to_freeship'];
+      $minimum_total_to_order = $rule['minimum_total_to_order'];
+      $minimum_total_to_freeship = $rule['minimum_total_to_freeship'];
     
     ?>
 	  <div class="widget_shopping_cart">
@@ -186,25 +186,25 @@ else { ?>
         
           <?php
           if(!empty($_SESSION['order_mode']) && $_SESSION['order_mode'] == 'delivery'){
-            if($minimun_total_to_order != 0){
+            if($minimum_total_to_order != 0){
               ?>
               <div class="rule_checkout_mini_cart">
                 <div class="minimum_order">
-                  <p>$<span id="deliveryNeedMore"><?php echo $minimun_total_to_order; ?></span> more for minimum order</p>
+                  <p>$<span id="deliveryNeedMore"><?php echo $minimum_total_to_order; ?></span> more for minimum order</p>
                   <div id="minimunOrderProgress" class="bar_process_full">
-                      <div id="minimunOrder" class="bar_process_custom" dataDelivery="<?php echo $minimun_total_to_order; ?>"></div>
+                      <div id="minimunOrder" class="bar_process_custom" dataDelivery="<?php echo $minimum_total_to_order; ?>"></div>
                   </div>
                 </div>
               </div>
               <?php
             }
-            if($minimun_total_to_freeship != 0){
+            if($minimum_total_to_freeship != 0){
               ?>
               <div class="rule_checkout_mini_cart">
                 <div class="minimum_order">
-                  <p>$<span id="freeshipNeedMore"><?php echo $minimun_total_to_freeship; ?></span> more for freeship</p>
+                  <p>$<span id="freeshipNeedMore"><?php echo $minimum_total_to_freeship; ?></span> more for freeship</p>
                   <div id="freeDeliveryProgress" class="bar_process_full">
-                      <div id="freeDelivery" class="bar_process_custom" dataFreeship="<?php echo $minimun_total_to_freeship; ?>"></div>
+                      <div id="freeDelivery" class="bar_process_custom" dataFreeship="<?php echo $minimum_total_to_freeship; ?>"></div>
                   </div>
                 </div>
               </div>

@@ -12,7 +12,7 @@ function customize_shipping_rates_based_on_order_mode($rates)
   $cart_subtotal = floatval(get_subtotal_cart());
 
   $order_mode = $_SESSION['order_mode'];
-  $minimum_for_free_shipping = floatval($rules['minimun_total_to_freeship']);
+  $minimum_for_free_shipping = floatval($rules['minimum_total_to_freeship']);
 
   // 1. Qualifies for free shipping
   if ($cart_subtotal >= $minimum_for_free_shipping) {

@@ -16,7 +16,7 @@ function rule_minimun_checkout_on_cart_page()
 {
   $subtotal = WC()->cart->get_subtotal();
   $rule = get_minimum_rule_by_order_mode();
-  if ($subtotal < $rule['minimun_total_to_order']) {
+  if ($subtotal < $rule['minimum_total_to_order']) {
     remove_action('woocommerce_proceed_to_checkout', 'woocommerce_button_proceed_to_checkout', 20);
   } else {
     return;
@@ -28,7 +28,7 @@ function rule_minimun_checkout_all_site()
 {
   $subtotal = WC()->cart->get_subtotal();
   $rule = get_minimum_rule_by_order_mode();
-  if (is_page('checkout') && ($subtotal < $rule['minimun_total_to_order'])) {
+  if (is_page('checkout') && ($subtotal < $rule['minimum_total_to_order'])) {
     wp_redirect(home_url());
     exit;
   } else {
