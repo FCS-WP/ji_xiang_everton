@@ -12,10 +12,11 @@ function customize_shipping_rates_based_on_order_mode($rates)
   $cart_subtotal = floatval(get_subtotal_cart());
 
   $order_mode = $_SESSION['order_mode'];
-  $minimum_for_free_shipping = floatval($rules['minimum_total_to_freeship']);
+  $minimum_for_free_shipping = floatval($rules['minimun_total_to_freeship']);
 
   // 1. Qualifies for free shipping
   if ($cart_subtotal >= $minimum_for_free_shipping) {
+
     foreach ($rates as $rate_key => $rate) {
       if ($rate->method_id === 'free_shipping') {
         $rates[$rate_key]->label = __('Free shipping', 'your-text-domain');
@@ -23,8 +24,18 @@ function customize_shipping_rates_based_on_order_mode($rates)
         unset($rates[$rate_key]);
       }
     }
-    return $rates;
+  } else {
+
+    foreach ($rates as $rate_key => $rate) {
+      if ($rate->method_id === 'free_shipping') {
+        unset($rates[$rate_key]);
+      } else {
+        $rates[$rate_key]->label = __('Shipping Fee', 'your-text-domain');
+      }
+    }
   }
+
+  return $rates;
 
   // 2. Delivery: remove free shipping if under minimum
   if ($order_mode === 'delivery') {
@@ -38,7 +49,6 @@ function filter_shipping_methods($rates, $keep_methods = [], $remove_methods = [
 {
   foreach ($rates as $rate_key => $rate) {
     $method_id = $rate->method_id;
-
     if (!empty($keep_methods) && !in_array($method_id, $keep_methods)) {
       unset($rates[$rate_key]);
     }

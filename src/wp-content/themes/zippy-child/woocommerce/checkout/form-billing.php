@@ -58,7 +58,7 @@ $billing_address = $billing_address_default
 		<p class="form-row form-row-wide">
 			<label for="billing_address_1">Street address <abbr class="required" title="required">*</abbr></label>
 			<input type="text" class="input-text" name="billing_address_1" id="billing_address_1" required
-				value="<?php echo $billing_address; ?>" />
+				value="<?php echo esc_attr($billing_address); ?>" />
 		</p>
 
 		<p class="form-row form-row-first">
