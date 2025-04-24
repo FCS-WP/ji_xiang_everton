@@ -132,7 +132,7 @@ if (flatsome_option('facebook_login_checkout') && get_option('woocommerce_enable
 						$fee_delivery = 0;
 						$extra_fee = isset($_SESSION['extra_fee']) ? $_SESSION['extra_fee'] : 0;
 
-						if ($cart_subtotal < $rule["minimum_order_to_delivery"]) {
+						if ($cart_subtotal < $rule["minimum_total_to_order"]) {
 							if ($_SESSION['order_mode'] !== 'takeaway') {
 								$fee_delivery = $_SESSION['shipping_fee'];
 							}

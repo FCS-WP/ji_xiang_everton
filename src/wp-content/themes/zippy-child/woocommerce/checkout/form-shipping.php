@@ -19,8 +19,8 @@
 
 defined('ABSPATH') || exit;
 
-$delivery_address = isset($_SESSION['shipping_address_1'])
-	? $_SESSION['shipping_address_1']
+$delivery_address = $_SESSION['delivery_address']
+	? $_SESSION['delivery_address']
 	: $checkout->get_value('shipping_address_1');
 $date = $_SESSION['date'];
 $time = $_SESSION['time'];
@@ -40,9 +40,21 @@ if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $m
 	<div class="woocommerce-shipping-fields">
 		<?php if (true === WC()->cart->needs_shipping_address()) : ?>
 
-			<h3 id="ship-to-different-address">
-				Delivery Address
-			</h3>
+			<div id="ship-to-different-address">
+				<label class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox">
+					<input
+						id="ship-to-different-address-checkbox"
+						class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox"
+						type="checkbox"
+						name="ship_to_different_address"
+						value="1"
+						checked
+						style="display: none;" />
+					<h3>Delivery Address</h3>
+				</label>
+
+			</div>
+
 
 			<div class="shipping_address">
 
@@ -60,20 +72,23 @@ if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $m
 
 					<p class="form-row form-row-wide">
 						<label for="shipping_address_1">Street address <abbr class="required" title="required">*</abbr></label>
-						<input type="text" readonly required class="input-text noborder" name="shipping_address_1" id="shipping_address_1" value="<?php echo $delivery_address; ?>" />
+						<input type="text" name="shipping_address_1" id="shipping_address_1" class="input-text noborder" readonly required value="<?php echo esc_attr($delivery_address); ?>" />
+
 					</p>
 
 					<p class="form-row form-row-wide">
 						<label for="shipping_postcode">Postcode / ZIP <abbr class="required" title="required">*</abbr></label>
-						<input type="text" readonly required class="input-text noborder" name="shipping_postcode" id="shipping_postcode" value="<?php echo $extracted_postcode; ?>" />
+						<input type="text" readonly required class="input-text noborder" name="shipping_postcode" id="shipping_postcode" value="<?php echo esc_attr($extracted_postcode); ?>" />
 					</p>
+					<p class="form-row form-row-wide address-field update_totals_on_change validate-required" id="shipping_country_field" data-priority="40"><label for="shipping_country" class="">Country / Region&nbsp;<abbr class="required" title="required">*</abbr></label><span class="woocommerce-input-wrapper"><strong>Singapore</strong><input type="hidden" name="shipping_country" id="shipping_country" value="SG" aria-required="true" autocomplete="country" class="country_to_state" readonly="readonly"></span></p>
+
 					<p class="form-row form-row-wide">
-						<label for="shipping_address_1">Date <abbr class="required" title="required">*</abbr></label>
+						<label>Date <abbr class="required" title="required">*</abbr></label>
 						<span class="date"><?php echo $date; ?></span>
 					</p>
 
 					<p class="form-row form-row-wide">
-						<label for="shipping_address_1">Date <abbr class="required" title="required">*</abbr></label>
+						<label>Time <abbr class="required" title="required">*</abbr></label>
 						<span class="time">
 							From <?php echo date("H:i", strtotime($time['from'])); ?> to <?php echo date("H:i", strtotime($time['to'])); ?>
 						</span>
