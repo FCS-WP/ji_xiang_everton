@@ -19,12 +19,11 @@
 
 defined('ABSPATH') || exit;
 
-$delivery_address = isset($_SESSION['shipping_address_1'])
-	? $_SESSION['shipping_address_1']
+$delivery_address = $_SESSION['delivery_address']
+	? $_SESSION['delivery_address']
 	: $checkout->get_value('shipping_address_1');
 $date = $_SESSION['date'];
 $time = $_SESSION['time'];
-
 
 if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $matches)) {
 	$extracted_postcode = $matches[1];
