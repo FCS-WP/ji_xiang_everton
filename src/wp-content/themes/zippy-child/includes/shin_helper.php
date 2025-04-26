@@ -20,7 +20,7 @@ function pr($data)
     position: fixed;
     top: 0px;
     left: 0px;
-    z-index: 999;
+    z-index: 9999;
     background: #fff;
     color: #000;
     overflow: auto;
@@ -92,4 +92,28 @@ function get_tax_percent()
 function get_subtotal_cart()
 {
   return WC()->cart->get_subtotal('');
+}
+
+/**
+ * Get minimum order and freeship values based on order mode from WooCommerce session
+ *
+ * @return array
+ */
+function get_minimum_rule_by_order_mode()
+{
+  $response = [
+    'minimum_total_to_order'    => 0,
+    'minimum_total_to_freeship' => 0,
+  ];
+
+  if (function_exists('WC') && WC()->session) {
+    $order_mode = WC()->session->get('order_mode');
+
+    if ($order_mode === 'delivery') {
+      $response['minimum_total_to_order']    = WC()->session->get('minimum_order_to_delivery') ?? 0;
+      $response['minimum_total_to_freeship'] = WC()->session->get('minimum_order_to_freeship') ?? 0;
+    }
+  }
+
+  return $response;
 }

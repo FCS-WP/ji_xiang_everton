@@ -11,7 +11,7 @@ function customize_shipping_rates_based_on_order_mode($rates)
   $rules = get_minimum_rule_by_order_mode();
   $cart_subtotal = floatval(get_subtotal_cart());
 
-  $order_mode = $_SESSION['order_mode'];
+  $order_mode = WC()->session->get('order_mode');
   $minimum_for_free_shipping = floatval($rules['minimum_total_to_freeship']);
 
   // 1. Qualifies for free shipping

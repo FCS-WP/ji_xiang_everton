@@ -2,6 +2,7 @@
 function custom_woocommerce_mini_cart()
 {
 ?>
+
   <div class="widget_shopping_cart_content">
     <?php woocommerce_mini_cart(); ?>
   </div>
@@ -22,7 +23,7 @@ function rule_minimun_checkout_on_cart_page()
     return;
   }
 }
-add_action('woocommerce_after_calculate_totals', 'rule_minimun_checkout_on_cart_page');
+// add_action('woocommerce_after_calculate_totals', 'rule_minimun_checkout_on_cart_page');
 
 function rule_minimun_checkout_all_site()
 {

@@ -7,7 +7,6 @@ add_action('woocommerce_after_shop_loop_item_title', 'custom_product_short_descr
 function custom_product_short_description_and_price()
 {
   global $product;
-  $date = new DateTime();
 
   $product_id = $product->get_id();
 
@@ -21,35 +20,62 @@ function custom_product_short_description_and_price()
 
   // Display add to cart
 
-  if (!isset($_SESSION['status_popup'])) {
+  if (empty(WC()->session->get('status_popup'))) {
     echo '<div class="cta_add_to_cart"><a class="lightbox-zippy-btn" data-product_id="' . $product_id . '" href="#lightbox-zippy-form" >Add</a></div>';
   } else {
-    echo do_shortcode('[quickview_button]');
+    echo do_shortcode('[quickview_button id='.$product_id.']');
   }
 }
 
-function lightbox_zippy_form()
-{
-  echo do_shortcode('[lightbox id="lightbox-zippy-form" width="600px" padding="20px 0px"][zippy_form][/lightbox]');
-}
-
-add_shortcode('lightbox_zippy_form', 'lightbox_zippy_form');
 
 
-function flatsome_custom_quickview_button($atts)
-{
+// Add custom field to the product edit page
+add_action('woocommerce_product_options_general_product_data', function () {
+  woocommerce_wp_text_input([
+    'id'                => '_custom_minimum_order_qty',
+    'label'             => __('Minimum Order Quantity', 'woocommerce'),
+    'description'       => __('Enter the minimum quantity required to add this product to the cart.', 'woocommerce'),
+    'type'              => 'number',
+    'custom_attributes' => ['step' => '1', 'min' => '1'],
+  ]);
+});
+
+// Save the custom field value
+add_action('woocommerce_process_product_meta', function ($post_id) {
+  if (isset($_POST['_custom_minimum_order_qty'])) {
+    update_post_meta($post_id, '_custom_minimum_order_qty', absint($_POST['_custom_minimum_order_qty']));
+  }
+});
+
+// Display minimum order quantity on the product page
+add_action('woocommerce_single_product_summary', function () {
   global $product;
+  $min_qty = get_post_meta($product->get_id(), '_custom_minimum_order_qty', true);
+  if ($min_qty) {
+    echo '<p class="custom-min-qty" style="color: red; font-weight: bold;">' . sprintf(__('Minimum order quantity: %d', 'woocommerce'), $min_qty) . '</p>';
+  }
+}, 25);
 
-  if (!$product) return '';
+add_filter('woocommerce_quantity_input_args', function ($args, $product) {
+  $min_qty = get_post_meta($product->get_id(), '_custom_minimum_order_qty', true);
 
-  $product_id = $product->get_id();
+  if ($min_qty) {
+    $cart = WC()->cart->get_cart();
+    $cart_qty = 0;
 
-  $button = '<div class="cta_add_to_cart"><a href="#" class="quick-view" 
-                  data-prod="' . esc_attr($product_id) . '" 
-                  data-toggle="quick-view">
-                  Add
-               </a></div>';
+    foreach ($cart as $cart_item) {
+      if ($cart_item['product_id'] == $product->get_id()) {
+        $cart_qty += $cart_item['quantity'];
+      }
+    }
 
-  return $button;
-}
-add_shortcode('quickview_button', 'flatsome_custom_quickview_button');
+    $required_qty = max(1, $min_qty - $cart_qty);
+
+    if ($cart_qty < $min_qty) {
+      $args['min_value'] = $required_qty;
+      $args['input_value'] = $required_qty;
+    }
+  }
+
+  return $args;
+}, 10, 2);
