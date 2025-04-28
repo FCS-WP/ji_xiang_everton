@@ -77,7 +77,6 @@ $billing_address = $billing_address_default
 	<?php do_action('woocommerce_after_checkout_billing_form', $checkout); ?>
 </div>
 
-
 <?php if (! is_user_logged_in() && $checkout->is_registration_enabled()) : ?>
 	<div class="woocommerce-account-fields">
 		<?php if (! $checkout->is_registration_required()) : ?>

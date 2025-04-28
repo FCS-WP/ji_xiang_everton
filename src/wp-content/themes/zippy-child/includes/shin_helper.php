@@ -149,3 +149,11 @@ function zippy_get_wc_session($key = null)
 
   return $session_data;
 }
+
+
+function zippy_get_delivery_time()
+{
+  if (empty(zippy_get_wc_session('time'))) return;
+  return 'From ' . date("H:i", strtotime(zippy_get_wc_session('time')['from'])) .
+    ' To ' . date("H:i", strtotime(zippy_get_wc_session('time')['to']));
+}
