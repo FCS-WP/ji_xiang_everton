@@ -22,7 +22,7 @@ $billing_address_default = $checkout->get_value('billing_address_1');
 
 $billing_address = $billing_address_default
 	? $billing_address_default
-	: $_SESSION['delivery_address'];
+	: WC()->session->get('delivery_address');
 ?>
 
 <div class="woocommerce-billing-fields">

@@ -117,3 +117,35 @@ function get_minimum_rule_by_order_mode()
 
   return $response;
 }
+
+
+/**
+ * Get a specific WooCommerce session value (cached per request)
+ *
+ * @return mixed
+ */
+function zippy_get_wc_session($key = null)
+{
+  if (! WC()->session) return null;
+
+  $keys = array(
+    'date',
+    'time',
+    'order_mode',
+    'extra_fee',
+    'outlet_address',
+    'outlet_name',
+    'delivery_address'
+  );
+
+  if ($key !== null) {
+    return in_array($key, $keys) ? WC()->session->get($key) : null;
+  }
+
+  $session_data = array();
+  foreach ($keys as $k) {
+    $session_data[$k] = WC()->session->get($k);
+  }
+
+  return $session_data;
+}

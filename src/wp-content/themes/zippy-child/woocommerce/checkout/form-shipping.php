@@ -19,11 +19,11 @@
 
 defined('ABSPATH') || exit;
 
-$delivery_address = $_SESSION['delivery_address']
-	? $_SESSION['delivery_address']
+$delivery_address = !empty(WC()->session->get('delivery_address'))
+	? WC()->session->get('delivery_address')
 	: $checkout->get_value('shipping_address_1');
-$date = $_SESSION['date'];
-$time = $_SESSION['time'];
+$date = WC()->session->get('date');
+$time = WC()->session->get('time');
 
 
 if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $matches)) {
@@ -36,11 +36,11 @@ if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $m
 }
 
 ?>
-<?php if ($_SESSION['order_mode'] !== "takeaway"): ?>
+<?php if (WC()->session->get('order_mode') !== "takeaway"): ?>
 	<div class="woocommerce-shipping-fields">
 		<?php if (true === WC()->cart->needs_shipping_address()) : ?>
 
-			<div id="ship-to-different-address">
+			<div id="ship-to-different-address" style="display: none;">
 				<label class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox">
 					<input
 						id="ship-to-different-address-checkbox"
@@ -54,7 +54,7 @@ if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $m
 				</label>
 
 			</div>
-
+			<h3>Delivery Address</h3>
 
 			<div class="shipping_address">
 

@@ -13,18 +13,6 @@ function custom_woocommerce_mini_cart()
 }
 add_shortcode('mini_cart_sidebar', 'custom_woocommerce_mini_cart');
 
-function rule_minimun_checkout_on_cart_page()
-{
-  $subtotal = WC()->cart->get_subtotal();
-  $rule = get_minimum_rule_by_order_mode();
-  if ($subtotal < $rule['minimum_total_to_order']) {
-    remove_action('woocommerce_proceed_to_checkout', 'woocommerce_button_proceed_to_checkout', 20);
-  } else {
-    return;
-  }
-}
-// add_action('woocommerce_after_calculate_totals', 'rule_minimun_checkout_on_cart_page');
-
 function rule_minimun_checkout_all_site()
 {
   $subtotal = WC()->cart->get_subtotal();
@@ -36,4 +24,4 @@ function rule_minimun_checkout_all_site()
     return;
   }
 }
-add_action('template_redirect', 'rule_minimun_checkout_all_site');
+// add_action('template_redirect', 'rule_minimun_checkout_all_site');

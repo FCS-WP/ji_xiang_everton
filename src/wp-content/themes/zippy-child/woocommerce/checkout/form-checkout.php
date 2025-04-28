@@ -130,11 +130,11 @@ if (flatsome_option('facebook_login_checkout') && get_option('woocommerce_enable
 						}
 						$rule = get_minimum_rule_by_order_mode();
 						$fee_delivery = 0;
-						$extra_fee = isset($_SESSION['extra_fee']) ? $_SESSION['extra_fee'] : 0;
+						$extra_fee = !empty(WC()->session->get('extra_fee')) ? WC()->session->get('extra_fee') : 0;
 
 						if ($cart_subtotal < $rule["minimum_total_to_order"]) {
-							if ($_SESSION['order_mode'] !== 'takeaway') {
-								$fee_delivery = $_SESSION['shipping_fee'];
+							if (WC()->session->get('order_mode') !== 'takeaway') {
+								$fee_delivery = WC()->session->get('shipping_fee');
 							}
 						}
 						?>
@@ -151,7 +151,7 @@ if (flatsome_option('facebook_login_checkout') && get_option('woocommerce_enable
 						<?php if ($extra_fee != 0): ?>
 							<tr>
 								<td colspan="4" class="text-right"><strong>Extra Fee:</strong></td>
-								<td><?php echo wc_price($_SESSION['extra_fee']); ?></td>
+								<td><?php echo wc_price(WC()->session->get('extra_fee')); ?></td>
 							</tr>
 						<?php endif; ?>
 						<tr>
@@ -187,7 +187,8 @@ if (flatsome_option('facebook_login_checkout') && get_option('woocommerce_enable
 						<div id="method_shipping">
 							<div class="quickcheckout-heading"><i class="fa fa-truck"></i> Delivery Method</div>
 							<div class="quickcheckout-content">
-								<p>Please select the preferred shipping method to use on this order.</p>
+								<input type="hidden" name="billing_method_shipping" id="billing_method_shipping" value="<?php echo esc_attr(WC()->session->get('order_mode') ?? ''); ?>">
+
 								<div class="select_method_shipping">
 									<table class="shipping__table shipping__table--multiple">
 										<tbody>
@@ -228,6 +229,8 @@ if (flatsome_option('facebook_login_checkout') && get_option('woocommerce_enable
 									<input type="checkbox" id="switchInput">
 									<span class="slider round" id="switchButton"></span>
 								</label>
+								<input type="hidden" name="billing_cutlery" id="billing_cutlery" value="NO">
+
 								<p id="labelSwitch">No, thanks.</p>
 							</div>
 							<div class="quickcheckout-order-info">
@@ -235,29 +238,42 @@ if (flatsome_option('facebook_login_checkout') && get_option('woocommerce_enable
 									<tbody>
 										<tr>
 											<td>Outlet Name:</td>
-											<td><?php echo $_SESSION['outlet_name']; ?></td>
+											<td>
+												<?php echo WC()->session->get('outlet_name'); ?>
+												<input type="hidden" name="billing_outlet" id="billing_outlet" value="<?php echo esc_attr(zippy_get_wc_session('outlet_name') ?? ''); ?>">
+												<input type="hidden" name="billing_outlet_address" id="billing_outlet_address" value="<?php echo esc_attr(zippy_get_wc_session('outlet_address') ?? ''); ?>">
+
+											</td>
 										</tr>
 										<?php
-										if ($_SESSION['order_mode'] == 'delivery') {
+										if (WC()->session->get('order_mode') == 'delivery') {
 										?>
 											<tr>
 												<td>Delivery Address:</td>
-												<td><?php echo $_SESSION['delivery_address']; ?></td>
+												<td><?php echo WC()->session->get('delivery_address'); ?></td>
 											</tr>
 										<?php
 										}
 										?>
 										<tr>
 											<td>Date:</td>
-											<td><?php echo $_SESSION['date']; ?></td>
+											<td>
+												<?php echo WC()->session->get('date'); ?>
+												<input type="hidden" name="billing_date" id="billing_date" value="<?php echo esc_attr(zippy_get_wc_session('date') ?? ''); ?>">
+											</td>
 										</tr>
 										<tr>
 											<td>Time:</td>
 											<td>
 												<?php
-												echo 'From ' . date("H:i", strtotime($_SESSION['time']['from'])) .
-													' To ' . date("H:i", strtotime($_SESSION['time']['to']));
+												echo 'From ' . date("H:i", strtotime(zippy_get_wc_session('time')['from'])) .
+													' To ' . date("H:i", strtotime(zippy_get_wc_session('time')['to']));
 												?>
+
+												<input type="hidden" name="billing_time" id="billing_time"
+													value="<?php echo esc_attr('From ' . date("H:i", strtotime(zippy_get_wc_session('time')['from'])) .
+																		' To ' . date("H:i", strtotime(zippy_get_wc_session('time')['to']))); ?>">
+
 											</td>
 
 										</tr>
