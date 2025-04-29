@@ -9,16 +9,15 @@ function shin_scripts()
 
   wp_enqueue_script('main-scripts-js', THEME_URL . '-child' . '/assets/dist/js/main.min.js', array('jquery'), $version, true);
 
-  // wp_enqueue_script('vanilla-calendar-js', THEME_URL . '-child' . '/assets/lib/vanilla-calendar.min.js', [], $version, true);
-  // wp_enqueue_style('vanilla-calendar-css', THEME_URL . '-child' . '/assets/lib/vanilla-calendar.min.css', [], $version);
-
   wp_enqueue_script('sweet-alert2-js', THEME_URL . '-child' . '/assets/lib/sweetalert/sweetalert2.all.min.js', [], $version, true);
+
   wp_enqueue_style('sweet-alert2-css', THEME_URL . '-child' . '/assets/lib/sweetalert/sweetalert2.min.css', [], $version);
 }
 
-function custom_lostpassword_url($url, $redirect) {
+function custom_lostpassword_url($url, $redirect)
+{
   // Set your custom lost password page URL
-  $custom_url = esc_url(wp_login_url()).'?action=lostpassword';
+  $custom_url = esc_url(wp_login_url()) . '?action=lostpassword';
   return $custom_url;
 }
 add_filter('lostpassword_url', 'custom_lostpassword_url', 10, 2);

@@ -52,10 +52,8 @@ if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $m
 						style="display: none;" />
 					<h3>Delivery Address</h3>
 				</label>
-
 			</div>
 			<h3>Delivery Address</h3>
-
 			<div class="shipping_address">
 
 				<?php do_action('woocommerce_before_checkout_shipping_form', $checkout); ?>
@@ -73,7 +71,6 @@ if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $m
 					<p class="form-row form-row-wide">
 						<label for="shipping_address_1">Street address <abbr class="required" title="required">*</abbr></label>
 						<input type="text" name="shipping_address_1" id="shipping_address_1" class="input-text noborder" readonly required value="<?php echo esc_attr($delivery_address); ?>" />
-
 					</p>
 
 					<p class="form-row form-row-wide">
@@ -90,12 +87,10 @@ if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $m
 					<p class="form-row form-row-wide">
 						<label>Time <abbr class="required" title="required">*</abbr></label>
 						<span class="time">
-							From <?php echo date("H:i", strtotime($time['from'])); ?> to <?php echo date("H:i", strtotime($time['to'])); ?>
+							<?php echo zippy_get_delivery_time(); ?>
 						</span>
-
 					</p>
 				</div>
-
 
 				<?php do_action('woocommerce_after_checkout_shipping_form', $checkout); ?>
 
