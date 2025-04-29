@@ -19,7 +19,7 @@ function custom_save_checkout_fields($order_id)
   }
 }
 
-// add_action('woocommerce_checkout_update_order_meta', 'custom_save_checkout_fields');
+add_action('woocommerce_checkout_update_order_meta', 'custom_save_checkout_fields');
 
 //Display Admin
 function custom_display_order_meta($order)
