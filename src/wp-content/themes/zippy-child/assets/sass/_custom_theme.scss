@@ -478,3 +478,53 @@ ul {
     display: none;
   }
 }
+
+.menu_link_category {
+  > div{
+    > a{
+      > span{
+        font-size: 14px;
+      }
+    }
+  }
+}
+.widget_shopping_cart_content .woocommerce-mini-cart__empty-message.empty{
+  font-size: 14px;
+}
+
+#header{
+  border-bottom: 1px solid #ebebeb;
+}
+.header-main#masthead{
+  height: auto;
+  ul{
+    li{
+      &.menu-item{
+        margin-right: 30px;  
+      }
+      &.has-icon{
+        .header-button{
+          a{
+            width: 60px;
+            height: 60px;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            img{
+              margin-top: 0;
+            }
+          }
+        }
+      }
+      a{
+        font-size: 14px;
+        font-weight: bold;
+      }
+    }
+  }
+}
+#logo a img{
+  width: 136px;
+  max-height: none;
+}
