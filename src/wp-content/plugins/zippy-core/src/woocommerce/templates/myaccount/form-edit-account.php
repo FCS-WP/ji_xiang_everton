@@ -44,20 +44,6 @@ do_action('woocommerce_before_edit_account_form'); ?>
     <input type="email" class="woocommerce-Input woocommerce-Input--email input-text" name="account_email" id="account_email" autocomplete="email" value="<?php echo esc_attr($user->user_email); ?>" />
   </p>
 
-  <!-- Zippy Custom Start -->
-
-  <p class="woocommerce-form-row woocommerce-form-row--first form-row form-row-first">
-    <label for="account_custom_consent"><?php esc_html_e('PDPA Consent', 'woocommerce'); ?></label>
-    <input type="text" readonly class="woocommerce-Input woocommerce-Input--text input-text" name="account_custom_consent" id="account_custom_consent" autocomplete="given-name" value="<?php echo esc_attr($user->custom_consent); ?>" />
-  </p>
-  <p class="woocommerce-form-row woocommerce-form-row--last form-row form-row-last">
-    <label for="marketing_consent"><?php esc_html_e('Marketing Materials Consent', 'woocommerce'); ?></label>
-    <input type="text" readonly class="woocommerce-Input woocommerce-Input--text input-text" name="account_marketing_consent" id="account_marketing_consent" autocomplete="family-name" value="<?php echo esc_attr($user->marketing_consent); ?>" />
-  </p>
-  <div class="clear"></div>
-
-  <!-- Zippy Custom End -->
-
   <fieldset>
     <legend><?php esc_html_e('Password change', 'woocommerce'); ?></legend>
 
