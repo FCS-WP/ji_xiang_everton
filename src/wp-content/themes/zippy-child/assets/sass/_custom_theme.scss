@@ -254,7 +254,7 @@ ul {
     a {
       background-color: var(--fs-color-primary);
       color: #fff !important;
-      padding: 10px !important;
+      padding: 15px !important;
       border-radius: 50px;
     }
   }
@@ -519,7 +519,6 @@ ul {
       }
       a{
         font-size: 14px;
-        font-weight: bold;
       }
     }
   }
@@ -527,4 +526,15 @@ ul {
 #logo a img{
   width: 136px;
   max-height: none;
+}
+
+.header-button {
+  .icon {
+    i {
+      font-size: 36px !important;
+    }
+    img {
+      width: 36px !important;
+    }
+  }
 }
