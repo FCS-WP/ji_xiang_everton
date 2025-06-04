@@ -44,17 +44,6 @@ $allowed_html = array(
                 </a>
             </div>
             <div class="item_tab_myaccount">
-                <a href="<?php echo esc_url(wc_get_endpoint_url('edit-account')) . '#password_current' ?>">
-                    <div class="icon_item">
-                        <i class="icon-lock"></i>
-                    </div>
-                    <div class="content_item">
-                        <h5>Update My Password</h5>
-                        <p>Keeps your security accesses in check</p>
-                    </div>
-                </a>
-            </div>
-            <div class="item_tab_myaccount">
                 <a href="<?php echo esc_url( wc_get_endpoint_url( 'orders' ) ) ?>">
                     <div class="icon_item">
                         <i class="icon-shopping-basket"></i>
