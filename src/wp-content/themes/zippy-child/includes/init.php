@@ -15,3 +15,7 @@ foreach (glob(THEME_DIR . '-child' . "/includes/woocommerce/*.php") as $file_nam
 foreach (glob(THEME_DIR . '-child' . "/includes/cart/*.php") as $file_name) {
   require_once($file_name);
 }
+
+foreach (glob(THEME_DIR . '-child' . "/includes/product_combo/*.php") as $file_name) {
+  require_once($file_name);
+}
