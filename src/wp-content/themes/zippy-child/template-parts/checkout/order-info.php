@@ -29,6 +29,14 @@
             <a href="<?php echo esc_url($product_permalink); ?>">
               <?php echo $_product->get_name(); ?>
             </a>
+            <div class="akk-sub-products-list">
+              <?php foreach ($cart_item['akk_selected'] as $sub_product_id => $qty): ?>
+              <?php if ($qty <= 0) continue;
+                $sub_product=wc_get_product($sub_product_id);
+                if (!$sub_product) continue; ?>
+                <p class="akk-sub-product"><strong> <?php echo esc_html($sub_product->get_name()).' ('.wc_price($sub_product->get_price()).')' . ' x ' . intval($qty)  ?></strong></p>
+              <?php endforeach; ?>
+            </div>
           </td>
 
           <td class="product-price_custom">
