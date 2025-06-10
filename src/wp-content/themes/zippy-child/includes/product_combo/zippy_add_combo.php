@@ -17,7 +17,8 @@ function combo_display_sub_products_on_frontend()
         echo '<div class="akk-sub-products">';
 
         foreach ($sub_products as $sub_product_post) {
-            $sub_product = wc_get_product($sub_product_post->ID);
+            $product_id = is_object($sub_product_post) ? $sub_product_post->ID : $sub_product_post;
+            $sub_product = wc_get_product($product_id);
             $stock_level = $sub_products['stock_level'];
             if (!$sub_product) continue;
 

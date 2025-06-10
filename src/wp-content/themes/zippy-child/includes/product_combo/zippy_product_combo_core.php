@@ -1,4 +1,5 @@
-<? phpadd_action('save_post', 'check_product_combo_stock_before_save_post', 10, 3);
+<?php
+add_action('save_post', 'check_product_combo_stock_before_save_post', 10, 3);
 function check_product_combo_stock_before_save_post($post_id, $post, $update)
 {
     if ($post->post_type !== 'product') return;
