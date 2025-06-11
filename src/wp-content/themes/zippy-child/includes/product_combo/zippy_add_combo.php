@@ -96,7 +96,11 @@ function combo_display_sub_products_on_frontend()
             }
 
             $qtyInputs.on('input change', updateComboPrice);
-            updateComboPrice();
+            if ($('.product-combo').length > 0) {
+                updateComboPrice();
+            }
+
+
         });
     </script>
 <?php
@@ -108,22 +112,18 @@ function combo_display_sub_products_on_frontend()
 add_filter('woocommerce_add_cart_item_data', 'capture_selected_sub_products', 10, 2);
 function capture_selected_sub_products($cart_item_data, $product_id)
 {
-    $list_sub_products = get_field('product_combo', $product_id);
-    if (empty($list_sub_products)) return $cart_item_data;
-
-    if (isset($_POST['akk_sub_products']) && is_array($_POST['akk_sub_products'])) {
-        $cart_item_data['akk_selected'] = [];
-
+    if (!empty($_POST['akk_sub_products']) && is_array($_POST['akk_sub_products'])) {
+        $selected = [];
         foreach ($_POST['akk_sub_products'] as $product_id => $qty) {
             $qty = intval($qty);
-            $product_id = intval($product_id);
             if ($qty > 0) {
-                $cart_item_data['akk_selected'][$product_id] = $qty;
+                $selected[$product_id] = $qty;
             }
         }
 
-        if (!empty($cart_item_data['akk_selected'])) {
-            $cart_item_data['unique_key'] = md5(uniqid());
+        if (!empty($selected)) {
+            $cart_item_data['akk_selected'] = $selected;
+            $cart_item_data['unique_key'] = md5(json_encode($selected));
         }
     }
 
@@ -147,7 +147,7 @@ function calculate_combo_price($cart)
                     $total_price += $sub_product->get_price() * $qty;
                 }
             }
-
+            var_dump($total_price);
             $item['data']->set_price($total_price);
         }
     }
