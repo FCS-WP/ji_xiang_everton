@@ -148,4 +148,3 @@ function restore_combo_price_from_session($cart) {
         }
     }
 }
-
