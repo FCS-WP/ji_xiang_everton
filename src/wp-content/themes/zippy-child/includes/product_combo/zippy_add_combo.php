@@ -131,24 +131,21 @@ function capture_selected_sub_products($cart_item_data, $product_id)
 }
 
 
-
-add_action('woocommerce_before_calculate_totals', 'calculate_combo_price');
-function calculate_combo_price($cart)
-{
-    if (is_admin() && !defined('DOING_AJAX')) return;
-
-    foreach ($cart->get_cart() as $item) {
+add_action('woocommerce_cart_loaded_from_session', 'restore_combo_price_from_session');
+function restore_combo_price_from_session($cart) {
+    foreach ($cart->get_cart() as $cart_item_key => $item) {
         if (isset($item['akk_selected'])) {
             $total_price = 0;
-
             foreach ($item['akk_selected'] as $product_id => $qty) {
-                $sub_product = wc_get_product($product_id);
-                if ($sub_product && $qty > 0) {
-                    $total_price += $sub_product->get_price() * $qty;
+                $product = wc_get_product($product_id);
+                if ($product && $qty > 0) {
+                    $total_price += $product->get_price() * $qty;
                 }
             }
-            var_dump($total_price);
-            $item['data']->set_price($total_price);
+            if ($total_price > 0) {
+                $cart->cart_contents[$cart_item_key]['data']->set_price($total_price);
+            }
         }
     }
 }
+
