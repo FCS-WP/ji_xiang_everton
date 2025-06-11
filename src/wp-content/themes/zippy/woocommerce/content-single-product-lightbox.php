@@ -15,7 +15,7 @@ do_action('flatsome_before_single_product_lightbox');
 do_action_deprecated('wc_quick_view_before_single_product', array(), '3.18.0', 'flatsome_before_single_product_lightbox');
 ?>
 <div class="product-quick-view-container">
-	<div id="product-<?php the_ID(); ?>" <?php wc_product_class('row row-collapse mb-0', $product); ?>>
+	<div id="product-<?php the_ID(); ?>" <?php wc_product_class('row row-collapse mb-0 top-section ', $product); ?>>
 		<div class="product-gallery large-6 col">
 			<div class="slider slider-show-nav product-gallery-slider main-images mb-0">
 				<?php if (has_post_thumbnail()) :
@@ -54,20 +54,21 @@ do_action_deprecated('wc_quick_view_before_single_product', array(), '3.18.0', '
 		</div>
 
 		<div class="product-info summary large-6 col entry-summary" style="font-size:90%;">
-			<div class="product-lightbox-inner" style="padding: 30px;">
+			<div class="product-lightbox-inner">
 				<a class="plain" href="<?php the_permalink(); ?>">
-					<h1><?php the_title(); ?></h1>
+					<h1 class="entry-title"><?php the_title(); ?></h1>
 				</a>
-				<div class="is-divider small"></div>
 
 				<?php do_action('flatsome_single_product_lightbox_summary'); ?>
 				<?php do_action_deprecated('woocommerce_single_product_lightbox_summary', array(), '3.18.0', 'flatsome_single_product_lightbox_summary'); ?>
 			</div>
 		</div>
-		<div>
-			<?php do_action('woocommerce_' . $product->get_type() . '_add_to_cart');
-			?>
-		</div>
+
+
+	</div>
+	<div>
+		<?php do_action('woocommerce_' . $product->get_type() . '_add_to_cart');
+		?>
 	</div>
 </div>
 

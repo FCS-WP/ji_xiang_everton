@@ -1,5 +1,5 @@
 #top-bar {
-  marquee{
+  marquee {
     font-weight: 600;
   }
 }
@@ -108,7 +108,7 @@ header {
   }
 }
 
-.product-small{
+.product-small {
   .col-inner {
     height: 100%;
   }
@@ -117,7 +117,7 @@ header {
     height: 100%;
     .box-text-products {
       padding: 15px;
-  
+
       .product-title {
         a {
           font-size: 16px;
@@ -126,14 +126,13 @@ header {
         }
         margin-bottom: 10px;
       }
-  
+
       .product-text-available {
         min-height: 47px;
       }
     }
   }
 }
-
 
 .price-wrapper {
   .price {
@@ -350,6 +349,30 @@ ul {
 
 .lightbox-content {
   border-radius: 8px !important;
+  max-width: 950px !important;
+  .product-lightbox-inner {
+    padding: 20px 0 0 20px;
+    .entry-title{
+      color: #ec7265;
+      font-weight: 700;
+    }
+    .custom-description {
+      p {
+        margin-bottom: 10px;
+      }
+      ul {
+        li {
+          margin-bottom: 0px;
+        }
+      }
+    }
+    .custom-price{
+      span{
+        font-size: 18px;
+        font-weight: bold;
+      }
+    }
+  }
 }
 
 .mfp-container {
@@ -468,7 +491,7 @@ ul {
   line-height: 25px !important;
   padding: 10px !important;
 }
-.noborder{
+.noborder {
   border: none !important;
   box-shadow: none !important;
   padding: 0px !important;
@@ -480,50 +503,50 @@ ul {
 }
 
 .menu_link_category {
-  > div{
-    > a{
-      > span{
+  > div {
+    > a {
+      > span {
         font-size: 14px;
       }
     }
   }
 }
-.widget_shopping_cart_content .woocommerce-mini-cart__empty-message.empty{
+.widget_shopping_cart_content .woocommerce-mini-cart__empty-message.empty {
   font-size: 14px;
 }
 
-#header{
+#header {
   border-bottom: 1px solid #ebebeb;
 }
-.header-main#masthead{
+.header-main#masthead {
   height: auto;
-  ul{
-    li{
-      &.menu-item{
-        margin-right: 30px;  
+  ul {
+    li {
+      &.menu-item {
+        margin-right: 30px;
       }
-      &.has-icon{
-        .header-button{
-          a{
+      &.has-icon {
+        .header-button {
+          a {
             width: 60px;
             height: 60px;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            img{
+            img {
               margin-top: 0;
             }
           }
         }
       }
-      a{
+      a {
         font-size: 14px;
       }
     }
   }
 }
-#logo a img{
+#logo a img {
   width: 136px;
   max-height: none;
 }
