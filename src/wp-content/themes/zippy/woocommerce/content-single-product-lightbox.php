@@ -54,11 +54,10 @@ do_action_deprecated('wc_quick_view_before_single_product', array(), '3.18.0', '
 		</div>
 
 		<div class="product-info summary large-6 col entry-summary" style="font-size:90%;">
-			<div class="product-lightbox-inner" style="padding: 30px;">
+			<div class="product-lightbox-inner">
 				<a class="plain" href="<?php the_permalink(); ?>">
-					<h1><?php the_title(); ?></h1>
+					<h1 class="entry-title"><?php the_title(); ?></h1>
 				</a>
-				<div class="is-divider small"></div>
 
 				<?php do_action('flatsome_single_product_lightbox_summary'); ?>
 				<?php do_action_deprecated('woocommerce_single_product_lightbox_summary', array(), '3.18.0', 'flatsome_single_product_lightbox_summary'); ?>

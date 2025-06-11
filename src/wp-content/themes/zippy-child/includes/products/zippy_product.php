@@ -37,6 +37,7 @@ add_action('woocommerce_product_options_general_product_data', function () {
     'description'       => __('Enter the minimum quantity required to add this product to the cart.', 'woocommerce'),
     'type'              => 'number',
     'custom_attributes' => ['step' => '1', 'min' => '1'],
+    'value'             => get_post_meta(get_the_ID(), '_custom_minimum_order_qty', true) ?: 1,
   ]);
 });
 

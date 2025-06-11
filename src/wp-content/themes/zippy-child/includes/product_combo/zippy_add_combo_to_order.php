@@ -21,3 +21,10 @@ function display_sub_products_in_admin_order($item_id, $item, $product)
     }
     echo '</ul>';
 }
+add_action('woocommerce_add_order_item_meta', 'save_packing_instructions_to_order', 10, 3);
+function save_packing_instructions_to_order($item_id, $values, $cart_item_key)
+{
+    if (!empty($values['packing_instructions'])) {
+        wc_add_order_item_meta($item_id, 'Packing Instructions', $values['packing_instructions']);
+    }
+}
