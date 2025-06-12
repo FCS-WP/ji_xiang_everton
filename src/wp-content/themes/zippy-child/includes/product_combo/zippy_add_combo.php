@@ -98,9 +98,20 @@ function combo_display_sub_products_on_frontend()
             $qtyInputs.on('input change', updateComboPrice);
             if ($('.product-combo').length > 0) {
                 updateComboPrice();
-            }
-
-
+            };
+            $('body').on('added_to_cart', function(event, fragments, cart_hash, $button) {
+                $.ajax({
+                    url: wc_cart_fragments_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
+                    type: 'POST',
+                    success: function(data) {
+                        if (data && data.fragments) {
+                            $.each(data.fragments, function(key, value) {
+                                $(key).replaceWith(value);
+                            });
+                        }
+                    }
+                });
+            });
         });
     </script>
 <?php
@@ -130,9 +141,9 @@ function capture_selected_sub_products($cart_item_data, $product_id)
     return $cart_item_data;
 }
 
-
 add_action('woocommerce_cart_loaded_from_session', 'restore_combo_price_from_session');
-function restore_combo_price_from_session($cart) {
+function restore_combo_price_from_session($cart)
+{
     foreach ($cart->get_cart() as $cart_item_key => $item) {
         if (isset($item['akk_selected'])) {
             $total_price = 0;
