@@ -225,6 +225,9 @@ input:checked + .slider:before {
     ul {
       li {
         margin-left: 15px;
+        &.woocommerce-MyAccount-navigation-link--customer-logout {
+          margin-left: 0;
+        }
       }
     }
   }
