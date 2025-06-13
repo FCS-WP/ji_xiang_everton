@@ -138,7 +138,8 @@ function capture_selected_sub_products($cart_item_data, $product_id)
         }
     }
     if (!empty($_POST['packing_instructions'])) {
-        $cart_item_data['packing_instructions'] = $_POST['packing_instructions'];
+       $cart_item_data['packing_instructions'] = $_POST['packing_instructions'];
+
     }
 
 

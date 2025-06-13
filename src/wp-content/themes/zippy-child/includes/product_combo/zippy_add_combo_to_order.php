@@ -13,6 +13,15 @@ add_filter('woocommerce_hidden_order_itemmeta', function ($hidden_meta) {
     $hidden_meta[] = 'packing_instructions';
     return $hidden_meta;
 });
+add_filter('woocommerce_order_item_get_formatted_meta_data', function ($formatted_meta, $item) {
+    foreach ($formatted_meta as $key => $meta) {
+        if ($meta->key === 'packing_instructions') {
+            unset($formatted_meta[$key]);
+        }
+    }
+    return $formatted_meta;
+}, 10, 2);
+
 
 add_action('woocommerce_after_order_itemmeta', 'display_sub_products_in_admin_order', 10, 3);
 function display_sub_products_in_admin_order($item_id, $item, $product)
@@ -34,5 +43,32 @@ function display_sub_products_in_admin_order($item_id, $item, $product)
     $packing = $item->get_meta('packing_instructions');
     if (!empty($packing)) {
         echo '<p><strong>Packing Instructions:</strong> ' . esc_html($packing) . '</p>';
+    }
+}
+
+
+add_action('woocommerce_order_item_meta_end', 'show_combo_below_item_in_thankyou_page', 10, 4);
+function show_combo_below_item_in_thankyou_page($item_id)
+{
+    $sub_products = wc_get_order_item_meta($item_id, 'akk_selected', true);
+    $packing = wc_get_order_item_meta($item_id, 'packing_instructions', true);
+
+    if (!empty($sub_products) && is_array($sub_products)) {
+        echo '<div class="akk-sub-products" style="margin-top: 5px;font-size: 0.9em">';
+        echo '<strong>Combo items:</strong>';
+        echo '<ul style="margin: 0 0 5px 15px;">';
+        foreach ($sub_products as $product_id => $qty) {
+            $product = wc_get_product($product_id);
+            if ($product) {
+                echo '<li>' . esc_html($product->get_name()) . ' × ' . intval($qty) . '</li>';
+            }
+        }
+        echo '</ul>';
+
+        if (!empty($packing)) {
+            echo '<div><strong>Packing instructions:</strong> ' . esc_html($packing) . '</div>';
+        }
+
+        echo '</div>';
     }
 }
