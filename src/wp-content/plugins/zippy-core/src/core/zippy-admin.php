@@ -37,7 +37,7 @@ class Zippy_Admin
 
 		add_filter('pre_site_transient_update_core', [$this, 'remove_core_updates']);
 
-		add_filter('pre_site_transient_update_plugins', [$this, 'remove_core_updates']);
+		add_filter('site_transient_update_plugins', [$this, 'allow_only_zippy_updates']);
 
 		add_filter('pre_site_transient_update_themes', [$this, 'remove_core_updates']);
 	}
@@ -67,5 +67,18 @@ class Zippy_Admin
 		global $wp_version;
 
 		return (object) array('last_checked' => time(), 'version_checked' => $wp_version,);
+	}
+
+	public function allow_only_zippy_updates($value)
+	{
+		if (isset($value) && is_object($value) && isset($value->response)) {
+			foreach ($value->response as $plugin_basename => $plugin_data) {
+				if ($plugin_basename !== ZIPPY_CORE_BASENAME) {
+					unset($value->response[$plugin_basename]);
+				}
+			}
+		}
+
+		return $value;
 	}
 }
