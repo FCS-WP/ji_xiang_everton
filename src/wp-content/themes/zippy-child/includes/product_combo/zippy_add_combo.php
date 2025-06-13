@@ -137,6 +137,11 @@ function capture_selected_sub_products($cart_item_data, $product_id)
             $cart_item_data['unique_key'] = md5(json_encode($selected));
         }
     }
+    if (!empty($_POST['packing_instructions'])) {
+       $cart_item_data['packing_instructions'] = $_POST['packing_instructions'];
+
+    }
+
 
     return $cart_item_data;
 }
