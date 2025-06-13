@@ -26,8 +26,8 @@ add_filter('woocommerce_order_item_get_formatted_meta_data', function ($formatte
 add_action('woocommerce_after_order_itemmeta', 'display_sub_products_in_admin_order', 10, 3);
 function display_sub_products_in_admin_order($item_id, $item, $product)
 {
-
     $akk_selected = $item->get_meta('akk_selected');
+    $packing = $item->get_meta('packing_instructions');
     if ($akk_selected && is_array($akk_selected)) {
         echo '<p><strong>Combo Products:</strong></p>';
         echo '<ul>';
@@ -39,8 +39,6 @@ function display_sub_products_in_admin_order($item_id, $item, $product)
         }
         echo '</ul>';
     }
-
-    $packing = $item->get_meta('packing_instructions');
     if (!empty($packing)) {
         echo '<p><strong>Packing Instructions:</strong> ' . esc_html($packing) . '</p>';
     }
@@ -64,11 +62,10 @@ function show_combo_below_item_in_thankyou_page($item_id)
             }
         }
         echo '</ul>';
-
-        if (!empty($packing)) {
-            echo '<div><strong>Packing instructions:</strong> ' . esc_html($packing) . '</div>';
-        }
-
         echo '</div>';
+    }
+
+    if (!empty($packing)) {
+        echo '<div style="margin-top:5px;font-size: 0.9em;"><strong>Packing instructions:</strong> ' . esc_html($packing) . '</div>';
     }
 }
