@@ -27,3 +27,4 @@ import './switchCutlery';
 import './calendar';
 import './zippy-form';
 import './comfirmMethodShipping';
+import './downloadOrderFile';

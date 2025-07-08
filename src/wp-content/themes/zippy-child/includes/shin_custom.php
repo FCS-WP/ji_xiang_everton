@@ -21,3 +21,5 @@ function custom_lostpassword_url($url, $redirect)
   return $custom_url;
 }
 add_filter('lostpassword_url', 'custom_lostpassword_url', 10, 2);
+
+
