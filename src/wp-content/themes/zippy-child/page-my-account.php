@@ -25,6 +25,7 @@ get_header(); ?>
 					<option value="pdf">Download all transactions (PDF)</option>
 					<option value="csv">Download all transactions (CSV)</option>
 				</select>
+				<input type="hidden" id="customer_id" name="customer_id" value="<?php echo get_current_user_id(); ?>" >
 				<p class="message"></p>
 			</div>
 		</div>
