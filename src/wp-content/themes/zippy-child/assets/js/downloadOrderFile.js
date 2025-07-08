@@ -1,18 +1,20 @@
 
 $("body").on("change", "#download_order_file select", function(){
-    let file_type = $(this).val();
+    let file_type = $(this).val()
+        customer_id = $("#customer_id").val();
     if(file_type != ""){
-        downloadOrdersFile(file_type);
+        downloadOrdersFile(file_type, customer_id);
     }
 });
-function downloadOrdersFile(fileType) {
+function downloadOrdersFile(fileType, customer_id) {
     $(".tp_loader").show();
     $(".message").text("")
     $.ajax({
         url: '/wp-json/zippy-addons/v1/export-orders',
         method: 'GET',
         data: { 
-            file_type: fileType
+            file_type: fileType,
+            customer_id: customer_id
         },
         dataType: 'json',
         success: function(response) {
