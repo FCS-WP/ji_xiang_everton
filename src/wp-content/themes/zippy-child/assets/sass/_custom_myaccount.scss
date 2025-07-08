@@ -1,37 +1,39 @@
-.center_element_theme{
+.center_element_theme {
     display: flex;
     justify-content: center;
     align-items: center;
 
-    .col_main_page{
+    .col_main_page {
         width: 45%;
 
-        .item_tab_myaccount{
+        .item_tab_myaccount {
             border-radius: 4px;
             border: 1px solid #c7c7c7;
             padding: 15px;
             margin-bottom: 10px;
-            a{
+
+            a {
                 display: flex;
                 align-items: center;
                 color: #000;
             }
-            
 
-            .icon_item{
+
+            .icon_item {
                 margin-right: 20px;
                 margin-left: 10px;
 
-                i{
+                i {
                     font-size: 25px;
                 }
             }
-            
-            h5{
+
+            h5 {
                 margin-bottom: 0px;
                 text-transform: uppercase;
             }
-            p{
+
+            p {
                 margin-bottom: 0px;
             }
         }
@@ -39,27 +41,27 @@
 
 }
 
-.my-account{
-    h1{
+.my-account {
+    h1 {
         text-align: center;
         color: var(--fs-color-primary);
     }
 
-    small{
+    small {
         display: none;
     }
 }
 
-.row_form_register{
+.row_form_register {
     display: flex;
     justify-content: space-between;
 
-    .col_form_register{
+    .col_form_register {
         width: 49%;
     }
 
-    .btn-submit{
-        background: var(--fs-color-primary) ;
+    .btn-submit {
+        background: var(--fs-color-primary);
         color: #fff;
         border-radius: 5px;
     }
@@ -67,26 +69,29 @@
 
 }
 
-#loginform{
-    #wp-submit{
+#loginform {
+    #wp-submit {
         margin-bottom: 0px !important;
     }
 }
 
-@media(max-width: 768px){
-    .center_element_theme{
-        .col_main_page{
+@media(max-width: 768px) {
+    .center_element_theme {
+        .col_main_page {
             width: 100%;
         }
     }
 }
+
 .custom-form-address,
 .custom-login-container {
     display: flex;
     justify-content: center;
+
     .custom-woo-column {
         width: 50%;
-        @media(max-width: 768px){
+
+        @media(max-width: 768px) {
             width: 100%;
         }
     }
@@ -104,4 +109,49 @@
 
 .link-create-account {
     margin-left: 10px;
+}
+
+#download_order_file {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+
+    label {
+        margin: 0;
+    }
+
+    .select_wrapper {
+        width: 300px;
+        margin: 0;
+    }
+    .message{
+        min-height: 25px;
+        display: block;
+    }
+}
+
+
+
+.tp_loader {
+    width: 30px;
+    height: 30px;
+    border: 5px solid #ddd;
+    border-bottom-color: #FF3D00;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    display: none;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
