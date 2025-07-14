@@ -78,6 +78,8 @@ require ZIPPY_CORE_DIR_PATH . 'vendor/plugin-update-checker/plugin-update-checke
 
 use  Zippy_Core\Src\Admin\Zippy_Admin_Setting;
 
+use  Zippy_Core\Src\Admin\Zippy_Orders;
+
 use  Zippy_Core\Src\Admin\Zippy_Admin_Url;
 
 use Zippy_Core\Src\Core\Zippy_Core;
@@ -143,3 +145,6 @@ Zippy_Analytics::get_instance();
 Zippy_Woocommerce::get_instance();
 
 Zippy_Postal_code::get_instance();
+
+Zippy_Orders::get_instance();
+
