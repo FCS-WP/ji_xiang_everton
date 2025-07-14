@@ -85,8 +85,8 @@ class Zippy_Orders
     ?>
       <select name="customer_type">
           <option value="" <?php selected($current_customer_type, ''); ?>><?php _e('All Customers', 'woocommerce'); ?></option>
-          <option value="registered" <?php selected($current_customer_type, 'registered'); ?>><?php _e('Registered Customers', 'woocommerce'); ?></option>
-          <option value="guest" <?php selected($current_customer_type, 'guest'); ?>><?php _e('Guests', 'woocommerce'); ?></option>
+          <option value="registered" <?php selected($current_customer_type, 'registered'); ?>><?php _e('Member Orders', 'woocommerce'); ?></option>
+          <option value="guest" <?php selected($current_customer_type, 'guest'); ?>><?php _e('Guest Orders', 'woocommerce'); ?></option>
       </select>
 
     <?php
