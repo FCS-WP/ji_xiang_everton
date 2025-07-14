@@ -84,7 +84,7 @@ class Zippy_Orders
       $current_customer_type = isset($_GET['customer_type']) ? sanitize_text_field($_GET['customer_type']) : '';
     ?>
       <select name="customer_type">
-          <option value="" <?php selected($current_customer_type, ''); ?>><?php _e('All Customers', 'woocommerce'); ?></option>
+          <option value="" <?php selected($current_customer_type, ''); ?>><?php _e('By Order Type', 'woocommerce'); ?></option>
           <option value="registered" <?php selected($current_customer_type, 'registered'); ?>><?php _e('Member Orders', 'woocommerce'); ?></option>
           <option value="guest" <?php selected($current_customer_type, 'guest'); ?>><?php _e('Guest Orders', 'woocommerce'); ?></option>
       </select>
