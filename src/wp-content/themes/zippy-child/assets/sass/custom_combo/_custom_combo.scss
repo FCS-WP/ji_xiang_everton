@@ -69,13 +69,15 @@
         }
       }
       .single_add_to_cart_button {
-        width: 80%;
         background-color: #ec7265;
         border-radius: 10px;
         color: #fff;
         font-size: 15px;
         font-weight: 700;
         margin: 0;
+        @include desktop {
+          width: 80%;
+        }
       }
     }
   }
