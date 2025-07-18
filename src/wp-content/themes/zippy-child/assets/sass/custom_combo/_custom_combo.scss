@@ -46,8 +46,11 @@
         width: 100%;
         background-color: #fff;
         box-shadow: rgba(0, 0, 0, 0.2) 0 0 8px;
-        padding: 15px 45px;
         z-index: 9999;
+        padding: 10px 15px;
+        @include desktop {
+          padding: 15px 45px;
+        }
       }
       .ux-quantity {
         width: auto;
@@ -69,13 +72,16 @@
         }
       }
       .single_add_to_cart_button {
-        width: 80%;
         background-color: #ec7265;
         border-radius: 10px;
         color: #fff;
         font-size: 15px;
         font-weight: 700;
         margin: 0;
+        width: 50%;
+        @include desktop {
+          width: 80%;
+        }
       }
     }
   }
