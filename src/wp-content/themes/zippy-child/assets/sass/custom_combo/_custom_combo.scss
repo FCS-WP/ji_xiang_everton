@@ -20,8 +20,11 @@
       overflow: auto;
       scrollbar-color: #ec7265 #f6f6f6;
       scrollbar-width: thin;
-      max-height: 750px;
+      max-height: 800px;
       background: #f1f1f1;
+      @include desktop {
+        max-height: 750px;
+      }
       .stock.in-stock {
         display: none;
       }
