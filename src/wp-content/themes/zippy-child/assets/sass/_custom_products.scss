@@ -1,11 +1,12 @@
 .custom-disabled-product {
-    .cta_add_to_cart a, .quick-view.quick-view-added {
-        pointer-events: none;
-        cursor: default;
-        background: #999;
-        text-decoration: none;
-    }
-    .box-image .attachment-woocommerce_thumbnail {
-        filter: brightness(0.5);
-    }
+  .cta_add_to_cart a,
+  .quick-view.quick-view-added {
+    pointer-events: none;
+    cursor: default;
+    background: #999;
+    text-decoration: none;
+  }
+  .box-image .attachment-woocommerce_thumbnail {
+    filter: brightness(0.5);
+  }
 }
