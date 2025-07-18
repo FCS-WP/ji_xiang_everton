@@ -18,7 +18,6 @@
             <?php do_action('woocommerce_cart_totals_before_shipping'); ?>
 
             <?php wc_cart_totals_shipping_html(); ?>
-
             <?php do_action('woocommerce_cart_totals_after_shipping'); ?>
 
           <?php elseif (WC()->cart->needs_shipping() && 'yes' === get_option('woocommerce_enable_shipping_calc')) : ?>
@@ -37,16 +36,6 @@
     </div>
   </div>
   <div class="quickcheckout-heading"><i class="fa fa-truck"></i> Order Information</div>
-  <p class="title_cutlery">Do you need cutlery?</p>
-  <div class="row_order_information">
-    <label class="switch">
-      <input type="checkbox" id="switchInput">
-      <span class="slider round" id="switchButton"></span>
-    </label>
-    <input type="hidden" name="billing_cutlery" id="billing_cutlery" value="NO">
-
-    <p id="labelSwitch">No, thanks.</p>
-  </div>
   <!-- Delivery Information -->
   <?php get_template_part('template-parts/checkout/order-delivery-info', ''); ?>
 
@@ -55,3 +44,4 @@
     <p>Please select the preferred payment method to use on this order.</p>
   </div>
 </div>
+

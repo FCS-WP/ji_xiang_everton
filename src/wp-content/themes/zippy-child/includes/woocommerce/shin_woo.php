@@ -4,7 +4,6 @@
 function custom_save_checkout_fields($order_id)
 {
   $fields = [
-    'billing_cutlery',
     'billing_outlet',
     'billing_date',
     'billing_time',
@@ -27,7 +26,6 @@ function custom_display_order_meta($order)
   $productID = $order->get_id();
   echo '<h4>' . __('Shipping Details', 'woocommerce') . '</h4>';
   echo '<p><strong>Method Shipping:</strong> ' . get_post_meta($productID, '_billing_method_shipping', true) . '</p>';
-  echo '<p><strong>Cutlery:</strong> ' . get_post_meta($productID, '_billing_cutlery', true) . '</p>';
   echo '<p><strong>Outlet Name:</strong> ' . get_post_meta($productID, '_billing_outlet', true) . '</p>';
   echo '<p><strong>Outlet Address:</strong> ' . get_post_meta($productID, '_billing_outlet_address', true) . '</p>';
   echo '<p><strong>Date:</strong> ' . get_post_meta($productID, '_billing_date', true) . '</p>';

@@ -108,10 +108,6 @@ if ( $show_downloads ) {
     <table class="shop_table">
         <tfoot>
             <tr>
-                <th>Cutlery</th>
-                <td><?php echo get_post_meta($order_id, '_billing_cutlery', true) ?></td>
-            </tr>
-            <tr>
                 <th>Outlet Name</th>
                 <td><?php echo get_post_meta($order_id, '_billing_outlet', true) ?></td>
             </tr>

@@ -60,3 +60,15 @@ function filter_shipping_methods($rates, $keep_methods = [], $remove_methods = [
 
   return $rates;
 }
+
+add_filter('woocommerce_cart_shipping_method_full_label', 'custom_shipping_label_with_distance', 10, 2);
+
+function custom_shipping_label_with_distance($label, $method) {
+    $total_distance = WC()->session->get('total_distance');
+    if ($total_distance) {
+        $distance_in_meters = round($total_distance / 1000 , 2);
+        $label .= ' - ' . $distance_in_meters . 'km';
+    }
+
+    return $label;
+}
