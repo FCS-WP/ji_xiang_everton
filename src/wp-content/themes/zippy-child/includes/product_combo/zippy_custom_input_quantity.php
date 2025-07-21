@@ -1,9 +1,10 @@
 <?php
 function render_flatsome_quantity_input($product, $stock_level = null, $min_qty = 0)
 {
+    $min_qty = (isset($min_qty) && is_numeric($min_qty) && $min_qty >= 0) ? (int)$min_qty : 0;
     $max_qty = $stock_level !== null ? (int)$stock_level : $product->get_max_purchase_quantity();
     $max_attr = $max_qty > 0 ? 'max="' . esc_attr($max_qty) . '"' : '';
-    $min_attr = 'min="' . esc_attr($min_qty) . '"';
+    $min_attr   = 'min="' . esc_attr($min_qty) . '"';
     $value_attr = 'value="' . esc_attr($min_qty) . '"';
 
     return '<div class="ux-quantity quantity buttons_added">' .
