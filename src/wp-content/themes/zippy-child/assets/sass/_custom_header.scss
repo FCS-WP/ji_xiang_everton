@@ -1,0 +1,96 @@
+#header {
+  border-bottom: 1px solid #ebebeb;
+}
+.header-main#masthead {
+  height: auto;
+  ul {
+    li {
+      &.menu-item {
+        margin-right: 30px;
+      }
+      &.has-icon {
+        .header-button {
+          a {
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            img {
+              margin-top: 0;
+              width: 22px !important;
+            }
+            i {
+              font-size: 22px !important;
+            }
+          }
+          @include desktop {
+            a {
+              width: 60px;
+              height: 60px;
+              padding: 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              img {
+                margin-top: 0;
+                width: 36px !important;
+              }
+              i {
+                font-size: 36px !important;
+              }
+            }
+          }
+        }
+      }
+      a {
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+.sidebar-menu {
+  padding: 0px !important;
+  ul {
+    li {
+      border-top: 1px solid #ec7265 !important;
+      &:last-child {
+        border-bottom: 1px solid #ec7265 !important;
+      }
+      a {
+        text-transform: capitalize;
+        color: #000;
+        font-weight: 400;
+      }
+      &.current_page_item {
+        a {
+          background-color: transparent !important;
+          color: #ec7265 !important;
+        }
+      }
+      &.header-search-form {
+        border: none !important;
+      }
+      &.html.custom.html_nav_position_text {
+        padding: 0px !important;
+        border-top: none !important;
+        .mobile-account {
+          display: flex;
+          justify-content: space-between;
+          width: 100%;
+          a {
+            width: 50%;
+            text-align: center;
+            padding: 20px;
+            color: #000;
+            &:first-child {
+              border-right: 1px solid #ec7265 !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}
