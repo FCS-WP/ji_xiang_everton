@@ -94,3 +94,37 @@
     }
   }
 }
+.stuck {
+  #logo {
+    img {
+      object-fit: contain !important;
+    }
+  }
+  .header-main {
+    .nav > li > a {
+      line-height: 16px !important;
+    }
+  }
+  .header-main#masthead {
+    ul {
+      li {
+        &.has-icon {
+          .header-button {
+            a {
+              width: 50px;
+              height: 50px;
+              padding: 0;
+              img {
+                margin-top: 0;
+                width: 30px !important;
+              }
+              i {
+                font-size: 30px !important;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

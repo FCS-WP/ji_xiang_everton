@@ -78,6 +78,27 @@
                     "prepend": "",
                     "append": "",
                     "parent_repeater": "field_6841549f8b056"
+                },
+                {
+                    "key": "field_687dc1044db95",
+                    "label": "Minimum quantity",
+                    "name": "minimum_quantity",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_6841549f8b056"
                 }
             ]
         }
@@ -100,5 +121,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1749194259
+    "modified": 1753071913
 }
