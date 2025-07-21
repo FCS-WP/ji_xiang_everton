@@ -157,3 +157,31 @@ function zippy_get_delivery_time()
   return 'From ' . date("H:i", strtotime(zippy_get_wc_session('time')['from'])) .
     ' To ' . date("H:i", strtotime(zippy_get_wc_session('time')['to']));
 }
+
+
+function handle_process_bar_notification($current, $total, $type)
+{
+  // Avoid division by zero
+  $percentage = ($total > 0) ? round(($current / $total) * 100, 2) : 0;
+
+  if ($current >= $total) {
+    return [
+      'message' => match ($type) {
+        'order' => "Yay! You've hit the min order of $" . $total,
+        'delivery' => "Yay! You've hit the min order for free delivery",
+        default => '',
+      },
+      'style' => 'background-color: #2ba862; width: 100%',
+    ];
+  }
+
+  $hit_minimum = $total - $current;
+  return [
+    'message' => match ($type) {
+      'order' => '$' . $hit_minimum . ' more for minimum order',
+      'delivery' => '$' . $hit_minimum . ' more for Free delivery',
+      default => '',
+    },
+    'style' => 'background-color: #f1b32c; width: ' . $percentage . '%',
+  ];
+}
