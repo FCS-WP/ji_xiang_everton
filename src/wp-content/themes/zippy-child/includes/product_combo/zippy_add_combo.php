@@ -26,13 +26,16 @@ function combo_display_sub_products_on_frontend()
                             if (!$sub_product) continue;
 
                             $stock_level = $sub_products['stock_level'] ?? 999;
-                            $image_url = get_the_post_thumbnail_url($sub_product->get_id(), 'thumbnail');
+                            $image_url = get_the_post_thumbnail_url($sub_product->get_id(), 'full');
 
                             echo '<div class="akk-sub-product">';
                             echo '<div class="sub-product-image">';
+                            echo '<a data-fancybox="img-' . esc_attr($sub_product->get_id()) . '" href="' . esc_url($image_url) . '">';
                             echo '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($sub_product->get_name()) . '" width="60">';
+                            echo '</a>';
                             echo '<label>' . esc_html($sub_product->get_name()) . ' (' . wc_price($sub_product->get_price()) . ')</label><br>';
                             echo '</div>';
+
 
                             echo '<div class="sub-product-info">';
                             echo render_flatsome_quantity_input($sub_product, $stock_level);
@@ -112,6 +115,7 @@ function combo_display_sub_products_on_frontend()
                     }
                 });
             });
+            Fancybox.bind('[data-fancybox]', {});
         });
     </script>
 <?php
@@ -138,8 +142,7 @@ function capture_selected_sub_products($cart_item_data, $product_id)
         }
     }
     if (!empty($_POST['packing_instructions'])) {
-       $cart_item_data['packing_instructions'] = $_POST['packing_instructions'];
-
+        $cart_item_data['packing_instructions'] = $_POST['packing_instructions'];
     }
 
 
