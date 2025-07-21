@@ -133,7 +133,10 @@ function combo_display_sub_products_on_frontend()
                     }
                 });
             });
-            Fancybox.bind('[data-fancybox]', {});
+            if (typeof Fancybox !== 'undefined' && typeof Fancybox.bind === 'function') {
+                Fancybox.bind('[data-fancybox]', {});
+            }
+
         });
     </script>
 <?php
