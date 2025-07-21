@@ -26,16 +26,20 @@ function combo_display_sub_products_on_frontend()
               if (!$sub_product) continue;
 
               $stock_level = $sub_products['stock_level'] ?? 999;
-              $image_url = get_the_post_thumbnail_url($sub_product->get_id(), 'thumbnail');
+              $min_qty = $sub_products['minimum_quantity'] ?? 0;
+              $image_url = get_the_post_thumbnail_url($sub_product->get_id(), 'full');
 
               echo '<div class="akk-sub-product">';
               echo '<div class="sub-product-image">';
+              echo '<a data-fancybox="img-' . esc_attr($sub_product->get_id()) . '" href="' . esc_url($image_url) . '">';
               echo '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($sub_product->get_name()) . '" width="60">';
+              echo '</a>';
               echo '<label>' . esc_html($sub_product->get_name()) . ' (' . wc_price($sub_product->get_price()) . ')</label><br>';
               echo '</div>';
 
+
               echo '<div class="sub-product-info">';
-              echo render_flatsome_quantity_input($sub_product, $stock_level);
+              echo render_flatsome_quantity_input($sub_product, $stock_level, $min_qty);
               echo '</div>';
 
               echo '</div>';
@@ -93,7 +97,24 @@ function combo_display_sub_products_on_frontend()
           $addToCartBtn.prop('disabled', false);
           $warning.hide();
         }
+        $qtyInputs.each(function() {
+          const $input = $(this);
+          const currentVal = parseInt($input.val()) || 0;
+          const minVal = parseInt($input.attr('min')) || 0;
+          const $minusBtn = $input.siblings('.ux-quantity__button--minus');
+
+          if (currentVal <= minVal) {
+            $minusBtn.prop('disabled', true);
+            $input.prop('readonly', true);
+          } else {
+            $minusBtn.prop('disabled', false);
+            $input.prop('readonly', false);
+          }
+        });
+
+
       }
+
 
       $qtyInputs.on('input change', updateComboPrice);
       if ($('.product-combo').length > 0) {
@@ -112,6 +133,10 @@ function combo_display_sub_products_on_frontend()
           }
         });
       });
+      if (typeof Fancybox !== 'undefined' && typeof Fancybox.bind === 'function') {
+        Fancybox.bind('[data-fancybox]', {});
+      }
+
     });
   </script>
 <?php
