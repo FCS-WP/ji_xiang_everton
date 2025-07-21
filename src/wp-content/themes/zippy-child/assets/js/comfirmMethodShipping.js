@@ -44,20 +44,27 @@ $(document).ready(function () {
       }
     });
   });
-
-  $(document).on(
-    "click",
-    ".single_add_to_cart_button.added",
-    function (event, fragments, cart_hash, $button) {
-      console.log("first");
-      Swal.fire({
-        title: "Added to Cart!",
-        text: "Product was successfully added to your cart.",
-        icon: "success",
-        confirmButtonText: "Continue Shopping",
-        timer: 2000,
-        timerProgressBar: true,
-      });
-    }
-  );
 });
+
+// Reload Mini cart when added items.
+$(document).ready(function () {
+  $("body").on("click", ".single_add_to_cart_button", function (param) {
+    setTimeout(() => {
+      $.ajax({
+        url: wc_cart_fragments_params.wc_ajax_url
+          .toString()
+          .replace("%%endpoint%%", "get_refreshed_fragments"),
+        type: "POST",
+        success: function (data) {
+          if (data && data.fragments) {
+            $.each(data.fragments, function (key, value) {
+              $(key).replaceWith(value);
+            });
+          }
+        },
+      });
+    }, 1000);
+    console.log($(this));
+  });
+});
+
