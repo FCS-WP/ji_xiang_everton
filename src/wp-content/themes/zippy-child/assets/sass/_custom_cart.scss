@@ -1,0 +1,38 @@
+.cart_item {
+  .product-name {
+    a {
+      font-size: 16px;
+    }
+  }
+  .product-subtotal {
+    font-size: 18px !important;
+  }
+  .product-quantity {
+    .buttons_added {
+      .input-text {
+        margin: 0 10px;
+        min-width: 55px;
+        min-height: 45px;
+        border-radius: 5px !important;
+      }
+      .button.minus,
+      .button.plus {
+        border: 2px solid #ec7265 !important;
+        min-width: 45px;
+        max-height: 45px;
+        border-radius: 5px !important;
+        color: #ec7265 !important;
+        font-size: 18px;
+        font-weight: 600;
+        padding: 0 !important;
+        transition: transparent 0.3s;
+      }
+      .button.minus:hover,
+      .button.plus:hover {
+        background-color: #ec7265;
+        color: #fff !important;
+        box-shadow: none;
+      }
+    }
+  }
+}
