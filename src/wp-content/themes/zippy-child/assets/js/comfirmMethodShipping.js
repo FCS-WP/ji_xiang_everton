@@ -44,4 +44,20 @@ $(document).ready(function () {
       }
     });
   });
+
+  $(document).on(
+    "click",
+    ".single_add_to_cart_button.added",
+    function (event, fragments, cart_hash, $button) {
+      console.log("first");
+      Swal.fire({
+        title: "Added to Cart!",
+        text: "Product was successfully added to your cart.",
+        icon: "success",
+        confirmButtonText: "Continue Shopping",
+        timer: 2000,
+        timerProgressBar: true,
+      });
+    }
+  );
 });
