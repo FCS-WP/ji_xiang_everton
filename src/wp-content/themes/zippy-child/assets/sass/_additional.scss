@@ -101,7 +101,8 @@ html {
 @media (max-width: 768px) {
   .cart_custom thead th {
     font-weight: bolder;
-    font-size: 12px;
+    font-size: 12px !important;
+    
   }
 }
 

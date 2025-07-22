@@ -32,9 +32,11 @@ $(document).ready(function () {
                 popup: "popupAlertDeleteSuccess",
               },
             }).then(() => {
-              $(document.body).trigger("updated_wc_div");
+              zippy_refresh_mini_cart();
 
-              location.reload();
+              setTimeout(() => {
+                location.reload(true);
+              }, 1000);
             });
           },
           error: function () {
@@ -45,3 +47,28 @@ $(document).ready(function () {
     });
   });
 });
+
+// Reload Mini cart when added items.
+$(document).ready(function () {
+  $("body").on("click", ".single_add_to_cart_button", function (param) {
+    setTimeout(() => {
+      zippy_refresh_mini_cart();
+    }, 1000);
+  });
+});
+
+function zippy_refresh_mini_cart() {
+  $.ajax({
+    url: wc_cart_fragments_params.wc_ajax_url
+      .toString()
+      .replace("%%endpoint%%", "get_refreshed_fragments"),
+    type: "POST",
+    success: function (data) {
+      if (data && data.fragments) {
+        $.each(data.fragments, function (key, value) {
+          $(key).replaceWith(value);
+        });
+      }
+    },
+  });
+}
