@@ -7,13 +7,14 @@ function combo_display_sub_products_on_frontend()
   global $product;
 
   $list_sub_products = get_field('product_combo', $product->get_id());
+  $combo_warning = get_field('combo_warning', $product->get_id());
 
 ?>
   <?php if (!empty($list_sub_products)): ?>
     <div class="akk-accordion">
       <div class="akk-accordion-header">AKK</div>
       <div class="akk-accordion-body">
-        <div class="combo-warning akk-warning">Please select at least 10 products in the combo.</div>
+        <div class="combo-warning akk-warning"><?php echo $combo_warning; ?></div>
         <div class="product-combo">
           <?php
           foreach ($list_sub_products as $sub_products) {
