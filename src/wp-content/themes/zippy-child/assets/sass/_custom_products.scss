@@ -14,20 +14,41 @@ h2 {
   &.jsScroll {
     font-size: 20px;
     font-weight: 500 !important;
+    margin: 0 !important;
   }
 }
 .loop_products_custom {
   .product {
     padding: 0 !important;
+    @include tablet {
+      padding: 0 9.8px 19.6px !important;
+    }
     @include desktop {
       padding: 0 9.8px 19.6px !important;
     }
     .col-inner {
+      .badge-container {
+        left: 5px !important;
+        opacity: 0.8;
+        @include tablet {
+          left: 0 !important;
+          opacity: 1;
+        }
+        @include desktop {
+          left: 0 !important;
+          opacity: 1;
+        }
+      }
       .product-small.box {
         display: flex;
         align-items: center;
         border: none;
-        margin: 0 0 10px 0;
+        margin: 5px 0 20px 0;
+        @include tablet {
+          display: block;
+          border: 1px solid #e5e5e5;
+          margin: 0;
+        }
         @include desktop {
           display: block;
           border: 1px solid #e5e5e5;
@@ -37,26 +58,52 @@ h2 {
           min-width: 163px;
           width: 163px;
           height: 163px;
+          @include tablet {
+            min-width: 100%;
+            width: 100%;
+            height: auto;
+          }
           @include desktop {
             min-width: 100%;
             width: 100%;
             height: auto;
           }
-          img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+          .image-fade_in_back {
+            .quick-view {
+              text-align: end;
+            }
+            img {
+              width: 95%;
+              height: auto;
+              object-fit: cover;
+              @include tablet {
+                padding: 0;
+                width: 100%;
+              }
+              @include desktop {
+                padding: 0;
+                width: 100%;
+              }
+            }
           }
         }
       }
     }
     .product-title {
       a {
-        font-size: 14px !important;
-        min-height: 25px;
-        @include desktop {
-          font-size: 20px !important;
+        color: #000;
+        font-size: 16px !important;
+        min-height: 50px;
+        font-weight: 400;
+        @include tablet {
+          font-size: 16px !important;
           min-height: 40px;
+          font-weight: 600;
+        }
+        @include desktop {
+          font-size: 16px !important;
+          min-height: 40px;
+          font-weight: 600;
         }
       }
     }
@@ -68,6 +115,7 @@ h2 {
     }
     .product-short-description {
       min-height: 30px;
+      color: #252525;
       @include desktop {
         min-height: 42px;
       }

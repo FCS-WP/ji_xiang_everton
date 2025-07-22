@@ -16,9 +16,6 @@
     }
     .ux-mini-cart-qty {
       .buttons_added {
-        @include desktop {
-          margin-left: 10px !important;
-        }
         .input-text {
             margin: 0 10px;
             min-width: 55px;

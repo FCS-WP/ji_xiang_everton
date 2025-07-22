@@ -15,7 +15,7 @@
       $_product   = $cart_item['data'];
       $product_id = $cart_item['product_id'];
 
-      if ($_product && $_product->exists() && $cart_item['quantity'] > 0) {
+      if ($_product && $_product->exists() && $_product->get_price() > 0 && $cart_item['quantity'] > 0) {
         $product_permalink = get_permalink($product_id);
         $cart_subtotal += $cart_item['line_total'];
     ?>
