@@ -9,6 +9,7 @@ function add_extra_fee_with_gst($cart)
 
   $fee_name = "Extra Fee";
   $extra_fee = !empty(WC()->session->get('extra_fee')) ? WC()->session->get('extra_fee') : 0;
+  if ($extra_fee <= 0) return;
 
   $cart->add_fee($fee_name, $extra_fee, true);
 }
