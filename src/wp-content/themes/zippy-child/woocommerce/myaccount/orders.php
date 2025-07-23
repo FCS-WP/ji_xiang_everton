@@ -17,6 +17,7 @@
  * @version 9.2.0
  */
 
+
 defined( 'ABSPATH' ) || exit;
 do_action( 'woocommerce_before_account_orders', $has_orders ); ?>
 <?php if ( $has_orders ) : ?>

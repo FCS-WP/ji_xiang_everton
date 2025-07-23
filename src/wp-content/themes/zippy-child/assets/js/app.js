@@ -28,3 +28,4 @@ import './zippy-form';
 import './comfirmMethodShipping';
 import './downloadOrderFile';
 import '../lib/fancybox/jquery.fancybox.min';
+
