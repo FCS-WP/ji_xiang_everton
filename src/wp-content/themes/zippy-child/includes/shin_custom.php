@@ -12,6 +12,8 @@ function shin_scripts()
   wp_enqueue_script('sweet-alert2-js', THEME_URL . '-child' . '/assets/lib/sweetalert/sweetalert2.all.min.js', [], $version, true);
 
   wp_enqueue_style('sweet-alert2-css', THEME_URL . '-child' . '/assets/lib/sweetalert/sweetalert2.min.css', [], $version);
+
+  wp_enqueue_style('flatpickr-css', THEME_URL . '-child' . '/assets/lib/flatpickr/flatpickr.min.css', [], $version);
 }
 
 function custom_lostpassword_url($url, $redirect)
