@@ -55,6 +55,7 @@ module.exports = [
                 sourceMap: true,
                 sassOptions: {
                   outputStyle: "compressed",
+                  includePaths: [path.resolve(__dirname, "node_modules")],
                 },
                 additionalData: `@import "${destChildTheme}/assets/sass/_mixins";`,
               },
