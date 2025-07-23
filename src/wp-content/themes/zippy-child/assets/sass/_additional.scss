@@ -230,6 +230,10 @@ html {
   }
 }
 
+.loop_products_custom .product-title a {
+  font-size: 15px !important;
+  min-height: 40px;
+}
 
 @media (min-width: 1024px) {
   #header {
@@ -244,4 +248,11 @@ html {
 
 .row-relative-homepage {
   position: relative;
+}
+
+.flatpickr-month .flatpickr-current-month input.numInput{
+  box-shadow: none;
+}
+.flatpickr-day.hidden{
+  display: initial !important;
 }
