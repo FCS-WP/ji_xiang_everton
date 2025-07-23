@@ -6,10 +6,10 @@ $(".js-datepicker").flatpickr({
     altFormat: "M d, Y",
 })
 
-$("body").on("change", "#download_order_file select", function(){
+$("body").on("change", "select#download_order", function(){
     let file_type = $(this).val()
         customer_id = $("#customer_id").val(),
-        dateRange = $(".date_range").val(),
+        dateRange = $('input.date_range[type="hidden"]').val(),
         from_date = null,
         to_date = null;
 

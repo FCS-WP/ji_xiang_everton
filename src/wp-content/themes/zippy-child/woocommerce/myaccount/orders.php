@@ -20,16 +20,25 @@
 defined( 'ABSPATH' ) || exit;
 do_action( 'woocommerce_before_account_orders', $has_orders ); ?>
 <?php if ( $has_orders ) : ?>
-    <div id="download_order_file" class="download_button">
-        <span class="tp_loader"></span>
-		<input type="text" class="js-datepicker date_range" name="date_range" placeholder="Date Range">
-        <div class="select_wrapper">
-            <select name="download_order" id="download_order" >
-                <option value="">Download</option>
-                <option value="pdf">Download all transactions (PDF)</option>
-                <option value="csv">Download all transactions (CSV)</option>
-            </select>
-            <input type="hidden" id="customer_id" name="customer_id" value="<?php echo get_current_user_id(); ?>" >
+    <div class="order-export-section">
+        <h3>Download Transaction Orders</h3>
+        <div class="export-controls">
+			<span class="tp_loader"></span>
+            <div class="export-date-picker">
+                <label for="date_range">Select Date Range:</label>
+                <input type="text" class="js-datepicker date_range" id="date_range" name="date_range" placeholder="Select Date Range">
+            </div>
+            <div class="export-download">
+                <label for="download_order">Download Format:</label>
+                <div class="select-wrapper">
+                    <select name="download_order" id="download_order">
+                        <option value="">Select Format</option>
+                        <option value="pdf">PDF</option>
+                        <option value="csv">CSV</option>
+                    </select>
+                </div>
+            </div>
+            <input type="hidden" id="customer_id" name="customer_id" value="<?php echo get_current_user_id(); ?>">
         </div>
     </div>
 	<table class="woocommerce-orders-table woocommerce-MyAccount-orders shop_table shop_table_responsive my_account_orders account-orders-table">
