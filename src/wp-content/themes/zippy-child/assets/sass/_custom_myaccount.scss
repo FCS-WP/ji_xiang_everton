@@ -120,6 +120,8 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 15px;
+    max-width: 1000px;
+    margin: 0 auto 30px;
 }
 
 .order-export-section h3 {
