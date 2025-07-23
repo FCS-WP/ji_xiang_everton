@@ -1,12 +1,37 @@
+$(".js-datepicker").flatpickr({
+    mode: "range",
+    dateFormat: "Y-m-d",
+    showMonths: 2,
+    altInput: true,
+    altFormat: "M d, Y",
+})
 
-$("body").on("change", "#download_order_file select", function(){
+$("body").on("change", "select#download_order", function(){
     let file_type = $(this).val()
-        customer_id = $("#customer_id").val();
+        customer_id = $("#customer_id").val(),
+        dateRange = $('input.date_range[type="hidden"]').val(),
+        from_date = null,
+        to_date = null;
+
+    if (dateRange) {
+        if (dateRange.includes(" to ")) {
+            // range of days
+            let dates = dateRange.split(" to ");
+            from_date = dates[0] ? dates[0].trim() : null;
+            to_date = dates[1] ? dates[1].trim() : null;
+        } else {
+            // one day
+            from_date = dateRange.trim();
+            to_date = dateRange.trim();
+        }
+    }
+    
     if(file_type != ""){
-        downloadOrdersFile(file_type, customer_id);
+        downloadOrdersFile(file_type, customer_id, from_date, to_date);
     }
 });
-function downloadOrdersFile(fileType, customer_id) {
+
+function downloadOrdersFile(fileType, customer_id, from_date, to_date) {
     $(".tp_loader").show();
     $(".message").text("")
     $.ajax({
@@ -14,15 +39,16 @@ function downloadOrdersFile(fileType, customer_id) {
         method: 'GET',
         data: { 
             file_type: fileType,
-            customer_id: customer_id
+            customer_id: customer_id,
+            from_date: from_date,
+            to_date: to_date
         },
         dataType: 'json',
         success: function(response) {
             $(".tp_loader").fadeOut();
             if (response.status == "success") {
                 let file_data = response.data;
-                $(".message").text(response.message)
-                
+                alert_success(response.message);
                 if($(file_data).empty().length > 0){
                     var mimeType = file_data.file_type == 'pdf' ? 'application/pdf' : 'text/csv;charset=UTF-8';
                 
@@ -51,12 +77,30 @@ function downloadOrdersFile(fileType, customer_id) {
                     }   
                 }
             } else {
-                alert('Error: ' + (response.message || 'Failed to generate file'));
+                alert_error(response.message || 'Failed to generate file')
             }
         },
         error: function(xhr, status, error) {
-            $(".tp_loader").fadeOut();
-            console.log(error);
+            alert_error(error)
         }
     });
+}
+
+
+function alert_success(message){
+    _alert("success", "Success", message)
+}
+
+function alert_error(message){
+    _alert("error", "Error", message)
+}
+
+
+function _alert(type, title, message){
+    Swal.fire({
+        title: title,
+        text: message,
+        icon: type,
+        confirmButtonText: 'Ok'
+    })
 }

@@ -19,7 +19,7 @@ Main.init();
 */
 
 /* Do not remove this code if use Jquery */
-
+import flatpickr from "flatpickr";
 import './applyPostalCode';
 import './customTheme';
 import './miniCart';
