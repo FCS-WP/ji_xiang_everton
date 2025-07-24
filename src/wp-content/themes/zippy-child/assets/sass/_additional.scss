@@ -256,3 +256,13 @@ html {
 .flatpickr-day.hidden{
   display: initial !important;
 }
+
+.mobile-sidebar {
+  .sidebar-menu {
+    .menu-item {
+      a {
+        font-family: 'Open Sans', sans-serif;
+      }
+    }
+  }
+}

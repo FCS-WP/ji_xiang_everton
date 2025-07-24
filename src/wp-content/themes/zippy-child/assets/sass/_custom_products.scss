@@ -58,31 +58,37 @@ h2 {
           min-width: 163px;
           width: 163px;
           height: 163px;
+          text-align: center;
           @include tablet {
             min-width: 100%;
             width: 100%;
             height: auto;
+            text-align: left;
           }
           @include desktop {
             min-width: 100%;
             width: 100%;
             height: auto;
+            text-align: left;
           }
           .image-fade_in_back {
             .quick-view {
               text-align: end;
             }
             img {
-              width: 95%;
+              max-width: 150px;
+              width: 100%;
               height: auto;
               object-fit: cover;
               @include tablet {
                 padding: 0;
                 width: 100%;
+                max-width: 100%;
               }
               @include desktop {
                 padding: 0;
                 width: 100%;
+                max-width: 100%;
               }
             }
           }
