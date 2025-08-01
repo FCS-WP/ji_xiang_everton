@@ -111,47 +111,101 @@
     margin-left: 10px;
 }
 
-#download_order_file {
+
+// Export Orders
+.order-export-section {
+    margin-bottom: 20px;
     display: flex;
     justify-content: end;
     align-items: center;
+    flex-wrap: wrap;
     gap: 15px;
-    margin-bottom: 15px;
-
-    label {
-        margin: 0;
-    }
-
-    .select_wrapper {
-        width: 300px;
-        margin: 0;
-    }
-    .message{
-        min-height: 25px;
-        display: block;
-    }
+    max-width: 1000px;
+    margin: 0 auto 30px;
 }
 
+.order-export-section h3 {
+    margin: 0;
+    font-size: 1.5em;
+    color: var(--fs-color-primary);
+    text-align: right;
+}
 
+.export-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.export-date-picker,
+.export-download {
+    display: flex;
+    flex-direction: column;
+}
+
+.export-date-picker label,
+.export-download label {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.export-date-picker .date_range {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    width: 300px;
+}
+
+.select-wrapper {
+    position: relative;
+}
+
+#download_order {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    width: 200px;
+    appearance: none;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>') no-repeat right 10px center;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+#download_order:focus,
+.js-datepicker:focus {
+    outline: none;
+    border-color: #d32f2f;
+    box-shadow: 0 0 5px rgba(211, 47, 47, 0.3);
+}
 
 .tp_loader {
-    width: 30px;
-    height: 30px;
-    border: 5px solid #ddd;
-    border-bottom-color: #FF3D00;
-    border-radius: 50%;
-    display: inline-block;
-    box-sizing: border-box;
-    animation: rotation 1s linear infinite;
     display: none;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #d32f2f;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
 }
 
-@keyframes rotation {
-    0% {
-        transform: rotate(0deg);
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    .export-controls {
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    100% {
-        transform: rotate(360deg);
+    .js-datepicker,
+    #download_order {
+        width: 100%;
     }
 }

@@ -249,3 +249,10 @@ html {
 .row-relative-homepage {
   position: relative;
 }
+
+.flatpickr-month .flatpickr-current-month input.numInput{
+  box-shadow: none;
+}
+.flatpickr-day.hidden{
+  display: initial !important;
+}
