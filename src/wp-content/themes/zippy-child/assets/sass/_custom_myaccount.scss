@@ -116,7 +116,7 @@
 .order-export-section {
     margin-bottom: 20px;
     display: flex;
-    justify-content: end;
+    justify-content: start;
     align-items: center;
     flex-wrap: wrap;
     gap: 15px;
@@ -128,7 +128,6 @@
     margin: 0;
     font-size: 1.5em;
     color: var(--fs-color-primary);
-    text-align: right;
 }
 
 .export-controls {
