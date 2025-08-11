@@ -23,7 +23,7 @@ defined('ABSPATH') || exit;
 $total_quantity = WC()->cart->get_cart_contents_count();
 $rules = get_minimum_rule_by_order_mode();
 $total_order = floatval(get_subtotal_cart());
-$minimum_order = floatval($rules['minimum_total_to_order']);
+$minimum_order = floatval(get_option('minimum_order', true)) || 0;
 $conditions = array(
   'total_cart' => $total_order,
   'rules' => $rules,
