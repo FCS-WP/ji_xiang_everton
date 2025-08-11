@@ -110,7 +110,7 @@ function get_minimum_rule_by_order_mode()
     $order_mode = WC()->session->get('order_mode');
 
     if ($order_mode === 'delivery') {
-      $response['minimum_total_to_order']    = WC()->session->get('minimum_order_to_delivery') ?? 0;
+      $response['minimum_total_to_order']    = floatval(get_option('minimum_order', true)) ?? 0;
       $response['minimum_total_to_freeship'] = WC()->session->get('minimum_order_to_freeship') ?? 0;
     }
   }

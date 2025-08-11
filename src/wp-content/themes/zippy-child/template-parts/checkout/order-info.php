@@ -76,7 +76,7 @@
     </tr>
     <?php if ($extra_fee != 0): ?>
       <tr>
-        <td colspan="4" class="text-right"><strong>Extra Fee:</strong></td>
+        <td colspan="4" class="text-right"><strong>Delivery Extra Fee:</strong></td>
         <td><?php echo wc_price(WC()->session->get('extra_fee')); ?></td>
       </tr>
     <?php endif; ?>
