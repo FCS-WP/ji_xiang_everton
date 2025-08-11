@@ -1,11 +1,12 @@
 {
-    "key": "group_6398590035b1c",
-    "title": "shin",
+    "key": "group_6899d0867031f",
+    "title": "Pre-order Product Window",
     "fields": [
         {
-            "key": "field_6398591e8c534",
-            "label": "title",
-            "name": "title",
+            "key": "field_6899d0949a8f3",
+            "label": "Pre-order Product Window",
+            "name": "product_period_window",
+            "aria-label": "",
             "type": "text",
             "instructions": "",
             "required": 0,
@@ -15,19 +16,19 @@
                 "class": "",
                 "id": ""
             },
-            "default_value": "",
+            "default_value": 2,
+            "maxlength": "",
             "placeholder": "",
             "prepend": "",
-            "append": "",
-            "maxlength": ""
+            "append": ""
         }
     ],
     "location": [
         [
             {
-                "param": "block",
+                "param": "post_type",
                 "operator": "==",
-                "value": "acf\/shin"
+                "value": "product"
             }
         ]
     ],
@@ -40,5 +41,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1670928714
+    "modified": 1754911048
 }
