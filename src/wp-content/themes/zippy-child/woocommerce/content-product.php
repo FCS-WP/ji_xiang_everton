@@ -43,16 +43,21 @@ if ($out_of_stock) $classes[] = 'out-of-stock';
 		<div class="product-small box <?php echo flatsome_product_box_class(); ?>">
 			<div class="box-image">
 				<div class="<?php echo flatsome_product_box_image_class(); ?>">
-					<a class="<?php if(!empty(WC()->session->get('order_mode'))) echo 'quick-view';?>" href="#quick-view" data-prod="<?php echo $product->get_id(); ?>" href="#quick-view" aria-label="<?php echo esc_attr($product->get_title()); ?>">
-						<?php
-						/**
-						 *
-						 * @hooked woocommerce_get_alt_product_thumbnail - 11
-						 * @hooked woocommerce_template_loop_product_thumbnail - 10
-						 */
-						do_action('flatsome_woocommerce_shop_loop_images');
-						?>
-					</a>
+					<?php if ($product->is_virtual()): ?>
+						<a class="whatsapp_product_btn" target="_blank" href="<?php echo build_whatsapp_link($product); ?>" aria-label="<?php echo esc_attr($product->get_title()); ?>">
+							<?php do_action('flatsome_woocommerce_shop_loop_images'); ?>
+						</a>
+					<?php else: ?>
+						<?php if (!empty(WC()->session->get('order_mode'))): ?>
+							<a class="quick-view" href="#quick-view" data-prod="<?php echo $product->get_id(); ?>" aria-label="<?php echo esc_attr($product->get_title()); ?>">
+								<?php do_action('flatsome_woocommerce_shop_loop_images'); ?>
+							</a>
+						<?php else: ?>
+							<a class="lightbox-23-btn" href="#lightbox-zippy-form" data-product_id="<?php echo $product->get_id(); ?>" aria-label="<?php echo esc_attr($product->get_title()); ?>">
+								<?php do_action('flatsome_woocommerce_shop_loop_images'); ?>
+							</a>
+						<?php endif; ?>
+					<?php endif; ?>
 				</div>
 				<div class="image-tools is-small top right show-on-hover">
 					<?php do_action('flatsome_product_box_tools_top'); ?>
