@@ -185,3 +185,9 @@ function handle_process_bar_notification($current, $total, $type)
     'style' => 'background-color: #f1b32c; width: ' . $percentage . '%',
   ];
 }
+
+
+function build_whatsapp_link($product)
+{
+  return 'https://api.whatsapp.com/send?phone=6592700510&text=Hello!%20I%20am%20looking%20to%20enquire%20about%20the%20' . $product->get_name() . '';
+}
