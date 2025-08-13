@@ -19,14 +19,16 @@ function custom_product_short_description_and_price()
   echo '<div class="product-price">' . $product->get_price_html() . '</div>';
 
   // Display add to cart
-
-  if (empty(WC()->session->get('status_popup'))) {
-    echo '<div class="cta_add_to_cart"><a class="lightbox-zippy-btn" data-product_id="' . $product_id . '" href="#lightbox-zippy-form" >Add</a></div>';
+  if ($product->is_virtual()) {
+    echo '<div class="cta_add_to_cart"><a class="whatsapp_product_btn" target="_blank" href="' . build_whatsapp_link($product) . '">Contact for Sale</a></div>';
   } else {
-    echo do_shortcode('[quickview_button id='.$product_id.']');
+    if (empty(WC()->session->get('status_popup'))) {
+      echo '<div class="cta_add_to_cart"><a class="lightbox-zippy-btn" data-product_id="' . $product_id . '" href="#lightbox-zippy-form" >Add</a></div>';
+    } else {
+      echo do_shortcode('[quickview_button id=' . $product_id . ']');
+    }
   }
 }
-
 
 
 // Add custom field to the product edit page

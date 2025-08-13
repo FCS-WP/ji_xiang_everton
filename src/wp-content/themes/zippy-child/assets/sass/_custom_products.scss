@@ -128,3 +128,8 @@ h2 {
     }
   }
 }
+
+.product.out-of-stock {
+  pointer-events: none;
+  cursor: none;
+}
