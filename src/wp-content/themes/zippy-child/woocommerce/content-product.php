@@ -53,7 +53,7 @@ if ($out_of_stock) $classes[] = 'out-of-stock';
 								<?php do_action('flatsome_woocommerce_shop_loop_images'); ?>
 							</a>
 						<?php else: ?>
-							<a class="lightbox-23-btn" href="#lightbox-zippy-form" data-product_id="<?php echo $product->get_id(); ?>" aria-label="<?php echo esc_attr($product->get_title()); ?>">
+							<a class="lightbox-zippy-btn" href="#lightbox-zippy-form" data-product_id="<?php echo $product->get_id(); ?>" aria-label="<?php echo esc_attr($product->get_title()); ?>">
 								<?php do_action('flatsome_woocommerce_shop_loop_images'); ?>
 							</a>
 						<?php endif; ?>
