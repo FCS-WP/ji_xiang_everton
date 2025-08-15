@@ -195,7 +195,7 @@ final class MiniCart
 		?>
 		<div class="ux-mini-cart-qty">
 			<?php
-			$min_qty = get_post_meta($product->get_id(), '_custom_minimum_order_qty', true);
+			$min_qty = $product->get_stock_quantity() < get_post_meta($product->get_id(), '_custom_minimum_order_qty', true) ? $product->get_stock_quantity() : get_post_meta($product->get_id(), '_custom_minimum_order_qty', true);
 			if ($header_cart_qty && $product->is_purchasable() && apply_filters('flatsome_show_mini_cart_item_quantity', true, $cart_item_key)) {
 				if ($product->is_sold_individually()) {
 					$min_quantity = $min_qty;
