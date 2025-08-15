@@ -146,7 +146,7 @@ do_action('woocommerce_before_cart'); ?>
 									<td class="product-quantity" data-title="<?php esc_attr_e('Quantity', 'woocommerce'); ?>">
 
 										<?php
-										$min_qty = $product->get_stock_quantity() < get_post_meta($product->get_id(), '_custom_minimum_order_qty', true) ? $product->get_stock_quantity() : get_post_meta($product->get_id(), '_custom_minimum_order_qty', true);
+										$min_qty = $_product->get_stock_quantity() < get_post_meta($_product->get_id(), '_custom_minimum_order_qty', true) ? $_product->get_stock_quantity() : get_post_meta($_product->get_id(), '_custom_minimum_order_qty', true);
 										if ($_product->is_sold_individually()) {
 											$min_quantity = $min_qty;
 											$max_quantity = 1;
@@ -230,8 +230,8 @@ do_action('woocommerce_before_cart'); ?>
 				<form class="ux-cart-coupon mb-0" method="post">
 					<div class="coupon">
 						<h3 class="widget-title"><?php echo get_flatsome_icon('icon-tag'); ?> <?php esc_html_e('Coupon', 'woocommerce'); ?></h3><label for="coupon_code" class="screen-reader-text"><?php esc_html_e('Coupon:', 'woocommerce'); ?></label><input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="<?php esc_attr_e('Coupon code', 'woocommerce'); ?>" /> <button type="submit" class="is-form expand button<?php if (fl_woocommerce_version_check('7.0.1')) {
-																																																																																																																				echo esc_attr(wc_wp_theme_get_element_class_name('button') ? ' ' . wc_wp_theme_get_element_class_name('button') : '');
-																																																																																																																			} ?>" name="apply_coupon" value="<?php esc_attr_e('Apply coupon', 'woocommerce'); ?>"><?php esc_html_e('Apply coupon', 'woocommerce'); ?></button>
+																																																																																																																		echo esc_attr(wc_wp_theme_get_element_class_name('button') ? ' ' . wc_wp_theme_get_element_class_name('button') : '');
+																																																																																																																	} ?>" name="apply_coupon" value="<?php esc_attr_e('Apply coupon', 'woocommerce'); ?>"><?php esc_html_e('Apply coupon', 'woocommerce'); ?></button>
 						<?php do_action('woocommerce_cart_coupon'); ?>
 					</div>
 				</form>
