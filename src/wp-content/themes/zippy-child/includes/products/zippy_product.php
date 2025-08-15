@@ -53,14 +53,15 @@ add_action('woocommerce_process_product_meta', function ($post_id) {
 // Display minimum order quantity on the product page
 add_action('woocommerce_single_product_summary', function () {
   global $product;
-  $min_qty = get_post_meta($product->get_id(), '_custom_minimum_order_qty', true);
-  if ($min_qty) {
+  $min_qty = $product->get_stock_quantity() < get_post_meta($product->get_id(), '_custom_minimum_order_qty', true) ? $product->get_stock_quantity() : get_post_meta($product->get_id(), '_custom_minimum_order_qty', true);
+  if ($min_qty && !$product->is_virtual()) {
     echo '<p class="custom-min-qty" style="color: red; font-weight: bold;">' . sprintf(__('Minimum order quantity: %d', 'woocommerce'), $min_qty) . '</p>';
   }
 }, 25);
 
 add_filter('woocommerce_quantity_input_args', function ($args, $product) {
-  $min_qty = get_post_meta($product->get_id(), '_custom_minimum_order_qty', true);
+  $min_qty = $product->get_stock_quantity() < get_post_meta($product->get_id(), '_custom_minimum_order_qty', true) ? $product->get_stock_quantity() : get_post_meta($product->get_id(), '_custom_minimum_order_qty', true);
+
 
   if ($min_qty) {
     $cart = WC()->cart->get_cart();
@@ -79,6 +80,14 @@ add_filter('woocommerce_quantity_input_args', function ($args, $product) {
       $args['input_value'] = $required_qty;
     }
   }
-
+  if (
+    isset($args['min_value'], $args['max_value']) &&
+    $args['min_value'] == $args['max_value']
+  ) {
+    $required_qty           = $args['min_value'];
+    $args['max_value']   = $required_qty + 1;
+    $args['input_value'] = $required_qty;
+    $args['readonly']    = true;
+  }
   return $args;
 }, 10, 2);
