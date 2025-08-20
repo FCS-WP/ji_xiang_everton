@@ -11,7 +11,6 @@ function customize_shipping_rates_based_on_order_mode($rates)
   $rules = get_minimum_rule_by_order_mode();
   $cart_subtotal = floatval(get_subtotal_cart());
 
-  $order_mode = WC()->session->get('order_mode');
   $minimum_for_free_shipping = floatval($rules['minimum_total_to_freeship']);
 
   // 1. Qualifies for free shipping
@@ -38,7 +37,7 @@ function customize_shipping_rates_based_on_order_mode($rates)
   return $rates;
 
   // 2. Delivery: remove free shipping if under minimum
-  if ($order_mode === 'delivery') {
+  if (is_delivery()) {
     return filter_shipping_methods($rates, [], ['free_shipping']);
   } else {
     // Pickup or others: only keep free shipping
