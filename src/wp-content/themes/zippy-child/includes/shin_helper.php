@@ -107,9 +107,8 @@ function get_minimum_rule_by_order_mode()
   ];
 
   if (function_exists('WC') && WC()->session) {
-    $order_mode = WC()->session->get('order_mode');
 
-    if ($order_mode === 'delivery') {
+    if (is_delivery()) {
       $response['minimum_total_to_order']    = floatval(get_option('minimum_order', true)) ?? 0;
       $response['minimum_total_to_freeship'] = WC()->session->get('minimum_order_to_freeship') ?? 0;
     }
@@ -190,4 +189,25 @@ function handle_process_bar_notification($current, $total, $type)
 function build_whatsapp_link($product)
 {
   return 'https://api.whatsapp.com/send?phone=6592700510&text=Hello!%20I%20am%20looking%20to%20enquire%20about%20the%20' . $product->get_name() . '';
+}
+
+function is_existing_shipping()
+{
+  if (empty(WC()->session->get('order_mode'))) return false;
+  return true;
+}
+
+function is_takeaway()
+{
+  if (!is_existing_shipping()  || WC()->session->get('order_mode') !== 'takeaway') return false;
+
+  return true;
+}
+
+
+function is_delivery()
+{
+  if (!is_existing_shipping()  || WC()->session->get('order_mode') !== 'delivery') return false;
+
+  return true;
 }

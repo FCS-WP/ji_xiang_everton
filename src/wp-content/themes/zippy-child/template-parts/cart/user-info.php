@@ -22,7 +22,7 @@ if (!function_exists('WC') || !WC()->session->get('order_mode')) return;
     </div>
   </div>
 
-  <?php if (WC()->session->get('order_mode') === 'delivery') : ?>
+  <?php if (is_delivery()) : ?>
     <div class="items_infor_method_shipping">
       <div class="text_items">
         <h4>Delivery Address:</h4>
@@ -33,7 +33,7 @@ if (!function_exists('WC') || !WC()->session->get('order_mode')) return;
 
   <div class="items_infor_method_shipping">
     <div class="text_items">
-      <h4><?php echo (WC()->session->get('order_mode') === 'takeaway') ? 'Takeaway' : 'Delivery'; ?> Time:</h4>
+      <h4><?php echo (is_takeaway()) ? 'Takeaway' : 'Delivery'; ?> Time:</h4>
       <p>
         <?php
         $date = WC()->session->get('date');

@@ -7,10 +7,9 @@ $minimum_order = $args['rules']['minimum_total_to_order'];
 $minimum_delivery = $args['rules']['minimum_total_to_freeship'];
 $total_cart = $args['total_cart'];
 
-$order_mode = function_exists('WC') ? WC()->session->get('order_mode') : null;
 
 if (
-  !empty($order_mode) && $order_mode === 'delivery'
+  is_delivery()
   && ($minimum_order != 0 || $minimum_delivery != 0)
 ) :
 ?>

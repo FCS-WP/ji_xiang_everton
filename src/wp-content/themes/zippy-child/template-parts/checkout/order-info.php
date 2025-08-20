@@ -59,7 +59,7 @@
     $extra_fee = !empty(WC()->session->get('extra_fee')) ? WC()->session->get('extra_fee') : 0;
 
     if ($cart_subtotal < $rule["minimum_total_to_order"]) {
-      if (WC()->session->get('order_mode') !== 'takeaway') {
+      if (is_delivery()) {
         $fee_delivery = WC()->session->get('shipping_fee');
       }
     }
@@ -68,12 +68,14 @@
       <td colspan="4" class="text-right"><strong>Sub-total:</strong></td>
       <td><?php echo wc_price($cart_subtotal); ?></td>
     </tr>
-    <tr>
-      <td colspan="4" class="text-right">
-        <strong>Delivery Fee:</strong>
-      </td>
-      <td><?php echo WC()->cart->get_cart_shipping_total(); ?></td>
-    </tr>
+    <?php if (is_delivery()): ?>
+      <tr>
+        <td colspan="4" class="text-right">
+          <strong>Delivery Fee:</strong>
+        </td>
+        <td><?php echo WC()->cart->get_cart_shipping_total(); ?></td>
+      </tr>
+    <?php endif; ?>
     <?php if ($extra_fee != 0): ?>
       <tr>
         <td colspan="4" class="text-right"><strong>Delivery Extra Fee:</strong></td>

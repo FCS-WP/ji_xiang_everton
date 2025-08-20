@@ -11,7 +11,7 @@
         </td>
       </tr>
       <?php
-      if (WC()->session->get('order_mode') == 'delivery') {
+      if (is_delivery()) {
       ?>
         <tr>
           <td>Delivery Address:</td>

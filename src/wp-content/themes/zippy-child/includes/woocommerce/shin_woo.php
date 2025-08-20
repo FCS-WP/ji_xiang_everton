@@ -40,7 +40,7 @@ add_filter('woocommerce_cart_needs_shipping', 'custom_force_cart_not_need_shippi
 function custom_force_cart_not_need_shipping($needs_shipping)
 {
   if (is_admin()) return;
-  if (WC()->session->get('order_mode') === 'takeaway') {
+  if (is_takeaway()) {
     return false;
   }
   return $needs_shipping;
@@ -57,7 +57,7 @@ function validate_required_session_data()
     'time',
   ];
 
-  if (WC()->session->get('order_mode') === 'delivery') {
+  if (is_delivery()) {
     $required_sessions[] = 'delivery_address';
   }
 

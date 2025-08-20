@@ -36,7 +36,7 @@ if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $m
 }
 
 ?>
-<?php if (WC()->session->get('order_mode') !== "takeaway"): ?>
+<?php if (is_delivery()): ?>
 	<div class="woocommerce-shipping-fields">
 		<?php if (true === WC()->cart->needs_shipping_address()) : ?>
 
