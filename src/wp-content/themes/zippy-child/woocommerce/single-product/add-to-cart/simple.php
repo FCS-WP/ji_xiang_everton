@@ -30,6 +30,9 @@ if ($product->is_in_stock()) : ?>
 
 	<?php do_action('woocommerce_before_add_to_cart_form'); ?>
 	<?php if ($product->is_virtual()): ?>
+		<div class="description">
+			<?php echo $product->get_description(); ?>
+		</div>
 		<div class="cta_add_to_cart">
 			<a class="whatsapp_product_btn" target="_blank" href="<?php echo build_whatsapp_link($product); ?>">
 				Contact for Sale
