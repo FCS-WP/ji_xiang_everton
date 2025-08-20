@@ -44,7 +44,7 @@ if ($out_of_stock) $classes[] = 'out-of-stock';
 			<div class="box-image">
 				<div class="<?php echo flatsome_product_box_image_class(); ?>">
 					<?php if ($product->is_virtual()): ?>
-						<a class="whatsapp_product_btn" target="_blank" href="<?php echo build_whatsapp_link($product); ?>" aria-label="<?php echo esc_attr($product->get_title()); ?>">
+						<a class="whatsapp_product_btn" target="_blank" href="<?php echo get_permalink($product->get_id());	?>" " aria-label="<?php echo esc_attr($product->get_title()); ?>">
 							<?php do_action('flatsome_woocommerce_shop_loop_images'); ?>
 						</a>
 					<?php else: ?>

@@ -513,7 +513,6 @@ ul {
   font-size: 14px;
 }
 
-
 #logo a img {
   width: 90px;
   max-height: none;
@@ -557,3 +556,24 @@ ul {
   background-color: #ec7265;
   font-weight: bold;
 }
+.stock.in-stock {
+  display: none;
+}
+.product-info.summary {
+  .akk-sub-products {
+  width: 100%;
+  .akk-sub-product {
+    margin-bottom: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .sub-product-image{
+    display: flex;
+    align-items: top;
+    gap:20px;
+    }
+  }
+}
+}
+
