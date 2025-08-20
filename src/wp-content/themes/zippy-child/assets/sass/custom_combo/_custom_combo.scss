@@ -89,6 +89,7 @@
             min-height: 45px;
             border-radius: 5px !important;
             text-align: center;
+            pointer-events: none;
             @include desktop {
               margin: 0 10px;
             }
