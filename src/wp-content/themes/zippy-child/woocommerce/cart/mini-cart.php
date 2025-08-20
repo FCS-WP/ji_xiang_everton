@@ -20,6 +20,7 @@
  */
 
 defined('ABSPATH') || exit;
+if(is_admin()) return;
 $total_quantity = WC()->cart->get_cart_contents_count();
 $rules = get_minimum_rule_by_order_mode();
 $total_order = floatval(get_subtotal_cart());
@@ -42,7 +43,8 @@ do_action('woocommerce_before_mini_cart');
       <h3>Your Cart</h3>
       <p><span id="total_quanity_cart"><?php echo $total_quantity; ?></span> items added</p>
     </div>
-    <div class="icon_mini_cart_custom">
+    <div c
+    lass="icon_mini_cart_custom">
       <?php require_once THEME_DIR . '-child/assets/icons/edit-icon.php' ?>
     </div>
   </div>

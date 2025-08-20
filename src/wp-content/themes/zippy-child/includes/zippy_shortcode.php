@@ -20,6 +20,15 @@ function lightbox_zippy_form()
 
 add_shortcode('lightbox_zippy_form', 'lightbox_zippy_form');
 
+
+add_action('wp_footer', 'display_form_shipping_method');
+
+function display_form_shipping_method()
+{
+  if (is_admin() || is_checkout() || is_cart()) return;
+
+  echo do_shortcode('[lightbox_zippy_form]');
+}
 function script_rule_popup_session()
 {
 ?>
