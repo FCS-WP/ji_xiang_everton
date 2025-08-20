@@ -1,6 +1,6 @@
 <div id="method_shipping">
   <?php if (is_delivery()): ?>
-
+    <div class="quickcheckout-heading"><i class="fa fa-truck"></i> Delivery</div>
     <div class="quickcheckout-content">
       <input type="hidden" name="billing_method_shipping" id="billing_method_shipping" value="<?php echo esc_attr(WC()->session->get('order_mode') ?? ''); ?>">
 
@@ -37,7 +37,7 @@
       </div>
     </div>
   <?php endif; ?>
-  <?php if(is_takeaway()):?>
+  <?php if (is_takeaway()): ?>
     <div class="quickcheckout-heading"><i class="fa fa-truck"></i> Takeaway</div>
   <?php endif; ?>
 

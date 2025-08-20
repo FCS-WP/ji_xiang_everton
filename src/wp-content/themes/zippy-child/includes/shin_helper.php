@@ -199,7 +199,7 @@ function is_existing_shipping()
 
 function is_takeaway()
 {
-  if (!is_existing_shipping()  || WC()->session->get('order_mode') !== 'takeaway') return false;
+  if (!is_existing_shipping() || WC()->session->get('order_mode') !== 'takeaway') return false;
 
   return true;
 }
@@ -207,7 +207,7 @@ function is_takeaway()
 
 function is_delivery()
 {
-  if (!is_existing_shipping()  || WC()->session->get('order_mode') !== 'delivery') return false;
+  if (!is_existing_shipping() || WC()->session->get('order_mode') !== 'delivery') return false;
 
   return true;
 }
