@@ -7,15 +7,18 @@ function combo_display_sub_products_on_frontend()
   global $product;
 
   $list_sub_products = get_field('product_combo', $product->get_id());
-  $combo_warning = get_field('combo_warning', $product->get_id());
-
+  $combo_name = get_field('combo_name', $product->get_id());
+  $min_order = get_field('min_order', $product->get_id());
+  if (empty($min_order)) {
+    $min_order = 0;
+  }
 ?>
   <?php if (!empty($list_sub_products)): ?>
     <div class="akk-accordion">
-      <div class="akk-accordion-header">AKK</div>
+      <div class="akk-accordion-header"><?php echo $combo_name; ?></div>
       <div class="akk-accordion-body">
-        <div class="combo-warning akk-warning"><?php echo $combo_warning; ?></div>
-        <div class="product-combo">
+          <div class="combo-warning akk-warning">Please select at least <?php echo $min_order ?> <?php echo $combo_name; ?>!</div>
+        <div class="product-combo" data-min-order="<?php echo esc_attr($min_order); ?>">
           <?php
           foreach ($list_sub_products as $sub_products) {
             if (empty($sub_products) || !is_array($sub_products)) continue;
@@ -91,13 +94,16 @@ function combo_display_sub_products_on_frontend()
           totalQty += parseInt($(this).val()) || 0;
         });
 
-        if (totalQty < 10) {
+        let minOrder = parseInt($('.product-combo').data('min-order')) || 0;
+
+        if (totalQty < minOrder) {
           $addToCartBtn.prop('disabled', true);
           $warning.show();
         } else {
           $addToCartBtn.prop('disabled', false);
           $warning.hide();
         }
+
         $qtyInputs.each(function() {
           const $input = $(this);
           const currentVal = parseInt($input.val()) || 0;
