@@ -1,6 +1,5 @@
 <?php
 
-
 add_action('woocommerce_before_add_to_cart_button', 'combo_display_sub_products_on_frontend');
 function combo_display_sub_products_on_frontend()
 {
@@ -17,8 +16,8 @@ function combo_display_sub_products_on_frontend()
     <div class="akk-accordion">
       <div class="akk-accordion-header"><?php echo $combo_name; ?></div>
       <div class="akk-accordion-body">
-          <div class="combo-warning akk-warning">Please select at least <?php echo $min_order ?> <?php echo $combo_name; ?>!</div>
-        <div class="product-combo" data-min-order="<?php echo esc_attr($min_order); ?>">
+        <div class="combo-warning akk-warning">Please select at least <?php echo $min_order ?> <?php echo $combo_name; ?>!</div>
+        <div class="product-combo" data-min-order="<?php echo esc_attr($min_order); ?>" data-combo-name="<?php echo esc_attr($combo_name); ?>">
           <?php
           foreach ($list_sub_products as $sub_products) {
             if (empty($sub_products) || !is_array($sub_products)) continue;
@@ -40,7 +39,6 @@ function combo_display_sub_products_on_frontend()
               echo '</a>';
               echo '<label>' . esc_html($sub_product->get_name()) . ' (' . wc_price($sub_product->get_price()) . ')</label><br>';
               echo '</div>';
-
 
               echo '<div class="sub-product-info">';
               echo render_flatsome_quantity_input($sub_product, $stock_level, $min_qty);
@@ -89,21 +87,6 @@ function combo_display_sub_products_on_frontend()
           $comboDisplay.text(total);
         }
 
-        let totalQty = 0;
-        $qtyInputs.each(function() {
-          totalQty += parseInt($(this).val()) || 0;
-        });
-
-        let minOrder = parseInt($('.product-combo').data('min-order')) || 0;
-
-        if (totalQty < minOrder) {
-          $addToCartBtn.prop('disabled', true);
-          $warning.show();
-        } else {
-          $addToCartBtn.prop('disabled', false);
-          $warning.hide();
-        }
-
         $qtyInputs.each(function() {
           const $input = $(this);
           const currentVal = parseInt($input.val()) || 0;
@@ -118,26 +101,44 @@ function combo_display_sub_products_on_frontend()
             $input.prop('readonly', false);
           }
         });
-
-
       }
-
 
       $qtyInputs.on('input change', updateComboPrice);
       if ($('.product-combo').length > 0) {
         updateComboPrice();
-      };
+      }
+
+      $addToCartBtn.on('click', function(e) {
+        let totalQty = 0;
+        $qtyInputs.each(function() {
+          totalQty += parseInt($(this).val()) || 0;
+        });
+
+        let minOrder = parseInt($('.product-combo').data('min-order')) || 0;
+        let comboName = $('.product-combo').data('combo-name') || 'items';
+
+        if (totalQty < minOrder) {
+          e.preventDefault();
+
+          Swal.fire({
+            icon: 'warning',
+            title: 'Attention',
+            text: 'Please select at least ' + minOrder + ' ' + comboName + '!',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#e74c3c'
+          });
+
+          return false;
+        }
+      });
+
       if (typeof Fancybox !== 'undefined' && typeof Fancybox.bind === 'function') {
         Fancybox.bind('[data-fancybox]', {});
       }
-
     });
   </script>
 <?php
 }
-
-
-
 
 add_filter('woocommerce_add_cart_item_data', 'capture_selected_sub_products', 10, 2);
 function capture_selected_sub_products($cart_item_data, $product_id)
@@ -159,7 +160,6 @@ function capture_selected_sub_products($cart_item_data, $product_id)
   if (!empty($_POST['packing_instructions'])) {
     $cart_item_data['packing_instructions'] = $_POST['packing_instructions'];
   }
-
 
   return $cart_item_data;
 }
