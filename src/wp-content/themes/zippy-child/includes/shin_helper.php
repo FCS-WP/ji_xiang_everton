@@ -193,12 +193,15 @@ function build_whatsapp_link($product)
 
 function is_existing_shipping()
 {
+  if(is_admin()) return;
   if (empty(WC()->session->get('order_mode'))) return false;
   return true;
 }
 
 function is_takeaway()
 {
+  if(is_admin()) return;
+
   if (!is_existing_shipping() || WC()->session->get('order_mode') !== 'takeaway') return false;
 
   return true;
@@ -207,6 +210,8 @@ function is_takeaway()
 
 function is_delivery()
 {
+  if(is_admin()) return;
+
   if (!is_existing_shipping() || WC()->session->get('order_mode') !== 'delivery') return false;
 
   return true;
