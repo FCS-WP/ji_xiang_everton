@@ -158,10 +158,10 @@ do_action('woocommerce_before_mini_cart');
         <p class="woocommerce-mini-cart__buttons buttons">
           <?php
           echo ' <a href="' . esc_url(wc_get_cart_url()) . '" class="button wc-forward">View cart</a>';
-          if ($total_order > $minimum_order) {
-            echo '<a href="' . esc_url(wc_get_checkout_url()) . '" class="button checkout wc-forward button-checkout-minicart">Proceed to Checkout Page<br>Order for ' . format_date_DdMY(WC()->session->get('date')) . ' ' . WC()->session->get('time')['from'] . '</a>';
-          } else {
+          if ($total_order < $minimum_order && is_delivery()) {
             echo ' <a disabled class="button checkout wc-forward disabled-button-custom">Hit Minimum Order to Checkout</a>';
+          } else {
+            echo '<a href="' . esc_url(wc_get_checkout_url()) . '" class="button checkout wc-forward button-checkout-minicart">Proceed to Checkout Page<br>Order for ' . format_date_DdMY(WC()->session->get('date')) . ' ' . WC()->session->get('time')['from'] . '</a>';
           }
           ?>
         </p>
