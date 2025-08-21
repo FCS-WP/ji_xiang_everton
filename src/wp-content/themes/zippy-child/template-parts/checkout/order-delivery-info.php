@@ -21,14 +21,14 @@
       }
       ?>
       <tr>
-        <td>Date:</td>
+        <td> Delivery Date:</td>
         <td>
           <?php echo WC()->session->get('date'); ?>
           <input type="hidden" name="billing_date" id="billing_date" value="<?php echo esc_attr(zippy_get_wc_session('date') ?? ''); ?>">
         </td>
       </tr>
       <tr>
-        <td>Time:</td>
+        <td>Delivery Time:</td>
         <td>
           <?php echo zippy_get_delivery_time(); ?>
           <input type="hidden" name="billing_time" id="billing_time" value="<?php echo zippy_get_delivery_time(); ?>">
