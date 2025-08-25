@@ -439,7 +439,7 @@ ul {
     overflow: auto;
     scrollbar-color: #ec7265 #f6f6f6;
     scrollbar-width: thin;
-    height: 90vh;
+    min-height: 100%;
   }
 
   .inforMinimunRule {
@@ -561,19 +561,18 @@ ul {
 }
 .product-info.summary {
   .akk-sub-products {
-  width: 100%;
-  .akk-sub-product {
-    margin-bottom: 10px;
     width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    .sub-product-image{
-    display: flex;
-    align-items: top;
-    gap:20px;
+    .akk-sub-product {
+      margin-bottom: 10px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      .sub-product-image {
+        display: flex;
+        align-items: top;
+        gap: 20px;
+      }
     }
   }
 }
-}
-

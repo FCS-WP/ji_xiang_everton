@@ -1,24 +1,6 @@
 <?php
 
 
-function handle_submit_takeaway()
-{
-  if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit_take_away'])) {
-    $_SESSION['status_popup'] = true;
-
-    $outlet = sanitize_text_field($_POST['selectOutlet']);
-    $takeaway_time = sanitize_text_field($_POST['selectTakeAwayTime']);
-    $selectDateTakeaway = sanitize_text_field($_POST['selectDateTakeaway']);
-    $formatted_date = date("D, d M Y", strtotime($selectDateTakeaway));
-
-    $_SESSION['selectTakeAwayTime'] = $takeaway_time;
-    $_SESSION['selectOutlet'] = $outlet;
-    $_SESSION['selectDateTakeaway'] = $formatted_date;
-  }
-}
-// add_action('init', 'handle_submit_takeaway');
-
-
 function remove_cart_session()
 {
   // Empty cart

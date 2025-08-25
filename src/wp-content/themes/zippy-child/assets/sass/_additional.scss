@@ -102,7 +102,6 @@ html {
   .cart_custom thead th {
     font-weight: bolder;
     font-size: 12px !important;
-    
   }
 }
 
@@ -166,7 +165,7 @@ html {
   overflow: auto;
   scrollbar-color: #ec7265 #f6f6f6;
   scrollbar-width: thin;
-  // height: 85vh;
+  height: calc(100vh - 250px);
 }
 
 .row_mini_cart_custom p {
@@ -225,7 +224,7 @@ html {
   }
 
   .miniCartOnPage .col-inner {
-    position:  sticky !important;
+    position: sticky !important;
     top: 150px;
     right: 0px;
   }

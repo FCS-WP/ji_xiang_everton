@@ -44,6 +44,7 @@ function customize_shipping_rates_based_on_order_mode($rates)
     return filter_shipping_methods($rates, ['free_shipping']);
   }
 }
+
 function filter_shipping_methods($rates, $keep_methods = [], $remove_methods = [])
 {
   foreach ($rates as $rate_key => $rate) {
@@ -62,12 +63,56 @@ function filter_shipping_methods($rates, $keep_methods = [], $remove_methods = [
 
 add_filter('woocommerce_cart_shipping_method_full_label', 'custom_shipping_label_with_distance', 10, 2);
 
-function custom_shipping_label_with_distance($label, $method) {
-    $total_distance = WC()->session->get('total_distance');
-    if ($total_distance) {
-        $distance_in_meters = round($total_distance / 1000 , 2);
-        $label .= ' - ' . $distance_in_meters . 'km';
-    }
+function custom_shipping_label_with_distance($label, $method)
+{
+  $total_distance = WC()->session->get('total_distance');
+  if ($total_distance) {
+    $distance_in_meters = round($total_distance / 1000, 2);
+    $label .= ' - ' . $distance_in_meters . 'km';
+  }
 
-    return $label;
+  return $label;
+}
+
+// Set minimum order amount
+add_action('woocommerce_checkout_process', 'set_minimum_order_amount', 10);
+add_action('woocommerce_before_cart', 'set_minimum_order_notice', 10);
+
+function set_minimum_order_amount()
+{
+
+  if (!is_delivery()) return;
+
+  $minimum = get_minimum_rule_by_order_mode();
+  $minimum_order = $minimum['minimum_total_to_order'];
+
+  if (WC()->cart && WC()->cart->total < $minimum_order) {
+    wc_add_notice(
+      sprintf(
+        'You must have an order with a minimum of %s to proceed to checkout.',
+        wc_price($minimum_order)
+      ),
+      'error'
+    );
+  }
+}
+
+function set_minimum_order_notice()
+{
+
+  if (!is_delivery()) return;
+
+  $minimum = get_minimum_rule_by_order_mode();
+  $minimum_order = $minimum['minimum_total_to_order'];
+
+  if (WC()->cart && WC()->cart->total < $minimum_order) {
+    wc_print_notice(
+      sprintf(
+        'Your current order total is %s — you must have a minimum of %s to checkout.',
+        wc_price(WC()->cart->total),
+        wc_price($minimum_order)
+      ),
+      'error'
+    );
+  }
 }
