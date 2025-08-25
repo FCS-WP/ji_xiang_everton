@@ -116,14 +116,28 @@ if ($show_downloads) {
 				<th>Outlet Address</th>
 				<td> <?php echo $order->get_meta('_billing_outlet_address') ?></td>
 			</tr>
-			<tr>
-				<th>Delivery Date</th>
-				<td><?php echo $order->get_meta('_billing_date') ?></td>
-			</tr>
-			<tr>
-				<th>Delivery Time</th>
-				<td><?php echo $order->get_meta('_billing_time') ?></td>
-			</tr>
+
+			<?php if (is_delivery()) : ?>
+				<tr>
+					<th>Delivery Date</th>
+					<td><?php echo $order->get_meta('_billing_date') ?></td>
+				</tr>
+				<tr>
+					<th>Delivery Time</th>
+					<td><?php echo $order->get_meta('_billing_time') ?></td>
+				</tr>
+			<?php endif ?>
+
+			<?php if (is_takeaway()): ?>
+				<tr>
+					<th>Takeaway Date</th>
+					<td><?php echo $order->get_meta('_billing_date') ?></td>
+				</tr>
+				<tr>
+					<th>Takeaway Time</th>
+					<td><?php echo $order->get_meta('_billing_time') ?></td>
+				</tr>
+			<?php endif; ?>
 		</tfoot>
 	</table>
 </section>

@@ -26,21 +26,29 @@ add_action('woocommerce_checkout_update_order_meta', 'custom_save_checkout_field
 //Display Admin
 function custom_display_order_meta($order)
 {
-
-  $fields = [
-    '_billing_method_shipping' => 'Method Shipping',
-    '_billing_outlet' => 'Outlet Name',
-    '_billing_outlet_address' => 'Outlet Address',
-    '_billing_date' => 'Delivery Date',
-    '_billing_time' => 'Delivery Time',
-  ];
-
   echo '<h4>' . __('Shipping Details', 'woocommerce') . '</h4>';
 
-  foreach ($fields as $key => $field) {
-    echo '<p><strong>' . $field . ':</strong> ' . $order->get_meta($key) . '</p>';
-  };
+  if ($order->get_meta('_billing_method_shipping') == 'delivery') {
+    $fields = [
+      '_billing_method_shipping' => 'Method Shipping',
+      '_billing_outlet' => 'Outlet Name',
+      '_billing_outlet_address' => 'Outlet Address',
+      '_billing_date' => 'Delivery Date',
+      '_billing_time' => 'Delivery Time',
+    ];
+  } else {
+    $fields = [
+      '_billing_method_shipping' => 'Method Shipping',
+      '_billing_outlet' => 'Outlet Name',
+      '_billing_outlet_address' => 'Outlet Address',
+      '_billing_date' => 'Takeaway Date',
+      '_billing_time' => 'Takeaway Time',
+    ];
+  }
 
+  foreach ($fields as $key => $field) {
+    echo '<p><strong>' . $field . ':</strong> ' . strtoupper($order->get_meta($key)) . '</p>';
+  };
 }
 add_action('woocommerce_admin_order_data_after_shipping_address', 'custom_display_order_meta', 10, 1);
 
