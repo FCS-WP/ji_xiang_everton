@@ -20,7 +20,7 @@
  */
 
 defined('ABSPATH') || exit;
-if(is_admin()) return;
+if (is_admin()) return;
 $total_quantity = WC()->cart->get_cart_contents_count();
 $rules = get_minimum_rule_by_order_mode();
 $total_order = floatval(get_subtotal_cart());
@@ -44,7 +44,7 @@ do_action('woocommerce_before_mini_cart');
       <p><span id="total_quanity_cart"><?php echo $total_quantity; ?></span> items added</p>
     </div>
     <div c
-    lass="icon_mini_cart_custom">
+      lass="icon_mini_cart_custom">
       <?php require_once THEME_DIR . '-child/assets/icons/edit-icon.php' ?>
     </div>
   </div>
@@ -156,14 +156,11 @@ do_action('woocommerce_before_mini_cart');
         <?php do_action('woocommerce_widget_shopping_cart_before_buttons'); ?>
         <!-- Mini Cart button  -->
         <p class="woocommerce-mini-cart__buttons buttons">
-          <?php
-          echo ' <a href="' . esc_url(wc_get_cart_url()) . '" class="button wc-forward">View cart</a>';
-          if ($total_order < $minimum_order && is_delivery()) {
-            echo ' <a disabled class="button checkout wc-forward disabled-button-custom">Hit Minimum Order to Checkout</a>';
-          } else {
-            echo '<a href="' . esc_url(wc_get_checkout_url()) . '" class="button checkout wc-forward button-checkout-minicart">Proceed to Checkout Page<br>Order for ' . format_date_DdMY(WC()->session->get('date')) . ' ' . WC()->session->get('time')['from'] . '</a>';
-          }
-          ?>
+
+          <?php echo ' <a href="' . esc_url(wc_get_cart_url()) . '" class="button wc-forward">View cart</a>'; ?>
+
+          <?php do_action('woocommerce_proceed_to_checkout'); ?>
+
         </p>
 
         <?php do_action('woocommerce_widget_shopping_cart_after_buttons'); ?>
