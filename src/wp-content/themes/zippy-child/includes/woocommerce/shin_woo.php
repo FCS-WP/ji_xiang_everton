@@ -47,7 +47,7 @@ function custom_display_order_meta($order)
   }
 
   foreach ($fields as $key => $field) {
-    echo '<p><strong>' . $field . ':</strong> ' . strtoupper($order->get_meta($key)) . '</p>';
+    echo '<p><strong>' . $field . ':</strong> ' . ucfirst($order->get_meta($key)) . '</p>';
   };
 }
 add_action('woocommerce_admin_order_data_after_shipping_address', 'custom_display_order_meta', 10, 1);
@@ -64,6 +64,13 @@ function custom_force_cart_not_need_shipping($needs_shipping)
     return false;
   }
   return $needs_shipping;
+}
+// Modify the Label Total
+add_filter('woocommerce_get_order_item_totals', 'reordering_order_item_totals', 10, 3);
+function reordering_order_item_totals($total_rows, $order, $tax_display)
+{
+  $total_rows['order_total']['label'] = 'Total (inclusive of GST):';
+  return $total_rows;
 }
 
 /**
