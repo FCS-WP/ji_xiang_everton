@@ -39,6 +39,8 @@
   <?php endif; ?>
   <?php if (is_takeaway()): ?>
     <div class="quickcheckout-heading"><i class="fa fa-truck"></i> Takeaway</div>
+    <input type="hidden" name="billing_method_shipping" id="billing_method_shipping" value="<?php echo esc_attr(WC()->session->get('order_mode') ?? ''); ?>">
+
   <?php endif; ?>
 
   <div class="quickcheckout-heading"><i class="fa fa-truck"></i> Order Information</div>

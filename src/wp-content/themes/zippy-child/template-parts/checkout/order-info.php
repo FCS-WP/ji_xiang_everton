@@ -83,7 +83,7 @@
       </tr>
     <?php endif; ?>
     <tr>
-      <td colspan="4" class="text-right"><strong>GST:</strong></td>
+      <td colspan="4" class="text-right"><strong>GST (INCLUSIVE):</strong></td>
       <td><?php echo wc_cart_totals_taxes_total_html(); ?></td>
     </tr>
 
