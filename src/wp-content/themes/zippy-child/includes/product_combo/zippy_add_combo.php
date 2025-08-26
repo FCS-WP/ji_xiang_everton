@@ -114,10 +114,10 @@ function combo_display_sub_products_on_frontend()
           totalQty += parseInt($(this).val()) || 0;
         });
 
-        let minOrder = parseInt($('.product-combo').data('min-order')) || 0;
+        let minOrder = parseInt($('.product-combo').data('min-order')) || 1;
         let comboName = $('.product-combo').data('combo-name') || 'items';
 
-        if (totalQty < minOrder) {
+        if (totalQty < minOrder && $('.product-combo').length > 0) {
           e.preventDefault();
 
           Swal.fire({

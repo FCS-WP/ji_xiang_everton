@@ -97,15 +97,15 @@ do_action('woocommerce_before_mini_cart');
               );
               ?>
               <?php if (empty($product_permalink)) : ?>
-                <?php echo $thumbnail . wp_kses_post($product_name); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+                <?php echo $thumbnail . '<strong>' . wp_kses_post($product_name) . '</strong>';
                 ?>
               <?php else : ?>
                 <a href="<?php echo esc_url($product_permalink); ?>">
-                  <?php echo $thumbnail . wp_kses_post($product_name); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+                  <?php echo $thumbnail . '<strong>' . wp_kses_post($product_name) . '</strong>';
                   ?>
                 </a>
               <?php endif; ?>
-              <?php echo wc_get_formatted_cart_item_data($cart_item); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+              <?php echo wc_get_formatted_cart_item_data($cart_item);
               ?>
               <?php echo apply_filters('woocommerce_widget_cart_item_quantity', '<span class="quantity">' . sprintf('%s &times; %s', $cart_item['quantity'], $product_price) . '</span>', $cart_item, $cart_item_key); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
               ?>
@@ -129,13 +129,13 @@ do_action('woocommerce_before_mini_cart');
             <?php foreach (WC()->cart->get_tax_totals() as $code => $tax) : // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited 
             ?>
               <p class="woocommerce-mini-cart__total tax <?php echo esc_attr(sanitize_title($code)); ?>">
-                <span><?php echo esc_html($tax->label); ?></span>
+                <strong><?php echo esc_html($tax->label); ?></strong>
                 <span><?php echo wp_kses_post($tax->formatted_amount); ?></span>
               </p>
             <?php endforeach; ?>
           <?php else : ?>
             <p class="woocommerce-mini-cart__total tax">
-              <span><?php echo esc_html(WC()->countries->tax_or_vat()); ?></span>
+              <strong><?php echo esc_html(WC()->countries->tax_or_vat()); ?></strong>
               <span><?php wc_cart_totals_taxes_total_html(); ?></span>
             </p>
           <?php endif; ?>
@@ -152,10 +152,19 @@ do_action('woocommerce_before_mini_cart');
         <p class="woocommerce-mini-cart__total total">
           <?php do_action('woocommerce_widget_shopping_cart_total'); ?>
         </p>
+      </div>
 
+      <div class="woocommerce-mini-cart__buttons_wrapper">
         <?php do_action('woocommerce_widget_shopping_cart_before_buttons'); ?>
+        <!-- Total -->
+
+        <p class="woocommerce-mini-cart__total total">
+          <strong><?php esc_html_e('Total', 'woocommerce'); ?></strong>
+          <?php echo WC()->cart->get_cart_total(); ?>
+        </p>
         <!-- Mini Cart button  -->
         <p class="woocommerce-mini-cart__buttons buttons">
+
 
           <?php echo ' <a href="' . esc_url(wc_get_cart_url()) . '" class="button wc-forward">View cart</a>'; ?>
 
