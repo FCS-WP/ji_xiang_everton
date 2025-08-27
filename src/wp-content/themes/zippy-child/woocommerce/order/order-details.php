@@ -105,37 +105,37 @@ if ($show_downloads) {
 	<?php do_action('woocommerce_order_details_after_order_table', $order); ?>
 </section>
 <section class="woocommerce-addons-details">
-	<h2 class="woocommerce-column__title" style="text-transform: capitalize;"><?php echo $order->get_meta('_billing_method_shipping') ?> details</h2>
+	<h2 class="woocommerce-column__title" style="text-transform: capitalize;"><?php echo $order->get_meta(BILLING_METHOD) ?> details</h2>
 	<table class="shop_table">
 		<tfoot>
 			<tr>
 				<th>Outlet Name</th>
-				<td><?php echo $order->get_meta('_billing_outlet') ?></td>
+				<td><?php echo $order->get_meta(BILLING_OUTLET) ?></td>
 			</tr>
 			<tr>
 				<th>Outlet Address</th>
-				<td> <?php echo $order->get_meta('_billing_outlet_address') ?></td>
+				<td> <?php echo $order->get_meta(BILLING_OUTLET_ADDRESS) ?></td>
 			</tr>
 
 			<?php if (is_delivery()) : ?>
 				<tr>
 					<th>Delivery Date</th>
-					<td><?php echo $order->get_meta('_billing_date') ?></td>
+					<td><?php echo $order->get_meta(BILLING_DATE) ?></td>
 				</tr>
 				<tr>
 					<th>Delivery Time</th>
-					<td><?php echo $order->get_meta('_billing_time') ?></td>
+					<td><?php echo $order->get_meta(BILLING_TIME) ?></td>
 				</tr>
 			<?php endif ?>
 
 			<?php if (is_takeaway()): ?>
 				<tr>
 					<th>Takeaway Date</th>
-					<td><?php echo $order->get_meta('_billing_date') ?></td>
+					<td><?php echo $order->get_meta(BILLING_DATE) ?></td>
 				</tr>
 				<tr>
 					<th>Takeaway Time</th>
-					<td><?php echo $order->get_meta('_billing_time') ?></td>
+					<td><?php echo $order->get_meta(BILLING_TIME) ?></td>
 				</tr>
 			<?php endif; ?>
 		</tfoot>
