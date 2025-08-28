@@ -6,16 +6,16 @@ function custom_save_checkout_fields($order_id)
   $order = new WC_Order($order_id);
 
   $fields = [
-    'billing_outlet',
-    'billing_date',
-    'billing_time',
-    'billing_outlet_address',
-    'billing_method_shipping',
+    BILLING_DATE,
+    BILLING_TIME,
+    BILLING_OUTLET_ADDRESS,
+    BILLING_OUTLET,
+    BILLING_METHOD,
   ];
 
   foreach ($fields as $field) {
     if (!empty($_POST[$field])) {
-      $order->update_meta_data('_' . $field, sanitize_text_field($_POST[$field]), true);
+      $order->update_meta_data($field, sanitize_text_field($_POST[$field]), true);
     }
   }
   $order->save_meta_data();
@@ -28,21 +28,21 @@ function custom_display_order_meta($order)
 {
   echo '<h4>' . __('Shipping Details', 'woocommerce') . '</h4>';
 
-  if ($order->get_meta('_billing_method_shipping') == 'delivery') {
+  if ($order->get_meta(BILLING_METHOD) == 'delivery') {
     $fields = [
-      '_billing_method_shipping' => 'Method Shipping',
-      '_billing_outlet' => 'Outlet Name',
-      '_billing_outlet_address' => 'Outlet Address',
-      '_billing_date' => 'Delivery Date',
-      '_billing_time' => 'Delivery Time',
+      BILLING_METHOD => 'Method Shipping',
+      BILLING_OUTLET => 'Outlet Name',
+      BILLING_OUTLET_ADDRESS => 'Outlet Address',
+      BILLING_DATE => 'Delivery Date',
+      BILLING_TIME => 'Delivery Time',
     ];
   } else {
     $fields = [
-      '_billing_method_shipping' => 'Method Shipping',
-      '_billing_outlet' => 'Outlet Name',
-      '_billing_outlet_address' => 'Outlet Address',
-      '_billing_date' => 'Takeaway Date',
-      '_billing_time' => 'Takeaway Time',
+      BILLING_METHOD => 'Method Shipping',
+      BILLING_OUTLET => 'Outlet Name',
+      BILLING_OUTLET_ADDRESS => 'Outlet Address',
+      BILLING_DATE => 'Takeaway Date',
+      BILLING_TIME => 'Takeaway Time',
     ];
   }
 
