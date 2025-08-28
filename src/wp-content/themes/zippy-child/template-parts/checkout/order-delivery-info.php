@@ -5,8 +5,8 @@
         <td>Outlet Name:</td>
         <td>
           <?php echo WC()->session->get('outlet_name'); ?>
-          <input type="hidden" name="billing_outlet" id="billing_outlet" value="<?php echo esc_attr(zippy_get_wc_session('outlet_name') ?? ''); ?>">
-          <input type="hidden" name="billing_outlet_address" id="billing_outlet_address" value="<?php echo esc_attr(zippy_get_wc_session('outlet_address') ?? ''); ?>">
+          <input type="hidden" name="_billing_outlet" id="_billing_outlet" value="<?php echo esc_attr(zippy_get_wc_session('outlet_name') ?? ''); ?>">
+          <input type="hidden" name="_billing_outlet_address" id="_billing_outlet_address" value="<?php echo esc_attr(zippy_get_wc_session('outlet_address') ?? ''); ?>">
 
         </td>
       </tr>
@@ -20,14 +20,14 @@
           <td> Delivery Date:</td>
           <td>
             <?php echo WC()->session->get('date'); ?>
-            <input type="hidden" name="billing_date" id="billing_date" value="<?php echo esc_attr(zippy_get_wc_session('date') ?? ''); ?>">
+            <input type="hidden" name="_billing_date" id="_billing_date" value="<?php echo esc_attr(zippy_get_wc_session('date') ?? ''); ?>">
           </td>
         </tr>
         <tr>
           <td>Delivery Time:</td>
           <td>
             <?php echo zippy_get_delivery_time(); ?>
-            <input type="hidden" name="billing_time" id="billing_time" value="<?php echo zippy_get_delivery_time(); ?>">
+            <input type="hidden" name="_billing_time" id="_billing_time" value="<?php echo zippy_get_delivery_time(); ?>">
           </td>
 
         </tr>
@@ -38,14 +38,14 @@
           <td> Takeaway Date:</td>
           <td>
             <?php echo WC()->session->get('date'); ?>
-            <input type="hidden" name="billing_date" id="billing_date" value="<?php echo esc_attr(zippy_get_wc_session('date') ?? ''); ?>">
+            <input type="hidden" name="_billing_date" id="_billing_date" value="<?php echo esc_attr(zippy_get_wc_session('date') ?? ''); ?>">
           </td>
         </tr>
         <tr>
           <td>Takeaway Time:</td>
           <td>
             <?php echo zippy_get_delivery_time(); ?>
-            <input type="hidden" name="billing_time" id="billing_time" value="<?php echo zippy_get_delivery_time(); ?>">
+            <input type="hidden" name="_billing_time" id="_billing_time" value="<?php echo zippy_get_delivery_time(); ?>">
           </td>
 
         </tr>

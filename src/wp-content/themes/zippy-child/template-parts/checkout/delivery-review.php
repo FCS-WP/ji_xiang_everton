@@ -2,7 +2,7 @@
   <?php if (is_delivery()): ?>
     <div class="quickcheckout-heading"><i class="fa fa-truck"></i> Delivery</div>
     <div class="quickcheckout-content">
-      <input type="hidden" name="billing_method_shipping" id="billing_method_shipping" value="<?php echo esc_attr(WC()->session->get('order_mode') ?? ''); ?>">
+      <input type="hidden" name="_billing_method_shipping" id="_billing_method_shipping" value="<?php echo esc_attr(WC()->session->get('order_mode') ?? ''); ?>">
 
       <div class="select_method_shipping">
         <table class="shipping__table shipping__table--multiple">
@@ -39,7 +39,7 @@
   <?php endif; ?>
   <?php if (is_takeaway()): ?>
     <div class="quickcheckout-heading"><i class="fa fa-truck"></i> Takeaway</div>
-    <input type="hidden" name="billing_method_shipping" id="billing_method_shipping" value="<?php echo esc_attr(WC()->session->get('order_mode') ?? ''); ?>">
+    <input type="hidden" name="_billing_method_shipping" id="_billing_method_shipping" value="<?php echo esc_attr(WC()->session->get('order_mode') ?? ''); ?>">
 
   <?php endif; ?>
 
