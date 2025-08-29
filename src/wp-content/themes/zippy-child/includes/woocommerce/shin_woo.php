@@ -69,7 +69,7 @@ function custom_force_cart_not_need_shipping($needs_shipping)
 add_filter('woocommerce_get_order_item_totals', 'reordering_order_item_totals', 10, 3);
 function reordering_order_item_totals($total_rows, $order, $tax_display)
 {
-  $total_rows['order_total']['label'] = 'Total (inclusive of GST):';
+  $total_rows['order_total']['label'] = 'Total:';
   return $total_rows;
 }
 

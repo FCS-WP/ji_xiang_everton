@@ -48,10 +48,10 @@ class CartContext
         $this->orderRepository = new OrderRepository();
 
         /** @var WcCustomerSessionFacade $wcSessionFacade */
-        $this->sessionFacade = Factory::get("WC_WcCustomerSessionFacade", null);
+        $this->secssionFacade = Factory::get("WC_WcCustomerSessionFacade", null);
 
         $this->environment = array(
-            'timestamp'           => current_time('timestamp'),
+            'timestamp'           => $this->getBillingDate(),
             'prices_includes_tax' => $this->context->getIsPricesIncludeTax(),
             'tab_enabled'         => $this->context->getIsTaxEnabled(),
             'tax_display_shop'    => $this->context->getTaxDisplayShopMode(),
@@ -70,7 +70,8 @@ class CartContext
         );
     }
 
-    public function withOrderRepository(OrderRepositoryInterface $orderRepository) {
+    public function withOrderRepository(OrderRepositoryInterface $orderRepository)
+    {
         $this->orderRepository = $orderRepository;
     }
 
@@ -174,5 +175,14 @@ class CartContext
     public function getSession()
     {
         return $this->sessionFacade;
+    }
+
+    public function getBillingDate()
+    {
+        if (empty(WC()->session)) return current_time('timestamp');
+
+        $billing_date = !empty(WC()->session->get('date')) ? strtotime(WC()->session->get('date')) : current_time('timestamp');
+
+        return $billing_date ;
     }
 }

@@ -88,7 +88,7 @@
     </tr>
 
     <tr>
-      <td colspan="4" class="text-right"><strong>Total (inclusive of GST):</strong></td>
+      <td colspan="4" class="text-right"><strong>Total:</strong></td>
       <td><strong><?php echo wc_cart_totals_order_total_html() ?></strong></td>
     </tr>
   </tbody>
