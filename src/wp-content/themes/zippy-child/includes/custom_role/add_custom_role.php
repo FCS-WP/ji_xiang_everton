@@ -70,15 +70,29 @@ function custom_add_custom_user_roles()
         ]
     );
 
-    // Staff role
-    add_role(
-        'staff',
-        'Staff',
-        [
-            'read' => true,
-            'level_0' => true,
-        ]
-    );
+
 }
 add_action('init', 'custom_add_custom_user_roles');
 
+
+add_action('init', function () {
+    // Group 1: Front counter & packer
+    add_role('front_counter_packer', 'Front Counter & Packer', [
+        'read'                 => true,
+        'manage_woocommerce'   => true,   // needed to access Woo menu
+        'read_shop_order'      => true,
+        'edit_shop_orders'     => true,
+        'delete_shop_orders'   => false,
+        'publish_shop_orders'  => false,  // cannot create new orders
+    ]);
+
+    // Group 2: Order Managers
+    add_role('order_manager', 'Order Manager', [
+        'read'                 => true,
+        'manage_woocommerce'   => true,
+        'read_shop_order'      => true,
+        'edit_shop_orders'     => true,
+        'delete_shop_orders'   => true,
+        'publish_shop_orders'  => true,   // can create orders
+    ]);
+});
