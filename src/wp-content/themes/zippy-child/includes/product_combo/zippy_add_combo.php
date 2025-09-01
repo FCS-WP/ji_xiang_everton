@@ -95,7 +95,6 @@ function combo_display_sub_products_on_frontend()
 
           if (currentVal <= minVal) {
             $minusBtn.prop('disabled', true);
-            $input.prop('readonly', true);
           } else {
             $minusBtn.prop('disabled', false);
             $input.prop('readonly', false);

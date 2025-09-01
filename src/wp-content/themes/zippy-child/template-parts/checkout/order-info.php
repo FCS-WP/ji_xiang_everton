@@ -17,7 +17,7 @@
 
       if ($_product && $_product->exists() && $_product->get_price() > 0 && $cart_item['quantity'] > 0) {
         $product_permalink = get_permalink($product_id);
-        $cart_subtotal += $cart_item['line_total'];
+        $cart_subtotal += round($cart_item['line_total'] + $cart_item['line_tax']);
     ?>
 
         <tr>
@@ -46,9 +46,8 @@
           <td class="product-quantity">
             x <?php echo esc_html($cart_item['quantity']); ?>
           </td>
-
           <td class="product-subtotal_custom">
-            <?php echo wc_price($cart_item['line_total']); ?>
+            <?php echo wc_price($cart_item['line_total'] + $cart_item['line_tax']); ?>
           </td>
         </tr>
 
@@ -73,7 +72,7 @@
         <td colspan="4" class="text-right">
           <strong>Delivery Fee:</strong>
         </td>
-        <td><?php echo WC()->cart->get_cart_shipping_total(); ?></td>
+        <td><?php echo wc_price(WC()->cart->get_shipping_total()); ?></td>
       </tr>
     <?php endif; ?>
     <?php if ($extra_fee != 0): ?>

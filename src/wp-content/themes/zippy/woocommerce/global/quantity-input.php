@@ -107,7 +107,6 @@ elseif ( fl_woocommerce_version_check( '7.2.0' ) ) :
 		<label class="screen-reader-text" for="<?php echo esc_attr( $input_id ); ?>"><?php echo esc_attr( $label ); ?></label>
 		<input
 			type="<?php echo $is_readonly ? 'number' : 'number'; // Keep as type number for count alignment. ?>"
-			<?php echo $is_readonly ? 'readonly="readonly"' : ''; ?>
 			id="<?php echo esc_attr( $input_id ); ?>"
 			class="<?php echo esc_attr( join( ' ', (array) $classes ) ); ?>"
 			name="<?php echo esc_attr( $input_name ); ?>"
