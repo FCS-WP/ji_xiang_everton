@@ -17,7 +17,7 @@
 
       if ($_product && $_product->exists() && $_product->get_price() > 0 && $cart_item['quantity'] > 0) {
         $product_permalink = get_permalink($product_id);
-        $cart_subtotal += round($cart_item['line_total'] + $cart_item['line_tax']);
+        // $cart_subtotal += round($cart_item['line_total'] + $cart_item['line_tax']);
     ?>
 
         <tr>
@@ -65,7 +65,7 @@
     ?>
     <tr>
       <td colspan="4" class="text-right"><strong>Sub-total:</strong></td>
-      <td><?php echo wc_price($cart_subtotal); ?></td>
+      <td><?php echo (WC()->cart->get_cart_subtotal() ); ?></td>
     </tr>
     <?php if (is_delivery()): ?>
       <tr>
@@ -81,6 +81,7 @@
         <td><?php echo wc_price(WC()->session->get('extra_fee')); ?></td>
       </tr>
     <?php endif; ?>
+
     <tr>
       <td colspan="4" class="text-right"><strong>GST (INCLUSIVE):</strong></td>
       <td><?php echo wc_cart_totals_taxes_total_html(); ?></td>
