@@ -29,14 +29,16 @@
             <a href="<?php echo esc_url($product_permalink); ?>">
               <?php echo $_product->get_name(); ?>
             </a>
-            <div class="akk-sub-products-list">
-              <?php foreach ($cart_item['akk_selected'] as $sub_product_id => $qty): ?>
-                <?php if ($qty <= 0) continue;
-                $sub_product = wc_get_product($sub_product_id);
-                if (!$sub_product) continue; ?>
-                <p class="akk-sub-product"> <?php echo esc_html($sub_product->get_name()) . ' (' . wc_price($sub_product->get_price()) . ')' . ' x ' . intval($qty)  ?></p>
-              <?php endforeach; ?>
-            </div>
+            <?php if (isset($cart_item['akk_selected'])): ?>
+              <div class="akk-sub-products-list">
+                <?php foreach ($cart_item['akk_selected'] as $sub_product_id => $qty): ?>
+                  <?php if ($qty <= 0) continue;
+                  $sub_product = wc_get_product($sub_product_id);
+                  if (!$sub_product) continue; ?>
+                  <p class="akk-sub-product"> <?php echo esc_html($sub_product->get_name()) . ' (' . wc_price($sub_product->get_price()) . ')' . ' x ' . intval($qty)  ?></p>
+                <?php endforeach; ?>
+              </div>
+            <?php endif; ?>
           </td>
 
           <td class="product-price_custom">
@@ -65,7 +67,7 @@
     ?>
     <tr>
       <td colspan="4" class="text-right"><strong>Sub-total:</strong></td>
-      <td><?php echo (WC()->cart->get_cart_subtotal() ); ?></td>
+      <td><?php echo (WC()->cart->get_cart_subtotal()); ?></td>
     </tr>
     <?php if (is_delivery()): ?>
       <tr>
@@ -84,9 +86,8 @@
 
     <tr>
       <td colspan="4" class="text-right"><strong>GST (INCLUSIVE):</strong></td>
-      <td><?php echo wc_cart_totals_taxes_total_html(); ?></td>
+      <td><?php echo wc_price((WC()->cart->get_total('edit')) - (WC()->cart->get_total('edit') / 1.09)); ?></td>
     </tr>
-
     <tr>
       <td colspan="4" class="text-right"><strong>Total:</strong></td>
       <td><strong><?php echo wc_cart_totals_order_total_html() ?></strong></td>

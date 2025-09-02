@@ -102,3 +102,26 @@ function validate_required_session_data()
     }
   }
 }
+
+
+// add_filter('woocommerce_get_order_item_totals', 'custom_display_gst_total', 10, 3);
+function custom_display_gst_total($total_rows, $order, $tax_display)
+{
+  $gst = $order->get_total_tax();
+
+  // Add GST line before grand total
+  $new_total = [];
+
+  foreach ($total_rows as $key => $row) {
+    if ('order_total' === $key) {
+      // Insert GST row before total
+      $new_total['gst_inclusive'] = [
+        'label' => __('GST (Inclusive):', 'your-textdomain'),
+        'value' => wc_price($gst, ['currency' => $order->get_currency()]),
+      ];
+    }
+    $new_total[$key] = $row;
+  }
+
+  return $new_total;
+}
