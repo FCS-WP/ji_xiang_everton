@@ -20,7 +20,7 @@ function my_custom_lightbox_content()
   echo '</div>';
   echo '<div class="custom-price">';
   echo '<p style="font-size: 14px; font-weight:700; margin-bottom: 10px; color: #c0392b">' . "If you have any packing preferences, do leave the packing instructions below." . '</p>';
-  echo wc_price($product->get_price());
+  echo $product->get_price_html();
 
   echo '</div>';
 

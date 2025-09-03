@@ -179,10 +179,10 @@ class CartContext
 
     public function getBillingDate()
     {
-        if (empty(WC()->session)) return current_time('timestamp');
+        if (empty(WC()->session) || empty(WC()->session->get('date'))) return strtotime('+1 hour', current_time('timestamp'));
 
         $billing_date = !empty(WC()->session->get('date')) ? strtotime(WC()->session->get('date')) : current_time('timestamp');
 
-        return $billing_date ;
+        return strtotime('+1 hour', $billing_date);
     }
 }
