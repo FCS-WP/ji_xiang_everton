@@ -20,35 +20,43 @@ function custom_save_checkout_fields($order_id)
   }
   $order->save_meta_data();
 }
-
 add_action('woocommerce_checkout_update_order_meta', 'custom_save_checkout_fields');
 
 //Display Admin
 function custom_display_order_meta($order)
 {
-  echo '<h4>' . __('Shipping Details', 'woocommerce') . '</h4>';
+  $action = $_GET['action'];
 
-  if ($order->get_meta(BILLING_METHOD) == 'delivery') {
-    $fields = [
-      BILLING_METHOD => 'Method Shipping',
-      BILLING_OUTLET => 'Outlet Name',
-      BILLING_OUTLET_ADDRESS => 'Outlet Address',
-      BILLING_DATE => 'Delivery Date',
-      BILLING_TIME => 'Delivery Time',
-    ];
-  } else {
-    $fields = [
-      BILLING_METHOD => 'Method Shipping',
-      BILLING_OUTLET => 'Outlet Name',
-      BILLING_OUTLET_ADDRESS => 'Outlet Address',
-      BILLING_DATE => 'Takeaway Date',
-      BILLING_TIME => 'Takeaway Time',
-    ];
+  if ($action === "edit") {
+    echo '<h4>' . __('Shipping Details', 'woocommerce') . '</h4>';
+
+    if ($order->get_meta(BILLING_METHOD) == 'delivery') {
+      $fields = [
+        BILLING_METHOD => 'Method Shipping',
+        BILLING_OUTLET => 'Outlet Name',
+        BILLING_OUTLET_ADDRESS => 'Outlet Address',
+        BILLING_DATE => 'Delivery Date',
+        BILLING_TIME => 'Delivery Time',
+      ];
+    } else {
+      $fields = [
+        BILLING_METHOD => 'Method Shipping',
+        BILLING_OUTLET => 'Outlet Name',
+        BILLING_OUTLET_ADDRESS => 'Outlet Address',
+        BILLING_DATE => 'Takeaway Date',
+        BILLING_TIME => 'Takeaway Time',
+      ];
+    }
+
+    foreach ($fields as $key => $field) {
+      echo '<p><strong>' . $field . ':</strong> ' . ucfirst($order->get_meta($key)) . '</p>';
+    };
+  } 
+
+  if ($action == 'new') {
+    echo '<div id="admin_create_order"></div>';
   }
 
-  foreach ($fields as $key => $field) {
-    echo '<p><strong>' . $field . ':</strong> ' . ucfirst($order->get_meta($key)) . '</p>';
-  };
 }
 add_action('woocommerce_admin_order_data_after_shipping_address', 'custom_display_order_meta', 10, 1);
 
