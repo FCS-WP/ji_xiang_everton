@@ -174,11 +174,11 @@ function handle_process_bar_notification($current, $total, $type)
     ];
   }
 
-  $hit_minimum = $total - $current;
+  $hit_minimum = wp_strip_all_tags(wc_price($total - $current));
   return [
     'message' => match ($type) {
-      'order' => '$' . $hit_minimum . ' more for minimum order',
-      'delivery' => '$' . $hit_minimum . ' more for Free delivery',
+      'order' =>  $hit_minimum . ' more for minimum order',
+      'delivery' =>  $hit_minimum . ' more for Free delivery',
       default => '',
     },
     'style' => 'background-color: #f1b32c; width: ' . $percentage . '%',
@@ -193,14 +193,14 @@ function build_whatsapp_link($product)
 
 function is_existing_shipping()
 {
-  if(is_admin()) return;
+  if (is_admin()) return;
   if (empty(WC()->session->get('order_mode'))) return false;
   return true;
 }
 
 function is_takeaway()
 {
-  if(is_admin()) return;
+  if (is_admin()) return;
 
   if (!is_existing_shipping() || WC()->session->get('order_mode') !== 'takeaway') return false;
 
@@ -210,7 +210,7 @@ function is_takeaway()
 
 function is_delivery()
 {
-  if(is_admin()) return;
+  if (is_admin()) return;
 
   if (!is_existing_shipping() || WC()->session->get('order_mode') !== 'delivery') return false;
 
