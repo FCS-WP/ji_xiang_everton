@@ -27,9 +27,7 @@ function custom_lostpassword_url($url, $redirect)
 }
 add_filter('lostpassword_url', 'custom_lostpassword_url', 10, 2);
 
-
 add_action('woocommerce_new_order', 'custom_save_admin_order_meta', 10, 1);
-
 function custom_save_admin_order_meta($order_id)
 {
   // ✅ Only run on creating new orders, not updating
@@ -50,6 +48,15 @@ function custom_save_admin_order_meta($order_id)
   }
   if (isset($_POST['_billing_date'])) {
     $order->update_meta_data('_billing_date', sanitize_text_field($_POST['_billing_date']));
+  }
+  if (isset($_POST['_billing_delivery_to'])) {
+    $order->update_meta_data('_billing_delivery_to', sanitize_text_field($_POST['_billing_delivery_to']));
+  }
+  if (isset($_POST['_billing_delivery_postal'])) {
+    $order->update_meta_data('_billing_delivery_postal', sanitize_text_field($_POST['_billing_delivery_postal']));
+  }
+  if (isset($_POST['_billing_distance'])) {
+    $order->update_meta_data('_billing_distance', sanitize_text_field($_POST['_billing_distance']));
   }
   if (isset($_POST['_billing_time'])) {
     $order->update_meta_data('_billing_time', sanitize_text_field($_POST['_billing_time']));

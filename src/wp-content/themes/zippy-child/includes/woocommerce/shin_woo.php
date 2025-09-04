@@ -51,6 +51,12 @@ function custom_display_order_meta($order)
     foreach ($fields as $key => $field) {
       echo '<p><strong>' . $field . ':</strong> ' . ucfirst($order->get_meta($key)) . '</p>';
     };
+
+    if ($order->get_meta('_billing_delivery_to')) {
+       echo '<p><strong>Delivery to:</strong> ' . ucfirst($order->get_meta('_billing_delivery_to')) . '</p>';
+       echo '<p><strong>Delivery postal:</strong> ' . ucfirst($order->get_meta('_billing_delivery_postal')) . '</p>';
+       echo '<p><strong>Delivery distance:</strong> ' . ucfirst($order->get_meta('_billing_distance')) . '</p>';
+    }
   } 
 
   if ($action == 'new') {
