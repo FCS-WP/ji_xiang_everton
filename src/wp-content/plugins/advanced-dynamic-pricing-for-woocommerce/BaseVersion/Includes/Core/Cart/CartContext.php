@@ -7,6 +7,8 @@ use ADP\BaseVersion\Includes\Database\Repository\OrderRepository;
 use ADP\BaseVersion\Includes\Database\Repository\OrderRepositoryInterface;
 use ADP\BaseVersion\Includes\WC\WcCustomerSessionFacade;
 use ADP\Factory;
+use DateTime;
+use DateTimeZone;
 
 defined('ABSPATH') or exit;
 
@@ -49,7 +51,6 @@ class CartContext
 
         /** @var WcCustomerSessionFacade $wcSessionFacade */
         $this->secssionFacade = Factory::get("WC_WcCustomerSessionFacade", null);
-
         $this->environment = array(
             'timestamp'           => $this->getBillingDate(),
             'prices_includes_tax' => $this->context->getIsPricesIncludeTax(),
@@ -179,10 +180,12 @@ class CartContext
 
     public function getBillingDate()
     {
-        if (empty(WC()->session) || empty(WC()->session->get('date'))) return strtotime('+1 hour', current_time('timestamp'));
+
+        if (empty(WC()->session) || empty(WC()->session->get('date'))) return current_time('timestamp');
 
         $billing_date = !empty(WC()->session->get('date')) ? strtotime(WC()->session->get('date')) : current_time('timestamp');
 
-        return strtotime('+1 hour', $billing_date);
+
+        return strtotime('+8 hour', $billing_date);
     }
 }
