@@ -7,8 +7,8 @@ function akk_display_selected_in_cart($item_data, $cart_item)
             if ($qty <= 0) continue;
             $name = get_the_title($product_id);
             $item_data[] = array(
-                'name'  => esc_html($name) . ' (' . wc_price(wc_get_product($product_id)->get_price()) . ')',
-                'value' =>  ' x ' . intval($qty)
+                'name'  => esc_html($name) . ' (' . get_pricing_price(wc_get_product($product_id), true) . ')',
+                'value' =>  ' x ' . intval($qty[0])
             );
         }
     }

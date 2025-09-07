@@ -50,7 +50,7 @@ function akk_reduce_sub_products_stock($order_id)
         $main_product_id = $item->get_product_id();
 
         foreach ($akk_selected as $product_id => $qty) {
-            if ($qty <= 0) continue;
+            if ($qty[0] <= 0) continue;
 
             $product = wc_get_product($product_id);
             if (!$product || !$product->managing_stock()) continue;
@@ -59,11 +59,11 @@ function akk_reduce_sub_products_stock($order_id)
 
             if ($acf_stock_level === null) continue;
 
-            $new_stock_level = max(0, $acf_stock_level - $qty);
+            $new_stock_level = max(0, $acf_stock_level - $qty[0]);
 
             $stock_quantity = $product->get_stock_quantity();
             if ($stock_quantity !== null) {
-                $product->set_stock_quantity(max(0, $stock_quantity - $qty));
+                $product->set_stock_quantity(max(0, $stock_quantity - $qty[0]));
                 $product->save();
             }
 
@@ -87,14 +87,14 @@ function akk_restore_sub_products_stock($order_id)
         if (!$akk_selected || !is_array($akk_selected)) continue;
 
         foreach ($akk_selected as $product_id => $qty) {
-            if ($qty <= 0) continue;
+            if ($qty[0] <= 0) continue;
 
             $product = wc_get_product($product_id);
             if (!$product || !$product->managing_stock()) continue;
 
             $stock_quantity = $product->get_stock_quantity();
             if ($stock_quantity !== null) {
-                $product->set_stock_quantity($stock_quantity + $qty);
+                $product->set_stock_quantity($stock_quantity + $qty[0]);
                 $product->save();
             }
         }

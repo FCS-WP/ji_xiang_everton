@@ -32,10 +32,13 @@
             <?php if (isset($cart_item['akk_selected'])): ?>
               <div class="akk-sub-products-list">
                 <?php foreach ($cart_item['akk_selected'] as $sub_product_id => $qty): ?>
-                  <?php if ($qty <= 0) continue;
+                  <?php if ($qty[0] <= 0) continue;
                   $sub_product = wc_get_product($sub_product_id);
-                  if (!$sub_product) continue; ?>
-                  <p class="akk-sub-product"> <?php echo esc_html($sub_product->get_name()) . ' (' . wc_price($sub_product->get_price()) . ')' . ' x ' . intval($qty)  ?></p>
+                  if (!$sub_product) continue;
+                  $price = empty($qty[1]) ? $sub_product->get_price() : $qty[1];
+                  ?>
+
+                  <p class="akk-sub-product"> <?php echo esc_html($sub_product->get_name()) . ' (' . wc_price($price) . ')' . ' x ' . intval($qty[0])  ?></p>
                 <?php endforeach; ?>
               </div>
             <?php endif; ?>

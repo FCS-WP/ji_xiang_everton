@@ -216,3 +216,24 @@ function is_delivery()
 
   return true;
 }
+
+
+function get_pricing_price($product, $display = false)
+{
+  $price = html_entity_decode(strip_tags($product->get_price_html()));
+  if ($display) return $price;
+
+  $price = preg_replace('/[^0-9\.,]/', '', $price);
+  $price_formated = empty($price) ? $product->get_price() : $price;
+
+  return floatval($price_formated); //
+}
+
+
+function get_pricing_price_in_cart($product, $quantity)
+{
+  $fc = new WDP_Functions;
+  $product_price = $fc->get_discounted_product_price($product, $quantity, true);
+
+  return $product_price;
+}
