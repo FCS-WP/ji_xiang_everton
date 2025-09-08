@@ -37,7 +37,7 @@ function combo_display_sub_products_on_frontend()
               echo '<a data-fancybox="img-' . esc_attr($sub_product->get_id()) . '" href="' . esc_url($image_url) . '">';
               echo '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($sub_product->get_name()) . '" width="60">';
               echo '</a>';
-              echo '<label>' . esc_html($sub_product->get_name()) . ' (' . wc_price($sub_product->get_price()) . ')</label><br>';
+              echo '<label>' . esc_html($sub_product->get_name()) . ' (' . $sub_product->get_price_html() . ')</label><br>';
               echo '</div>';
 
               echo '<div class="sub-product-info">';
@@ -147,7 +147,8 @@ function capture_selected_sub_products($cart_item_data, $product_id)
     foreach ($_POST['akk_sub_products'] as $product_id => $qty) {
       $qty = intval($qty);
       if ($qty > 0) {
-        $selected[$product_id] = $qty;
+        $product = wc_get_product($product_id);
+        $selected[$product_id] = [$qty, get_pricing_price_in_cart($product, 1)]; // [0 -> quantity , 1 -> price]
       }
     }
 
@@ -170,9 +171,10 @@ function restore_combo_price_from_session($cart)
     if (isset($item['akk_selected'])) {
       $total_price = 0;
       foreach ($item['akk_selected'] as $product_id => $qty) {
-        $product = wc_get_product($product_id);
-        if ($product && $qty > 0) {
-          $total_price += $product->get_price() * $qty;
+        $product = wc_get_product($product_id); // is product_addon
+        if ($product && $qty[0] > 0) {
+          $product_price = get_pricing_price_in_cart($product, 1);
+          $total_price += $product_price * $qty[0];
         }
       }
       if ($total_price > 0) {

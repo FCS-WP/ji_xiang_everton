@@ -6,7 +6,7 @@ function render_flatsome_quantity_input($product, $stock_level = null, $min_qty 
     $max_attr = $max_qty > 0 ? 'max="' . esc_attr($max_qty) . '"' : '';
     $min_attr   = 'min="' . esc_attr($min_qty) . '"';
     $value_attr = 'value="' . esc_attr($min_qty) . '"';
-
+    $price = get_pricing_price($product);
     return '<div class="ux-quantity quantity buttons_added">' .
         '<input type="button" value="-" class="ux-quantity__button ux-quantity__button--minus button minus is-form">' .
         '<input
@@ -23,7 +23,7 @@ function render_flatsome_quantity_input($product, $stock_level = null, $min_qty 
             placeholder=""
             inputmode="numeric"
             autocomplete="off"
-            data-price="' . esc_attr($product->get_price()) . '"
+            data-price="' . esc_attr($price) . '"
             data-min="' . esc_attr($min_qty) . '"
         >' .
         '<input type="button" value="+" class="ux-quantity__button ux-quantity__button--plus button plus is-form">' .
