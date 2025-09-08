@@ -34,7 +34,8 @@ function display_sub_products_in_admin_order($item_id, $item, $product)
         echo '<ul>';
         foreach ($akk_selected as $product_id => $qty) {
             $sub_product = wc_get_product($product_id);
-            if (!$sub_product || $qty[0] <= 0) continue;
+            if(is_array($qty)) $qty = $qty[0];
+            if (!$sub_product || $qty <= 0) continue;
             $price = empty($qty[1]) ? $sub_product->get_price() : $qty[1];
             echo '<li><a href="' . esc_url(admin_url('post.php?post=' . $sub_product->get_id() . '&action=edit')) . '" target="_blank">'
                 . esc_html($sub_product->get_name()) . ' (' . wc_price($price) . ') × ' . intval($qty) . '</a></li>';
@@ -59,8 +60,10 @@ function show_combo_below_item_in_thankyou_page($item_id)
         echo '<ul style="margin: 0 0 5px 15px;">';
         foreach ($sub_products as $product_id => $qty) {
             $product = wc_get_product($product_id);
+            if(is_array($qty)) $qty = $qty[0];
+
             if ($product) {
-                echo '<li>' . esc_html($product->get_name()) . ' × ' . intval($qty[0]) . '</li>';
+                echo '<li>' . esc_html($product->get_name()) . ' × ' . intval($qty) . '</li>';
             }
         }
         echo '</ul>';
