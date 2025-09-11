@@ -69,13 +69,7 @@ function combo_display_sub_products_on_frontend()
               echo '</div>';
 
               echo '<div class="sub-product-info">';
-              echo '<input type="number"
-                          class="akk-sub-product-qty"
-                          name="akk_sub_products[' . esc_attr($sub_product->get_id()) . ']"
-                          value="0"
-                          min="' . esc_attr($min_qty) . '"
-                          max="' . esc_attr($stock_level) . '"
-                          data-price="' . esc_attr($sub_product->get_price()) . '"' . $data_group . '>';
+              echo render_flatsome_quantity_input($sub_product, $stock_level, $min_qty, $group_id);
               echo '</div>';
 
               echo '</div>';
@@ -120,6 +114,19 @@ function combo_display_sub_products_on_frontend()
         if ($comboDisplay.length) {
           $comboDisplay.text(total);
         }
+        $qtyInputs.each(function() {
+          const $input = $(this);
+          const currentVal = parseInt($input.val()) || 0;
+          const minVal = parseInt($input.attr('min')) || 0;
+          const $minusBtn = $input.siblings('.ux-quantity__button--minus');
+
+          if (currentVal <= minVal) {
+            $minusBtn.prop('disabled', true);
+          } else {
+            $minusBtn.prop('disabled', false);
+            $input.prop('readonly', false);
+          }
+        });
       }
 
       $qtyInputs.on('input change', updateComboPrice);
@@ -193,7 +200,7 @@ function capture_selected_sub_products($cart_item_data, $product_id)
       $qty = intval($qty);
       if ($qty > 0) {
         $product = wc_get_product($product_id);
-        $selected[$product_id] = [$qty, get_pricing_price_in_cart($product, 1)];
+        $selected[$product_id] = [$qty, get_pricing_price_in_cart($product, 1)]; // [0 -> quantity , 1 -> price]
       }
     }
 
@@ -216,7 +223,7 @@ function restore_combo_price_from_session($cart)
     if (isset($item['akk_selected'])) {
       $total_price = 0;
       foreach ($item['akk_selected'] as $product_id => $qty) {
-        $product = wc_get_product($product_id);
+        $product = wc_get_product($product_id); // is product_addon
         if ($product && $qty[0] > 0) {
           $product_price = get_pricing_price_in_cart($product, 1);
           $total_price += $product_price * $qty[0];
