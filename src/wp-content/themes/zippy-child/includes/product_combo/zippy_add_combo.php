@@ -1,5 +1,4 @@
 <?php
-
 add_action('woocommerce_before_add_to_cart_button', 'combo_display_sub_products_on_frontend');
 function combo_display_sub_products_on_frontend()
 {
@@ -11,13 +10,39 @@ function combo_display_sub_products_on_frontend()
   if (empty($min_order)) {
     $min_order = 0;
   }
+
+
+  $groups = get_field('products_group', $product->get_id()) ?: [];
+  function get_product_group_id($product_id, $groups)
+  {
+    foreach ($groups as $index => $group_products) {
+      if (is_object($group_products)) {
+        if ($group_products->ID == $product_id) {
+          return $index;
+        }
+      }
+      if (is_array($group_products)) {
+        foreach ($group_products as $group_product) {
+          if ($group_product->ID == $product_id) {
+            return $index;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+
+
 ?>
   <?php if (!empty($list_sub_products)): ?>
     <div class="akk-accordion">
       <div class="akk-accordion-header"><?php echo $combo_name; ?></div>
       <div class="akk-accordion-body">
         <div class="combo-warning akk-warning">Please select at least <?php echo $min_order ?> <?php echo $combo_name; ?>!</div>
-        <div class="product-combo" data-min-order="<?php echo esc_attr($min_order); ?>" data-combo-name="<?php echo esc_attr($combo_name); ?>">
+        <div class="product-combo"
+          data-min-order="<?php echo esc_attr($min_order); ?>"
+          data-combo-name="<?php echo esc_attr($combo_name); ?>">
           <?php
           foreach ($list_sub_products as $sub_products) {
             if (empty($sub_products) || !is_array($sub_products)) continue;
@@ -32,6 +57,9 @@ function combo_display_sub_products_on_frontend()
               $min_qty = $sub_products['minimum_quantity'] ?? 0;
               $image_url = get_the_post_thumbnail_url($sub_product->get_id(), 'full');
 
+              $group_id = get_product_group_id($sub_product->get_id(), $groups);
+              $data_group = $group_id !== null ? ' data-group="' . esc_attr($group_id) . '"' : '';
+
               echo '<div class="akk-sub-product">';
               echo '<div class="sub-product-image">';
               echo '<a data-fancybox="img-' . esc_attr($sub_product->get_id()) . '" href="' . esc_url($image_url) . '">';
@@ -41,7 +69,7 @@ function combo_display_sub_products_on_frontend()
               echo '</div>';
 
               echo '<div class="sub-product-info">';
-              echo render_flatsome_quantity_input($sub_product, $stock_level, $min_qty);
+              echo render_flatsome_quantity_input($sub_product, $stock_level, $min_qty, $group_id);
               echo '</div>';
 
               echo '</div>';
@@ -86,7 +114,6 @@ function combo_display_sub_products_on_frontend()
         if ($comboDisplay.length) {
           $comboDisplay.text(total);
         }
-
         $qtyInputs.each(function() {
           const $input = $(this);
           const currentVal = parseInt($input.val()) || 0;
@@ -109,35 +136,60 @@ function combo_display_sub_products_on_frontend()
 
       $addToCartBtn.on('click', function(e) {
         let totalQty = 0;
+        let groupTotal = 0;
+
         $qtyInputs.each(function() {
-          totalQty += parseInt($(this).val()) || 0;
+          const qty = parseInt($(this).val()) || 0;
+          totalQty += qty;
+
+          const groupId = $(this).data('group');
+          if (groupId !== undefined) {
+            groupTotal += qty;
+          }
         });
 
         let minOrder = parseInt($('.product-combo').data('min-order')) || 1;
         let comboName = $('.product-combo').data('combo-name') || 'items';
 
-        if (totalQty < minOrder && $('.product-combo').length > 0) {
-          e.preventDefault();
+        let groupsData = <?php echo json_encode($groups); ?>;
+        let required = parseInt(groupsData.quantity_products_group) || 0;
 
+        console.log("Required:", required, "Selected:", groupTotal);
+        if (required > 0 && groupTotal < required) {
+          e.preventDefault();
           Swal.fire({
             icon: 'warning',
             title: 'Attention',
-            text: 'Please select at least ' + minOrder + ' ' + comboName + '!',
+            text: 'Please select at least ' + required + ' items in this group before adding to cart!',
             confirmButtonText: 'OK',
             confirmButtonColor: '#e74c3c'
           });
+          return false;
+        }
 
+        if (totalQty < minOrder && $('.product-combo').length > 0) {
+          e.preventDefault();
+          Swal.fire({
+            icon: 'warning',
+            title: 'Attention',
+            text: 'Please select at least ' + minOrder + ' ' + comboName + ' in total!',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#e74c3c'
+          });
           return false;
         }
       });
+
 
       if (typeof Fancybox !== 'undefined' && typeof Fancybox.bind === 'function') {
         Fancybox.bind('[data-fancybox]', {});
       }
     });
   </script>
+
 <?php
 }
+
 
 add_filter('woocommerce_add_cart_item_data', 'capture_selected_sub_products', 10, 2);
 function capture_selected_sub_products($cart_item_data, $product_id)
