@@ -1,6 +1,7 @@
 <?php
 add_filter('acf/fields/post_object/query', 'acf_limit_product_group_choices', 10, 3);
-function acf_limit_product_group_choices($args, $field, $post_id) {
+function acf_limit_product_group_choices($args, $field, $post_id)
+{
 
     if ($field['key'] !== 'field_68c279f4f20c1') {
         return $args;
@@ -24,10 +25,7 @@ function acf_limit_product_group_choices($args, $field, $post_id) {
 
     if (!empty($product_ids)) {
         $args['post__in'] = $product_ids;
-    } else {
-        $args['post__in'] = [0];
     }
 
     return $args;
 }
-
