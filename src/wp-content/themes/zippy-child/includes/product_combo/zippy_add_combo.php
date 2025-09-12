@@ -226,7 +226,7 @@ function restore_combo_price_from_session($cart)
         $product = wc_get_product($product_id); // is product_addon
         if ($product && $qty[0] > 0) {
           $product_price = get_pricing_price_in_cart($product, 1);
-          $total_price += $product_price * $qty[0];
+          $total_price += floatval($product_price) * $qty[0];
         }
       }
       if ($total_price > 0) {
