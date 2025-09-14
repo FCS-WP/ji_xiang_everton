@@ -237,3 +237,31 @@ function get_pricing_price_in_cart($product, $quantity)
 
   return $product_price;
 }
+
+
+function get_product_group_id($product_id, $groups)
+{
+  foreach ($groups as $index => $group_products) {
+    if (is_object($group_products)) {
+      if ($group_products->ID == $product_id) {
+        return $index;
+      }
+    }
+    if (is_array($group_products)) {
+      foreach ($group_products as $group_product) {
+        if ($group_product->ID == $product_id) {
+          return $index;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function get_product_group_max_quantity($product_id, $groups)
+{
+  if (is_array($groups)) {
+    return $groups['quantity_products_group'] ?? 999;
+  }
+  // return null;
+}
