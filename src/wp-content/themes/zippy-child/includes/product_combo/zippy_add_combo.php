@@ -7,32 +7,12 @@ function combo_display_sub_products_on_frontend()
   $list_sub_products = get_field('product_combo', $product->get_id());
   $combo_name = get_field('combo_name', $product->get_id());
   $min_order = get_field('min_order', $product->get_id());
+  $is_composite_product = get_field('is_composite_product', $product->get_id());
   if (empty($min_order)) {
     $min_order = 0;
   }
-
-
   $groups = get_field('products_group', $product->get_id()) ?: [];
-  function get_product_group_id($product_id, $groups)
-  {
-    foreach ($groups as $index => $group_products) {
-      if (is_object($group_products)) {
-        if ($group_products->ID == $product_id) {
-          return $index;
-        }
-      }
-      if (is_array($group_products)) {
-        foreach ($group_products as $group_product) {
-          if ($group_product->ID == $product_id) {
-            return $index;
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-
+  $max_group = get_product_group_max_quantity($product->get_id(), $groups);
 
 ?>
   <?php if (!empty($list_sub_products)): ?>
@@ -57,8 +37,7 @@ function combo_display_sub_products_on_frontend()
               $min_qty = $sub_products['minimum_quantity'] ?? 0;
               $image_url = get_the_post_thumbnail_url($sub_product->get_id(), 'full');
 
-              $group_id = get_product_group_id($sub_product->get_id(), $groups);
-              $data_group = $group_id !== null ? ' data-group="' . esc_attr($group_id) . '"' : '';
+              // $data_group = $group_id !== null ? ' data-group="' . esc_attr($group_id) . '"' : '';
 
               echo '<div class="akk-sub-product">';
               echo '<div class="sub-product-image">';
@@ -69,7 +48,7 @@ function combo_display_sub_products_on_frontend()
               echo '</div>';
 
               echo '<div class="sub-product-info">';
-              echo render_flatsome_quantity_input($sub_product, $stock_level, $min_qty, $group_id);
+              echo render_flatsome_quantity_input($sub_product, $stock_level, $min_qty, $groups, $is_composite_product);
               echo '</div>';
 
               echo '</div>';
@@ -154,13 +133,23 @@ function combo_display_sub_products_on_frontend()
         let groupsData = <?php echo json_encode($groups); ?>;
         let required = parseInt(groupsData.quantity_products_group) || 0;
 
-        console.log("Required:", required, "Selected:", groupTotal);
         if (required > 0 && groupTotal < required) {
           e.preventDefault();
           Swal.fire({
             icon: 'warning',
             title: 'Attention',
             text: 'Please select at least ' + required + ' items in this group before adding to cart!',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#e74c3c'
+          });
+          return false;
+        }
+        if (required > 0 && groupTotal > required) {
+          e.preventDefault();
+          Swal.fire({
+            icon: 'warning',
+            title: 'Attention',
+            text: 'Total is ' + required + ' items in this group before adding to cart!',
             confirmButtonText: 'OK',
             confirmButtonColor: '#e74c3c'
           });
