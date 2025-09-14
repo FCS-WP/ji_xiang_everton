@@ -133,3 +133,14 @@ h2 {
   pointer-events: none;
   cursor: none;
 }
+
+input[type="number"][readonly] {
+  background-color: #eee;
+  color: #333;
+  pointer-events: none;
+}
+
+.box-text-products p.name a {
+  pointer-events: none;
+  cursor: pointer;
+}

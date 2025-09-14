@@ -49,7 +49,7 @@ function render_flatsome_quantity_input($product, $stock_level = null, $min_qty 
         $attrs['data-group'] = $group_id;
     }
     if ($is_composite && empty($group_id)) {
-        $attrs['disabled'] = 'disabled';
+        $attrs['readonly'] = 'readonly';
     }
 
     // Build input field
