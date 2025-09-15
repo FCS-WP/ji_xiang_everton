@@ -220,9 +220,10 @@ function is_delivery()
 
 function get_pricing_price($product, $display = false)
 {
-  $price = html_entity_decode(strip_tags($product->get_price_html()));
+  $price = $product->get_price_html();
   if ($display) return $price;
 
+  $price = html_entity_decode(strip_tags($product->get_price_html()));
   $price = preg_replace('/[^0-9\.,]/', '', $price);
   $price_formated = empty($price) ? $product->get_price() : $price;
 

@@ -35,7 +35,7 @@
                     <?php if ($qty[0] <= 0) continue;
                     $sub_product = wc_get_product($sub_product_id);
                     if (!$sub_product) continue;
-                    $price = empty($qty[1]) ? $sub_product->get_price() : $qty[1];
+                    $price = wc_format_decimal($qty[1]) ? $sub_product->get_price() : $qty[1];
                     ?>
 
                     <p class="akk-sub-product"> <?php echo esc_html($sub_product->get_name()) . ' x ' . intval($qty[0])  ?></p>
@@ -49,7 +49,7 @@
                     <?php if ($qty[0] <= 0) continue;
                     $sub_product = wc_get_product($sub_product_id);
                     if (!$sub_product) continue;
-                    $price = empty($qty[1]) ? $sub_product->get_price() : $qty[1];
+                    $price = wc_format_decimal($qty[1]) ? $sub_product->get_price() : $qty[1];
                     ?>
 
                     <p class="akk-sub-product"> <?php echo esc_html($sub_product->get_name()) . ' (' . wc_price($price) . ')' . ' x ' . intval($qty[0])  ?></p>
