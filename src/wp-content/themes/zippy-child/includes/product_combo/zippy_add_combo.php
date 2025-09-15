@@ -7,12 +7,11 @@ function combo_display_sub_products_on_frontend()
   $list_sub_products = get_field('product_combo', $product->get_id());
   $combo_name = get_field('combo_name', $product->get_id());
   $min_order = get_field('min_order', $product->get_id());
-  $is_composite_product = get_field('is_composite_product', $product->get_id());
+  $is_composite_product = is_composite_product($product);
   if (empty($min_order)) {
     $min_order = 0;
   }
   $groups = get_field('products_group', $product->get_id()) ?: [];
-  $max_group = get_product_group_max_quantity($product->get_id(), $groups);
 
 ?>
   <?php if (!empty($list_sub_products)): ?>
@@ -67,114 +66,10 @@ function combo_display_sub_products_on_frontend()
     </div>
   </div>
 
-  <script>
-    jQuery(document).ready(function($) {
-      $('.akk-accordion-header').on('click', function() {
-        $(this).next('.akk-accordion-body').slideToggle();
-      });
-
-      const $qtyInputs = $('.akk-sub-product-qty');
-      const $addToCartBtn = $('.single_add_to_cart_button');
-      const $comboDisplay = $('#akk-combo-price');
-      const $warning = $('.akk-warning');
-
-      function updateComboPrice() {
-        let total = 0;
-        $qtyInputs.each(function() {
-          const price = parseFloat($(this).data('price')) || 0;
-          const qty = parseFloat($(this).val()) || 0;
-          total += price * qty;
-        });
-
-        if ($addToCartBtn.length) {
-          $addToCartBtn.text('Add $' + total.toFixed(1));
-        }
-
-        if ($comboDisplay.length) {
-          $comboDisplay.text(total);
-        }
-        $qtyInputs.each(function() {
-          const $input = $(this);
-          const currentVal = parseInt($input.val()) || 0;
-          const minVal = parseInt($input.attr('min')) || 0;
-          const $minusBtn = $input.siblings('.ux-quantity__button--minus');
-
-          if (currentVal <= minVal) {
-            $minusBtn.prop('disabled', true);
-          } else {
-            $minusBtn.prop('disabled', false);
-            $input.prop('readonly', false);
-          }
-        });
-      }
-
-      $qtyInputs.on('input change', updateComboPrice);
-      if ($('.product-combo').length > 0) {
-        updateComboPrice();
-      }
-
-      $addToCartBtn.on('click', function(e) {
-        let totalQty = 0;
-        let groupTotal = 0;
-
-        $qtyInputs.each(function() {
-          const qty = parseInt($(this).val()) || 0;
-          totalQty += qty;
-
-          const groupId = $(this).data('group');
-          if (groupId !== undefined) {
-            groupTotal += qty;
-          }
-        });
-
-        let minOrder = parseInt($('.product-combo').data('min-order')) || 1;
-        let comboName = $('.product-combo').data('combo-name') || 'items';
-
-        let groupsData = <?php echo json_encode($groups); ?>;
-        let required = parseInt(groupsData.quantity_products_group) || 0;
-
-        if (required > 0 && groupTotal < required) {
-          e.preventDefault();
-          Swal.fire({
-            icon: 'warning',
-            title: 'Attention',
-            text: 'Please select at least ' + required + ' items in this group before adding to cart!',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#e74c3c'
-          });
-          return false;
-        }
-        if (required > 0 && groupTotal > required) {
-          e.preventDefault();
-          Swal.fire({
-            icon: 'warning',
-            title: 'Attention',
-            text: 'Total is ' + required + ' items in this group before adding to cart!',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#e74c3c'
-          });
-          return false;
-        }
-
-        if (totalQty < minOrder && $('.product-combo').length > 0) {
-          e.preventDefault();
-          Swal.fire({
-            icon: 'warning',
-            title: 'Attention',
-            text: 'Please select at least ' + minOrder + ' ' + comboName + ' in total!',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#e74c3c'
-          });
-          return false;
-        }
-      });
-
-
-      if (typeof Fancybox !== 'undefined' && typeof Fancybox.bind === 'function') {
-        Fancybox.bind('[data-fancybox]', {});
-      }
-    });
-  </script>
+  <?php
+  if ($product->get_type() == 'simple')   require_once('js/combo-js.php');
+  if ($is_composite_product) require_once('js/composite-js.php');
+  ?>
 
 <?php
 }
@@ -209,6 +104,8 @@ add_action('woocommerce_cart_loaded_from_session', 'restore_combo_price_from_ses
 function restore_combo_price_from_session($cart)
 {
   foreach ($cart->get_cart() as $cart_item_key => $item) {
+    $product = $item['data'];
+    if (is_composite_product($product)) continue;
     if (isset($item['akk_selected'])) {
       $total_price = 0;
       foreach ($item['akk_selected'] as $product_id => $qty) {
