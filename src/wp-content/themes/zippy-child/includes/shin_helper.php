@@ -265,3 +265,9 @@ function get_product_group_max_quantity($product_id, $groups)
   }
   // return null;
 }
+
+
+function is_composite_product($product)
+{
+  return $product->get_type() == 'composite' ? true : false;
+}
