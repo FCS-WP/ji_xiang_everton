@@ -28,17 +28,26 @@
             <a href="#">
               <?php echo $_product->get_name(); ?>
             </a>
+
+            <?php
+            $parent_qty = isset($cart_item['quantity']) ? intval($cart_item['quantity']) : 1;
+            ?>
+
             <?php if ($_product->get_type() == 'composite'): ?>
               <?php if (isset($cart_item['akk_selected'])): ?>
                 <div class="akk-sub-products-list">
                   <?php foreach ($cart_item['akk_selected'] as $sub_product_id => $qty): ?>
-                    <?php if ($qty[0] <= 0) continue;
+                    <?php
+                    if (!is_array($qty) || $qty[0] <= 0) continue;
                     $sub_product = wc_get_product($sub_product_id);
                     if (!$sub_product) continue;
-                    $price = wc_format_decimal($qty[1]) ? $sub_product->get_price() : $qty[1];
-                    ?>
 
-                    <p class="akk-sub-product"> <?php echo esc_html($sub_product->get_name()) . ' x ' . intval($qty[0])  ?></p>
+                    $price = isset($qty[1]) ? $qty[1] : $sub_product->get_price();
+                    $final_qty = intval($qty[0]) * $parent_qty;
+                    ?>
+                    <p class="akk-sub-product">
+                      <?php echo esc_html($sub_product->get_name()) . ' x ' . $final_qty; ?>
+                    </p>
                   <?php endforeach; ?>
                 </div>
               <?php endif; ?>
@@ -46,19 +55,24 @@
               <?php if (isset($cart_item['akk_selected'])): ?>
                 <div class="akk-sub-products-list">
                   <?php foreach ($cart_item['akk_selected'] as $sub_product_id => $qty): ?>
-                    <?php if ($qty[0] <= 0) continue;
+                    <?php
+                    if (!is_array($qty) || $qty[0] <= 0) continue;
                     $sub_product = wc_get_product($sub_product_id);
                     if (!$sub_product) continue;
-                    $price = wc_format_decimal($qty[1]) ? $sub_product->get_price() : $qty[1];
-                    ?>
 
-                    <p class="akk-sub-product"> <?php echo esc_html($sub_product->get_name()) . ' (' . wc_price($price) . ')' . ' x ' . intval($qty[0])  ?></p>
+                    $price = isset($qty[1]) ? $qty[1] : $sub_product->get_price();
+                    $final_qty = intval($qty[0]) * $parent_qty;
+                    ?>
+                    <p class="akk-sub-product">
+                      <?php echo esc_html($sub_product->get_name()) . ' (' . wc_price($price) . ') x ' . $final_qty; ?>
+                    </p>
                   <?php endforeach; ?>
                 </div>
               <?php endif; ?>
             <?php endif; ?>
 
           </td>
+
 
           <td class="product-price_custom">
             <?php echo wc_price($_product->get_price()); ?>
