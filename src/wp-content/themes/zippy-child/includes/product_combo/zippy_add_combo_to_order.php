@@ -3,12 +3,24 @@ add_action('woocommerce_checkout_create_order_line_item', 'add_selected_sub_prod
 function add_selected_sub_products_to_order_item($item, $cart_item_key, $values, $order)
 {
     if (isset($values['akk_selected'])) {
-        $item->add_meta_data('akk_selected', $values['akk_selected'], true);
+        $parent_qty = $item->get_quantity();
+        $adjusted = [];
+
+        foreach ($values['akk_selected'] as $pid => $data) {
+            $sub_qty = is_array($data) ? intval($data[0]) : intval($data);
+            $price   = is_array($data) && isset($data[1]) ? $data[1] : wc_get_product($pid)->get_price();
+
+            $adjusted[$pid] = [$sub_qty * $parent_qty, $price];
+        }
+
+        $item->add_meta_data('akk_selected', $adjusted, true);
     }
+
     if (!empty($values['packing_instructions'])) {
         $item->add_meta_data('packing_instructions', $values['packing_instructions'], true);
     }
 }
+
 add_filter('woocommerce_hidden_order_itemmeta', function ($hidden_meta) {
     $hidden_meta[] = 'packing_instructions';
     return $hidden_meta;
