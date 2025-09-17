@@ -45,12 +45,14 @@ function display_sub_products_in_admin_order($item_id, $item, $product)
         echo '<p><strong>Combo Products:</strong></p>';
         echo '<ul>';
         foreach ($akk_selected as $product_id => $qty) {
+
             $sub_product = wc_get_product($product_id);
-            if(is_array($qty)) $qty = $qty[0];
-            if (!$sub_product || $qty <= 0) continue;
+            if(is_array($qty)) $quantity = $qty[0];
+            if (!$sub_product || $quantity <= 0) continue;
             $price = empty($qty[1]) ? $sub_product->get_price() : $qty[1];
+
             echo '<li><a href="' . esc_url(admin_url('post.php?post=' . $sub_product->get_id() . '&action=edit')) . '" target="_blank">'
-                . esc_html($sub_product->get_name()) . ' (' . wc_price($price) . ') × ' . intval($qty) . '</a></li>';
+                . esc_html($sub_product->get_name()) . ' (' . wc_price($price) . ') × ' . intval($quantity) . '</a></li>';
         }
         echo '</ul>';
     }

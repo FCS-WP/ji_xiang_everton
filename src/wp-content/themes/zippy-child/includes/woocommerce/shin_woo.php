@@ -53,16 +53,14 @@ function custom_display_order_meta($order)
     };
 
     if ($order->get_meta('_billing_delivery_to')) {
-       echo '<p><strong>Delivery to:</strong> ' . ucfirst($order->get_meta('_billing_delivery_to')) . '</p>';
-       echo '<p><strong>Delivery postal:</strong> ' . ucfirst($order->get_meta('_billing_delivery_postal')) . '</p>';
-       echo '<p><strong>Delivery distance:</strong> ' . ucfirst($order->get_meta('_billing_distance')) . '</p>';
+      echo '<p><strong>Delivery to:</strong> ' . ucfirst($order->get_meta('_billing_delivery_to')) . '</p>';
+      echo '<p><strong>Delivery distance:</strong> ' . ucfirst($order->get_meta('_billing_distance')) . '</p>';
     }
-  } 
+  }
 
   if ($action == 'new') {
     echo '<div id="admin_create_order"></div>';
   }
-
 }
 add_action('woocommerce_admin_order_data_after_shipping_address', 'custom_display_order_meta', 10, 1);
 
