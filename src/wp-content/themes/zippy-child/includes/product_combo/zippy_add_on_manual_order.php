@@ -1,7 +1,7 @@
 <?php
 
 
-add_action('woocommerce_before_order_object_save', 'handle_get_items_admin', 10, 2);
+add_action('woocommerce_after_order_object_save', 'handle_get_items_admin', 10, 2);
 
 function handle_get_items_admin($order, $data_store)
 {
@@ -11,6 +11,7 @@ function handle_get_items_admin($order, $data_store)
     $product = $item->get_product();
     $perent_quantity = $item->get_quantity();
     $price =  get_pricing_price_in_cart($product, $perent_quantity);
+    $line_total = (float) $item->get_total();
 
     if (! $product) {
       continue;
@@ -21,20 +22,32 @@ function handle_get_items_admin($order, $data_store)
     if (empty($list_sub_products) || !is_array($list_sub_products)) {
       //process for normal
 
-      $item->set_total($price);
+      $tax_total  = $line_total * 0.09;
+      $after_tax = $price - $tax_total;
+      $item->set_taxes([
+        'total'    => [1 => wc_format_decimal($tax_total)],
+        'subtotal' => [1 => wc_format_decimal($tax_total)],
+      ]);
+      $item->set_total($after_tax);
+
 
       continue;
     }
 
     //Process for composite
     if (is_composite_product($product)) {
-
       $result = process_add_item_for_combosite($list_sub_products, $perent_quantity, $price);
 
       if (! empty($result)) {
         $item->delete_meta_data('akk_selected');
 
+        // var_dump($result['tax']);
+        $item->set_taxes([
+          'total'    => [1 => wc_format_decimal($result['tax'])],
+          'subtotal' => [1 => wc_format_decimal($result['tax'])],
+        ]);
         $item->add_meta_data('akk_selected', $result['add_on'], true);
+
         $item->set_total($result['total']);
       }
     } else {
@@ -43,7 +56,12 @@ function handle_get_items_admin($order, $data_store)
         $item->delete_meta_data('akk_selected');
 
         $item->add_meta_data('akk_selected', $result['add_on'], true);
+        $item->set_taxes([
+          'total'    => [1 => wc_format_decimal($result['tax'])],
+          'subtotal' => [1 => wc_format_decimal($result['tax'])],
+        ]);
         $item->set_total($result['total']);
+        // $item->save();
       }
     }
   }
@@ -78,8 +96,13 @@ function process_add_item_for_combosite($list_sub_products, $qty, $perent_price)
     }
   }
 
+  $tax = $perent_price * 0.09;
+  $total = $perent_price - $tax;
+
   $result['add_on'] = $addons;
-  $result['total'] = $perent_price;
+  $result['total'] = $total;
+  $result['tax'] = $tax;
+
 
   return $result;
 }
@@ -116,8 +139,12 @@ function process_add_item_for_modifier($list_sub_products, $qty, $perent_price)
     }
   }
 
+  $tax = $total * 0.09;
+  $total = $total - $total * 0.09;
+
   $result['add_on'] = $addons;
   $result['total'] = $total;
+  $result['tax'] = $tax;
 
   return $result;
 }

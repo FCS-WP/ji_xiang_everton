@@ -181,7 +181,7 @@ class CartContext
     public function getBillingDate()
     {
 
-        if ($_POST['action'] == 'woocommerce_calc_line_taxes' && isset($_POST['order_id'])) {
+        if (isset($_POST['action']) && $_POST['action'] == 'woocommerce_calc_line_taxes' && isset($_POST['order_id'])) {
             $order_id = intval($_POST['order_id']);
 
             $order = wc_get_order($order_id);
