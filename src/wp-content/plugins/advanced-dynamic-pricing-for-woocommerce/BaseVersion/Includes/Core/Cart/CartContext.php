@@ -181,6 +181,16 @@ class CartContext
     public function getBillingDate()
     {
 
+        if ($_POST['action'] == 'woocommerce_calc_line_taxes' && isset($_POST['order_id'])) {
+            $order_id = intval($_POST['order_id']);
+
+            $order = wc_get_order($order_id);
+
+            $date = $order->get_meta(BILLING_DATE) ?? current_time('timestamp');
+
+            return strtotime('+8 hour', strtotime($date));
+        }
+
         if (empty(WC()->session) || empty(WC()->session->get('date'))) return current_time('timestamp');
 
         $billing_date = !empty(WC()->session->get('date')) ? strtotime(WC()->session->get('date')) : current_time('timestamp');
