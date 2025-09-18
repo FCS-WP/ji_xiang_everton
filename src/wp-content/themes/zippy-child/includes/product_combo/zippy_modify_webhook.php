@@ -13,9 +13,14 @@ function add_add_on_items_webhook($payload, $resource = '', $resource_id = 0, $w
     return $payload;
   }
 
-  // Copy existing line_items
   $line_items = $payload['line_items'];
-  $index = 0;
+
+  $max_id = 0;
+  foreach ($line_items as $li) {
+    if (isset($li['id']) && intval($li['id']) > $max_id) {
+      $max_id = intval($li['id']);
+    }
+  }
 
   foreach ($order->get_items() as $item_id => $item) {
     $akk_selected = $item->get_meta('akk_selected');
@@ -27,13 +32,14 @@ function add_add_on_items_webhook($payload, $resource = '', $resource_id = 0, $w
         $addon_qty   = intval($qty[0]);
         $addon_price = isset($qty[1]) ? floatval($qty[1]) : ($sub_product ? $sub_product->get_price() : 0);
 
-
         if (!$sub_product || $addon_qty <= 0) {
           continue;
         }
 
+        $max_id++;
+
         $addon = [
-          'id'         =>  $sub_product->get_id(), // avoid clash with WC IDs
+          'id'         => $max_id,
           'name'       => $sub_product->get_name(),
           'sku'       => $sub_product->get_sku(),
           'quantity'   => $addon_qty,
@@ -41,14 +47,19 @@ function add_add_on_items_webhook($payload, $resource = '', $resource_id = 0, $w
           'price'      => wc_format_decimal($addon_price),
           'subtotal'   => 0,
           'total'      => 0,
-          'parent_id'  => $item_id, // reference parent line item
-          'is_addon'   => true,     // flag for downstream systems
+          'parent_id'  => $item_id,
+          'is_addon'   => true,
         ];
-        array_splice($line_items, $index + 1, 0, [$addon]);
-        $index++;
+
+        // Insert right after parent item
+        $insert_position = array_search($item_id, array_column($line_items, 'id')) + 1;
+        if ($insert_position === false) {
+          $line_items[] = $addon;
+        } else {
+          array_splice($line_items, $insert_position, 0, [$addon]);
+        }
       }
     }
-    $index++;
   }
 
   // Replace line_items in payload
