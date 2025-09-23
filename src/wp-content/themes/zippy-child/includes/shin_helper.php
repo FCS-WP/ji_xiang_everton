@@ -272,3 +272,10 @@ function is_composite_product($product)
 {
   return $product->get_type() == 'composite' ? true : false;
 }
+
+
+function metersToKilometers(float $meters): string
+{
+  $km = $meters / 1000;
+  return number_format($km, 2) . " KM";
+}

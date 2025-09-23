@@ -6,145 +6,47 @@ add_action('woocommerce_after_order_object_save', 'handle_get_items_admin', 10, 
 function handle_get_items_admin($order, $data_store)
 {
   if (!is_admin()) return;
+  // No need run if not manual order
+  if ($order->get_meta('is_manual_order') != 'yes') return;
 
-  foreach ($order->get_items() as $item_id => $item) {
-    $product = $item->get_product();
-    $perent_quantity = $item->get_quantity();
-    $price =  get_pricing_price_in_cart($product, $perent_quantity);
-    $line_total = (float) $item->get_total();
+  //Process add the shipping fee
+  process_add_shipping_fee($order);
 
-    if (! $product) {
-      continue;
-    }
+}
 
-    $list_sub_products = get_field('product_combo', $product->get_id());
+function process_add_shipping_fee($order)
+{
+  $distance = $order->get_meta('_billing_distance');
+  if (isset($distance) && $distance > 0) {
+    $shipping = new WC_Order_Item_Shipping;
+    if ($order->get_shipping_total() > 0) return;
+    $config = query_shipping();
+    $shipping_fee = get_fee_from_config_fe(maybe_unserialize($config->minimum_order_to_delivery), $distance);
 
-    if (empty($list_sub_products) || !is_array($list_sub_products)) {
-      //process for normal
-
-      $tax_total  = $line_total * 0.09;
-      $after_tax = $price - $tax_total;
-      $item->set_taxes([
-        'total'    => [1 => wc_format_decimal($tax_total)],
-        'subtotal' => [1 => wc_format_decimal($tax_total)],
-      ]);
-      $item->set_total($after_tax);
-
-
-      continue;
-    }
-
-    //Process for composite
-    if (is_composite_product($product)) {
-      $result = process_add_item_for_combosite($list_sub_products, $perent_quantity, $price);
-
-      if (! empty($result)) {
-        $item->delete_meta_data('akk_selected');
-
-        // var_dump($result['tax']);
-        $item->set_taxes([
-          'total'    => [1 => wc_format_decimal($result['tax'])],
-          'subtotal' => [1 => wc_format_decimal($result['tax'])],
-        ]);
-        $item->add_meta_data('akk_selected', $result['add_on'], true);
-
-        $item->set_total($result['total']);
-      }
-    } else {
-      $result = process_add_item_for_modifier($list_sub_products, $perent_quantity, $price);
-      if (! empty($result)) {
-        $item->delete_meta_data('akk_selected');
-
-        $item->add_meta_data('akk_selected', $result['add_on'], true);
-        $item->set_taxes([
-          'total'    => [1 => wc_format_decimal($result['tax'])],
-          'subtotal' => [1 => wc_format_decimal($result['tax'])],
-        ]);
-        $item->set_total($result['total']);
-        // $item->save();
-      }
-    }
+    $shipping->set_method_title("Shipping Fee");
+    $shipping->set_total($shipping_fee);
+    $order->add_item($shipping);
+    $order->set_shipping_total($shipping_fee);
   }
 }
 
 
-function process_add_item_for_combosite($list_sub_products, $qty, $perent_price)
+function query_shipping()
 {
-
-  $addons = [];
-  $result = [];
-
-  foreach ($list_sub_products as $sub_products) {
-    if (empty($sub_products) || !is_array($sub_products)) {
-      continue;
-    }
-    foreach ($sub_products as $sub_product_post) {
-      $product_id  = is_object($sub_product_post) ? $sub_product_post->ID : $sub_product_post;
-
-      $sub_product = wc_get_product($product_id);
-
-      if (! $sub_product) {
-        continue;
-      }
-
-      $min_qty     = isset($sub_products['minimum_quantity'])  && $sub_products['minimum_quantity'] > 0  ? intval($sub_products['minimum_quantity']) * $qty : $qty;
-
-      $addons[$product_id] = [
-        $min_qty,
-        get_pricing_price_in_cart($sub_product, $min_qty)
-      ];
-    }
-  }
-
-  $tax = $perent_price * 0.09;
-  $total = $perent_price - $tax;
-
-  $result['add_on'] = $addons;
-  $result['total'] = $total;
-  $result['tax'] = $tax;
-
-
-  return $result;
+  global $wpdb;
+  $config_table = OUTLET_SHIPPING_CONFIG_TABLE_NAME;
+  $query = $wpdb->prepare("SELECT * FROM $config_table");
+  $config = $wpdb->get_row($query);
+  return $config;
 }
 
-
-function process_add_item_for_modifier($list_sub_products, $qty, $perent_price)
+function get_fee_from_config_fe($config_data, $distance)
 {
-
-  $addons = [];
-  $result = [];
-  $total = $perent_price;
-
-  foreach ($list_sub_products as $sub_products) {
-
-    if (empty($sub_products) || !is_array($sub_products)) {
-      continue;
-    }
-
-    foreach ($sub_products as $sub_product_post) {
-      $product_id  = is_object($sub_product_post) ? $sub_product_post->ID : $sub_product_post;
-
-      $sub_product = wc_get_product($product_id);
-
-      if (! $sub_product) {
-        continue;
-      }
-
-      $min_qty     = isset($sub_products['minimum_quantity'])  && $sub_products['minimum_quantity'] > 0  ? intval($sub_products['minimum_quantity']) * $qty : $qty;
-      $total = floatval($total) +  $min_qty *  get_pricing_price_in_cart($sub_product, $min_qty);
-      $addons[$product_id] = [
-        $min_qty,
-        get_pricing_price_in_cart($sub_product, $min_qty)
-      ];
+  foreach ($config_data as $rule) {
+    $rule["lower_than"] = $rule["lower_than"] ?? 99999999;
+    if ($distance >= $rule["greater_than"] && $distance <= $rule["lower_than"]) {
+      return $rule["fee"];
     }
   }
-
-  $tax = $total * 0.09;
-  $total = $total - $total * 0.09;
-
-  $result['add_on'] = $addons;
-  $result['total'] = $total;
-  $result['tax'] = $tax;
-
-  return $result;
+  return 0;
 }
