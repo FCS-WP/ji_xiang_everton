@@ -53,8 +53,8 @@ function custom_display_order_meta($order)
     };
 
     if ($order->get_meta('_billing_delivery_to')) {
-      echo '<p><strong>Delivery to:</strong> ' . ucfirst($order->get_meta('_billing_delivery_to')) . '</p>';
-      echo '<p><strong>Delivery distance:</strong> ' . metersToKilometers($order->get_meta('_billing_distance')) . '</p>';
+      echo '<p><strong>Delivery to:</strong> ' . ucfirst($order->get_meta(BILLING_DELIVERY)) . '</p>';
+      echo '<p><strong>Delivery distance:</strong> ' . metersToKilometers($order->get_meta(BILLING_DISTANCE)) . '</p>';
     }
   }
 
@@ -66,7 +66,6 @@ function custom_display_order_meta($order)
 add_action('woocommerce_admin_order_data_after_shipping_address', 'custom_display_order_meta', 10, 1);
 
 
-// add_action('woocommerce_checkout_process', 'validate_required_session_data');
 
 add_filter('woocommerce_cart_needs_shipping', 'custom_force_cart_not_need_shipping');
 function custom_force_cart_not_need_shipping($needs_shipping)
@@ -86,35 +85,6 @@ function reordering_order_item_totals($total_rows, $order, $tax_display)
   return $total_rows;
 }
 
-/**
- * Validate required session data before proceeding with checkout or other actions
- */
-function validate_required_session_data()
-{
-  $required_sessions = [
-    'outlet_name',
-    'date',
-    'time',
-  ];
-
-  if (is_delivery()) {
-    $required_sessions[] = 'delivery_address';
-  }
-
-  foreach ($required_sessions as $session_key) {
-    $value = WC()->session->get($session_key);
-    if (empty($value)) {
-      wc_add_notice(__('Missing required information: ' . $session_key, 'woocommerce'), 'error');
-    }
-  }
-
-  $time_data = WC()->session->get('time');
-  if (is_array($time_data)) {
-    if (empty($time_data['from']) || empty($time_data['to'])) {
-      wc_add_notice(__('Missing required delivery time information.', 'woocommerce'), 'error');
-    }
-  }
-}
 
 
 // add_filter('woocommerce_get_order_item_totals', 'custom_display_gst_total', 10, 3);
