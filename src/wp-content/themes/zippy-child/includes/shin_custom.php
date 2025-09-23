@@ -64,6 +64,9 @@ function custom_save_admin_order_meta($order_id)
   if (isset($_POST['_billing_method_shipping'])) {
     $order->update_meta_data('_billing_method_shipping', sanitize_text_field($_POST['_billing_method_shipping']));
   }
+  if (isset($_POST['is_manual_order'])) {
+    $order->update_meta_data('is_manual_order', sanitize_text_field($_POST['is_manual_order']));
+  }
 
   $order->save();
 }
