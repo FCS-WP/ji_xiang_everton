@@ -231,7 +231,7 @@ function get_pricing_price($product, $display = false)
 }
 
 
-function get_pricing_price_in_cart($product, $quantity)
+function get_product_pricing_rules($product, $quantity)
 {
   $fc = new WDP_Functions;
   $product_price = $fc->get_discounted_product_price($product, $quantity, true);
