@@ -4,15 +4,16 @@
  *  Removing Items From the Admin Bar
  */
 add_action('wp_before_admin_bar_render', 'shin_wp_admin_bar_remove', 0);
-function shin_wp_admin_bar_remove() {
+function shin_wp_admin_bar_remove()
+{
     global $wp_admin_bar;
     $wp_admin_bar->remove_menu('wp-logo');
     $wp_admin_bar->remove_menu('updates');
     $wp_admin_bar->remove_menu('comments');
-    
-	// $wp_admin_bar->remove_menu('customize');
-	// $wp_admin_bar->remove_menu('customize-background');
-	// $wp_admin_bar->remove_menu('customize-header');
+
+    // $wp_admin_bar->remove_menu('customize');
+    // $wp_admin_bar->remove_menu('customize-background');
+    // $wp_admin_bar->remove_menu('customize-header');
 }
 
 /*
@@ -22,7 +23,7 @@ function shin_wp_admin_bar_remove() {
 add_action('admin_init', function () {
     // Redirect any user trying to access comments page
     global $pagenow;
-    
+
     if ($pagenow === 'edit-comments.php') {
         wp_redirect(admin_url());
         exit;

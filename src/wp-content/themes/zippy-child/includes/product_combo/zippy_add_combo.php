@@ -84,7 +84,7 @@ function capture_selected_sub_products($cart_item_data, $product_id)
       $qty = intval($qty);
       if ($qty > 0) {
         $product = wc_get_product($product_id);
-        $selected[$product_id] = [$qty, get_pricing_price_in_cart($product, 1)]; // [0 -> quantity , 1 -> price]
+        $selected[$product_id] = [$qty, get_product_pricing_rules($product, 1)]; // [0 -> quantity , 1 -> price]
       }
     }
 
@@ -111,7 +111,7 @@ function restore_combo_price_from_session($cart)
       foreach ($item['akk_selected'] as $product_id => $qty) {
         $product = wc_get_product($product_id); // is product_addon
         if ($product && $qty[0] > 0) {
-          $product_price = get_pricing_price_in_cart($product, 1);
+          $product_price = get_product_pricing_rules($product, 1);
           $total_price += floatval($product_price) * $qty[0];
         }
       }

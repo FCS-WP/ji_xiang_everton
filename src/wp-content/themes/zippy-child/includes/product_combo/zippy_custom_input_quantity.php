@@ -38,7 +38,7 @@ function render_flatsome_quantity_input($product, $stock_level = null, $min_qty 
         'step'        => 1,
         'inputmode'   => 'numeric',
         'autocomplete' => 'off',
-        'data-price'  => get_pricing_price_in_cart($product, 1),
+        'data-price'  => get_product_pricing_rules($product, 1),
         'data-min'    => $min_qty,
     ];
 
