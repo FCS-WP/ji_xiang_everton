@@ -29,7 +29,10 @@ function customize_shipping_rates_based_on_order_mode($rates)
       if ($rate->method_id === 'free_shipping') {
         unset($rates[$rate_key]);
       } else {
+        $fee_delivery = floatval(WC()->session->get('shipping_fee')) ?? 0;
+
         $rates[$rate_key]->label = __('Shipping Fee', 'your-text-domain');
+        $rates[$rate_key]->cost = $fee_delivery;
       }
     }
   }
