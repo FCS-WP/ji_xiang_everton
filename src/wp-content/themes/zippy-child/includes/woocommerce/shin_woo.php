@@ -108,3 +108,18 @@ function custom_display_gst_total($total_rows, $order, $tax_display)
 
   return $new_total;
 }
+
+add_action( 'admin_enqueue_scripts', 'custom_admin_order_meta_scripts', 20 );
+function custom_admin_order_meta_scripts() {
+    wp_dequeue_script( 'woocommerce_admin_meta_boxes' );
+    wp_deregister_script( 'woocommerce_admin_meta_boxes' );
+
+    wp_register_script(
+        'woocommerce_admin_meta_boxes',
+        get_stylesheet_directory_uri() . '/includes/woocommerce/js/my-meta-boxes-order.js',
+        [ 'jquery', 'jquery-ui-sortable' ],
+        '1.0',
+        true
+    );
+    wp_enqueue_script( 'woocommerce_admin_meta_boxes' );
+}
