@@ -1,6 +1,9 @@
 <?php
 
 // 1. Register Custom Order Status
+
+use Zippy_Booking\Src\Woocommerce\Admin\Zippy_Woo_Email_Packed;
+
 function register_custom_order_status() {
   register_post_status( 'wc-packed', array(
       'label'                     => 'Packed',
@@ -38,8 +41,7 @@ add_filter( 'woocommerce_reports_order_statuses', 'add_custom_order_status_to_re
 add_filter( 'woocommerce_email_classes', 'register_custom_order_status_email' );
 
 function register_custom_order_status_email( $email_classes ) {
-    require_once get_stylesheet_directory() . '/emails/class-wc-email-packed.php';
-    $email_classes['WC_Email_Packed'] = new WC_Email_Packed();
+    $email_classes['WC_Email_Packed'] = new Zippy_Woo_Email_Packed();
     return $email_classes;
 }
 
