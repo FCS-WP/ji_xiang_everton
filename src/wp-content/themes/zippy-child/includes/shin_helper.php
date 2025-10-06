@@ -137,15 +137,7 @@ function zippy_get_wc_session($key = null)
 {
   if (! WC()->session) return null;
 
-  $keys = array(
-    'date',
-    'time',
-    'order_mode',
-    'extra_fee',
-    'outlet_address',
-    'outlet_name',
-    'delivery_address'
-  );
+  $keys = get_keys_outlet_session();
 
   if ($key !== null) {
     return in_array($key, $keys) ? WC()->session->get($key) : null;
@@ -288,4 +280,27 @@ function metersToKilometers(float $meters): string
 {
   $km = $meters / 1000;
   return number_format($km, 2) . " KM";
+}
+
+function destroy_wc_outlet_session()
+{
+  if (! WC()->session) return null;
+
+  $keys = get_keys_outlet_session();
+  foreach ($keys as $k) {
+    WC()->session->__unset($k);
+  }
+}
+
+function get_keys_outlet_session()
+{
+  return array(
+    'date',
+    'time',
+    'order_mode',
+    'extra_fee',
+    'outlet_address',
+    'outlet_name',
+    'delivery_address'
+  );
 }
