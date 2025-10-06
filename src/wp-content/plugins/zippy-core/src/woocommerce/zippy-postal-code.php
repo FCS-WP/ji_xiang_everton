@@ -31,7 +31,7 @@ class Zippy_Postal_code
   public function __construct()
   {
     if (!Zippy_Utils_Core::check_exits_woocommerce()) return;
-    if (!Zippy_Utils_Core::check_is_active_feature('_zippy_postal_code') || is_admin()) return;
+    if (!Zippy_Utils_Core::check_is_active_feature('_zippy_postal_code')) return;
     //load all class in here
     $this->set_hooks();
   }
@@ -48,7 +48,8 @@ class Zippy_Postal_code
 
   public function zippy_check_shipping_method()
   {
-    global $woocommerce;
+      if(is_admin()) return;
+      global $woocommerce;
 
     $shipping_method = 'local_pickup:2';
 
