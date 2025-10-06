@@ -21,3 +21,10 @@ function autofill_from_session($fields)
 
     return $fields;
 }
+
+add_action('woocommerce_checkout_order_processed', 'custom_clear_cart_session', 10, 1);
+function custom_clear_cart_session($order_id)
+{
+    WC()->cart->empty_cart();
+    destroy_wc_outlet_session();
+}
