@@ -14,12 +14,12 @@ function render_flatsome_quantity_input($product, $stock_level = null, $min_qty 
 
     $min_qty = (is_numeric($min_qty) && $min_qty >= 0)
         ? (int) $min_qty
-        : max(0, (int) $product->get_min_purchase_quantity());
+        : 0;
 
     // Adjust for composite
     if ($is_composite) {
         if (empty($group_id)) {
-            $max_qty = $min_qty; 
+            $max_qty = $min_qty;
         } else {
             $max_qty = (int) get_product_group_max_quantity($product->get_id(), $groups);
         }
