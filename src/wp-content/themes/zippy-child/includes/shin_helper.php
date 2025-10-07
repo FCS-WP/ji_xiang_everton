@@ -89,6 +89,16 @@ function get_tax_percent()
   return $all_tax_rates[0];
 }
 
+// Helper to calculate tax portion from inclusive price
+function get_tax_inclusive_amount($amount, $rate)
+{
+  if (empty($rate) || $rate <= 0) {
+    return 0;
+  }
+  $tax = $amount - ($amount / (1 + ($rate / 100)));
+  return wc_format_decimal($tax, wc_get_price_decimals());
+}
+
 function get_subtotal_cart()
 {
   return WC()->cart->get_subtotal('');

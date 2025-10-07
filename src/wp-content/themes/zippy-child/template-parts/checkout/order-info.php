@@ -119,7 +119,28 @@
 
     <tr>
       <td colspan="4" class="text-right"><strong>GST (INCLUSIVE):</strong></td>
-      <td><?php echo wc_price((WC()->cart->get_total('edit')) - (WC()->cart->get_total('edit') / 1.09)); ?></td>
+      <?php
+      $tax          = get_tax_percent();
+      $sub_total    = (float) WC()->cart->subtotal;
+      $shipping     = (float) WC()->cart->get_shipping_total();
+      $fee          = (float) (WC()->session->get('extra_fee') ?? 0);
+      $total        = (float) WC()->cart->get_total('edit');
+
+      $tax_rate     = ! empty($tax->tax_rate) ? floatval($tax->tax_rate) : 0;
+
+      // Calculate GST portions
+      $subtotal_tax = get_tax_inclusive_amount($sub_total, $tax_rate);
+
+      $shipping_tax = get_tax_inclusive_amount($shipping, $tax_rate);
+
+      $fee_tax      = get_tax_inclusive_amount($fee, $tax_rate);
+
+      $gst = $subtotal_tax + $shipping_tax + $fee_tax;
+
+      $gst_display = wc_price($gst);
+
+      ?>
+      <td><?php echo $gst_display; ?></td>
     </tr>
     <tr>
       <td colspan="4" class="text-right"><strong>Total:</strong></td>
