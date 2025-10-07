@@ -291,6 +291,7 @@ function get_keys_outlet_session()
     'extra_fee',
     'outlet_address',
     'outlet_name',
-    'delivery_address'
+    'delivery_address',
+    'status_popup',
   );
 }
