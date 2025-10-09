@@ -35,7 +35,7 @@ $(document).ready(function () {
               zippy_refresh_mini_cart();
 
               setTimeout(() => {
-                location.reload(true);
+                window.location.href = "/";
               }, 1000);
             });
           },

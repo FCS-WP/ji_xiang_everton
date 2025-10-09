@@ -89,7 +89,6 @@ function show_combo_below_item_in_thankyou_page($item_id)
 
   if (!empty($sub_products) && is_array($sub_products)) {
     echo '<div class="akk-sub-products" style="margin-top: 5px;font-size: 0.9em">';
-    echo '<strong>Combo items:</strong>';
     echo '<ul style="margin: 0 0 5px 15px;">';
     foreach ($sub_products as $product_id => $qty) {
       $product = wc_get_product($product_id);

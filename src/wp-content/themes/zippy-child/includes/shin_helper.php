@@ -282,16 +282,6 @@ function metersToKilometers(float $meters): string
   return number_format($km, 2) . " KM";
 }
 
-function destroy_wc_outlet_session()
-{
-  if (! WC()->session) return null;
-
-  $keys = get_keys_outlet_session();
-  foreach ($keys as $k) {
-    WC()->session->__unset($k);
-  }
-}
-
 function get_keys_outlet_session()
 {
   return array(
