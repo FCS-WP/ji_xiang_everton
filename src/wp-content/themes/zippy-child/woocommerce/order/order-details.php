@@ -1,4 +1,7 @@
 <?php
+
+use Zippy_Booking\Utils\Zippy_Wc_Calculate_Helper;
+
 defined('ABSPATH') || exit;
 
 $order = wc_get_order($order_id);
@@ -18,6 +21,8 @@ if ($show_downloads) {
 		'show_title' => true,
 	]);
 }
+$priceShippingIncludeTax = Zippy_Wc_Calculate_Helper::get_total_price_including_tax($order->get_shipping_total());
+$priceFeeIncludeTax = Zippy_Wc_Calculate_Helper::get_total_price_including_tax($order->get_total_fees());
 ?>
 <section class="woocommerce-order-details">
 	<?php do_action('woocommerce_order_details_before_order_table', $order); ?>
@@ -59,13 +64,21 @@ if ($show_downloads) {
 			<?php if (defined('BILLING_METHOD') && $order->get_meta(BILLING_METHOD) === 'delivery'): ?>
 				<tr>
 					<th><?php esc_html_e('Shipping Fee:', 'woocommerce'); ?></th>
-					<td><?php echo wc_price($order->get_shipping_total()); ?></td>
+					<td>
+						<?php
+						echo wc_price($priceShippingIncludeTax);
+						?>
+					</td>
 				</tr>
 
 				<?php if ($order->get_total_fees() > 0): ?>
 					<tr>
 						<th><?php esc_html_e('Extra Fee:', 'woocommerce'); ?></th>
-						<td><?php echo wc_price($order->get_total_fees()); ?></td>
+						<td>
+							<?php
+							echo wc_price($priceFeeIncludeTax);
+							?>
+						</td>
 					</tr>
 				<?php endif; ?>
 			<?php endif; ?>
