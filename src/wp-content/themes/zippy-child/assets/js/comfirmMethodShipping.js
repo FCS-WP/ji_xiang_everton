@@ -15,6 +15,7 @@ $(document).ready(function () {
       customClass: {
         popup: "confirmRemovePopup",
       },
+      backdrop: false,
     }).then((result) => {
       if (result.isConfirmed) {
         $.ajax({
