@@ -1,5 +1,7 @@
 <?php
 
+use Zippy_Booking\Utils\Zippy_Wc_Calculate_Helper;
+
 add_filter('woocommerce_package_rates', 'customize_shipping_rates_based_on_order_mode', 999);
 
 function customize_shipping_rates_based_on_order_mode($rates)
@@ -29,9 +31,10 @@ function customize_shipping_rates_based_on_order_mode($rates)
         unset($rates[$rate_key]);
       } else {
         $fee_delivery = floatval(WC()->session->get('shipping_fee')) ?? 0;
+        $tax_delivery = Zippy_Wc_Calculate_Helper::get_tax($fee_delivery);
         $rates[$rate_key]->label = __('Shipping Fee', 'your-text-domain');
-        $rates[$rate_key]->cost = $fee_delivery;
-        $rates[$rate_key]->taxes = 0;
+        $rates[$rate_key]->cost = $fee_delivery - $tax_delivery;
+        $rates[$rate_key]->taxes = [$tax_delivery];
       }
     }
   }

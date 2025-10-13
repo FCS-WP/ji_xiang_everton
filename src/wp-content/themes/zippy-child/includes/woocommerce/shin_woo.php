@@ -1,5 +1,7 @@
 <?php
 
+use Zippy_Booking\Utils\Zippy_Wc_Calculate_Helper;
+
 //Save custom field billing
 function custom_save_checkout_fields($order_id)
 {
@@ -109,17 +111,72 @@ function custom_display_gst_total($total_rows, $order, $tax_display)
   return $new_total;
 }
 
-add_action( 'admin_enqueue_scripts', 'custom_admin_order_meta_scripts', 20 );
-function custom_admin_order_meta_scripts() {
-    wp_dequeue_script( 'woocommerce_admin_meta_boxes' );
-    wp_deregister_script( 'woocommerce_admin_meta_boxes' );
+add_action('admin_enqueue_scripts', 'custom_admin_order_meta_scripts', 20);
+function custom_admin_order_meta_scripts()
+{
+  wp_dequeue_script('woocommerce_admin_meta_boxes');
+  wp_deregister_script('woocommerce_admin_meta_boxes');
 
-    wp_register_script(
-        'woocommerce_admin_meta_boxes',
-        get_stylesheet_directory_uri() . '/includes/woocommerce/js/my-meta-boxes-order.js',
-        [ 'jquery', 'jquery-ui-sortable' ],
-        '1.0',
-        true
-    );
-    wp_enqueue_script( 'woocommerce_admin_meta_boxes' );
+  wp_register_script(
+    'woocommerce_admin_meta_boxes',
+    get_stylesheet_directory_uri() . '/includes/woocommerce/js/my-meta-boxes-order.js',
+    ['jquery', 'jquery-ui-sortable'],
+    '1.0',
+    true
+  );
+  wp_enqueue_script('woocommerce_admin_meta_boxes');
+}
+
+add_action('woocommerce_before_order_object_save', 'handle_calculate_tax', 10, 1);
+/**
+ * Calculate tax for order
+ * @param WC_Order $order
+ * @param null $data_store
+ */
+function handle_calculate_tax($order, $data_store = null)
+{
+  $tax_product_total = calculate_product_tax($order);
+  $shipping_tax      = calculate_shipping_tax($order);
+  $fee_tax           = calculate_fee_tax($order);
+
+  $tax_total = $tax_product_total + $shipping_tax + $fee_tax;
+
+  $order->set_cart_tax($tax_total);
+}
+
+function calculate_product_tax($order)
+{
+  $tax_product_total = 0;
+  foreach ($order->get_items() as $item) {
+    $tax_product_total += $item->get_subtotal_tax();
+  }
+  return $tax_product_total;
+}
+
+function calculate_shipping_tax($order)
+{
+  $shipping_subtotal = 0;
+  foreach ($order->get_items('shipping') as $item) {
+    $shipping_subtotal += $item->get_total();
+  }
+  return Zippy_Wc_Calculate_Helper::get_tax_by_price_exclude_tax($shipping_subtotal);
+}
+
+function calculate_fee_tax($order)
+{
+  $fee_subtotal = 0;
+  foreach ($order->get_items('fee') as $item) {
+    $fee_subtotal += $item->get_total();
+  }
+  return Zippy_Wc_Calculate_Helper::get_tax_by_price_exclude_tax($fee_subtotal);
+}
+
+add_action('woocommerce_checkout_order_processed', 'custom_clear_cart_session', 10, 1);
+function custom_clear_cart_session($order_id)
+{
+  if (! WC()->cart) return;
+  WC()->cart->empty_cart();
+
+  if (! WC()->session) return;
+  WC()->session->destroy_session();
 }

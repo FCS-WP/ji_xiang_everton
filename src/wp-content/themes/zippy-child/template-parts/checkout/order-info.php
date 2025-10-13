@@ -1,3 +1,9 @@
+<?php
+
+use Zippy_Booking\Utils\Zippy_Wc_Calculate_Helper;
+
+$priceShippingIncludeTax = Zippy_Wc_Calculate_Helper::get_total_price_including_tax(WC()->cart->get_shipping_total());
+?>
 <table class="shop_table cart_custom" cellspacing="0">
   <thead>
     <tr>
@@ -107,7 +113,11 @@
         <td colspan="4" class="text-right">
           <strong>Delivery Fee:</strong>
         </td>
-        <td><?php echo wc_price(WC()->cart->get_shipping_total()); ?></td>
+        <td>
+          <?php
+          echo wc_price($priceShippingIncludeTax);
+          ?>
+        </td>
       </tr>
     <?php endif; ?>
     <?php if ($extra_fee != 0): ?>
@@ -122,7 +132,7 @@
       <?php
       $tax          = get_tax_percent();
       $sub_total    = (float) WC()->cart->subtotal;
-      $shipping     = (float) WC()->cart->get_shipping_total();
+      $shipping     = (float) $priceShippingIncludeTax;
       $fee          = (float) (WC()->session->get('extra_fee') ?? 0);
       $total        = (float) WC()->cart->get_total('edit');
 
