@@ -45,7 +45,10 @@ add_filter('woocommerce_email_classes', 'register_custom_order_status_email');
 
 function register_custom_order_status_email($email_classes)
 {
-  if (!class_exists('Zippy_Woo_Email_Packed')) return $email_classes;
+  if (!class_exists(Zippy_Woo_Email_Packed::class)) {
+    return $email_classes;
+  }
+
   $email_classes['WC_Email_Packed'] = new Zippy_Woo_Email_Packed();
   return $email_classes;
 }
