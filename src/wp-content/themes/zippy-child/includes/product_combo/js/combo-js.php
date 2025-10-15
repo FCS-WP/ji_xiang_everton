@@ -8,6 +8,7 @@
     const $addToCartBtn = $('.single_add_to_cart_button');
     const $comboDisplay = $('#akk-combo-price');
     const $warning = $('.akk-warning');
+    const $totalQtyInput = $('.total-product-quantity');
 
     function updateComboPrice() {
       let total = 0;
@@ -16,6 +17,11 @@
         const qty = parseFloat($(this).val()) || 0;
         total += price * qty;
       });
+
+      const productQuantityInput = parseInt($totalQtyInput.val()) || 0;
+      if (productQuantityInput > 0) {
+        total = total * productQuantityInput;
+      }
 
       if ($addToCartBtn.length) {
         $addToCartBtn.text('Add $' + total.toFixed(1));
@@ -43,6 +49,10 @@
     if ($('.product-combo').length > 0) {
       updateComboPrice();
     }
+
+    $totalQtyInput.on('input change', function() {
+      updateComboPrice();
+    });
 
     $addToCartBtn.on('click', function(e) {
       let totalQty = 0;
