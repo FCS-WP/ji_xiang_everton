@@ -71,16 +71,16 @@ function custom_save_admin_order_meta($order_id)
   $order->save();
 }
 
-add_action('woocommerce_admin_order_items_after_line_items', function($order_id){
-    echo do_shortcode('[admin_order_table order_id="' . esc_attr($order_id) . '"]');
+add_action('woocommerce_admin_order_items_after_line_items', function ($order_id) {
+  echo do_shortcode('[admin_order_table order_id="' . esc_attr($order_id) . '"]');
 });
 
 add_action('admin_head', 'custom_admin_order_styles');
 function custom_admin_order_styles()
 {
-    $screen = get_current_screen();
-    if ( $screen && $screen->id === 'woocommerce_page_wc-orders' ) {
-        echo '<style>
+  $screen = get_current_screen();
+  if ($screen && $screen->id === 'woocommerce_page_wc-orders') {
+    echo '<style>
             .woocommerce_order_items_wrapper .woocommerce_order_items {
                 display: none !important;
             }
@@ -93,5 +93,25 @@ function custom_admin_order_styles()
                 display: none !important;
             }
         </style>';
-    }
+  }
+}
+
+add_action('wp_footer', 'handle_no_scroll_when_open_modal_add_to_cart');
+function handle_no_scroll_when_open_modal_add_to_cart()
+{
+?>
+  <script>
+    document.addEventListener('click', function(e) {
+      const target = e.target.closest('.quick-view');
+      if (target) {
+        e.preventDefault();
+        document.documentElement.classList.add('no-scroll');
+      }
+    });
+
+    jQuery(document).on('mfpClose', function() {
+      document.documentElement.classList.remove('no-scroll');
+    });
+  </script>
+<?php
 }
