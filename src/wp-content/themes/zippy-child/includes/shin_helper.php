@@ -1,4 +1,7 @@
 <?php
+
+use Zippy_Booking\Src\Services\adp\Zippy_Functions;
+
 function slugify($string)
 {
   // Convert the string to lowercase
@@ -232,14 +235,34 @@ function get_pricing_price($product, $display = false)
   return floatval($price_formated); //
 }
 
+/**
+ * Zippy custom price rules
+ * @param mixed $product
+ * @param mixed $quantity
+ * @param mixed $user_id
+ * @return array|float|null
+ */
 
-function get_product_pricing_rules($product, $quantity)
+function get_product_pricing_rules($product, $quantity, $user_id = null)
 {
-  $fc = new WDP_Functions;
-  $product_price = $fc->get_discounted_product_price($product, $quantity, true);
-
+  $adp = new Zippy_Functions();
+  $product_price = $adp->getDiscountedProductPrice($product, $quantity, true, $user_id);
   return $product_price;
 }
+
+/**
+ * Default price rules from ADP plugin
+ * @param mixed $product
+ * @param mixed $quantity
+ * @param mixed $user_id
+ */
+// function get_product_pricing_rules($product, $quantity, $user_id = null)
+// {
+//   $fc = new WDP_Functions;
+//   $product_price = $fc->get_discounted_product_price($product, $quantity, true);
+
+//   return $product_price;
+// }
 
 
 function get_product_group_id($product_id, $groups)
