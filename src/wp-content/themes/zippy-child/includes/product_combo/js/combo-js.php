@@ -23,8 +23,12 @@
         total = total * productQuantityInput;
       }
 
+      if (total === 0) {
+        return;
+      }
+
       if ($addToCartBtn.length) {
-        $addToCartBtn.text('Add $' + total.toFixed(1));
+        $addToCartBtn.text('Add $' + total.toFixed(2));
       }
 
       if ($comboDisplay.length) {
