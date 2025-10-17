@@ -16,7 +16,8 @@ do_action_deprecated('wc_quick_view_before_single_product', array(), '3.18.0', '
 ?>
 <div class="product-quick-view-container">
 	<div id="product-<?php the_ID(); ?>" <?php wc_product_class('row row-collapse mb-0 product-quick-view ', $product); ?>>
-		<div class="product-gallery large-6 col">
+		<div class="product-content-quick-view">
+			<div class="product-gallery large-6 col">
 			<div class="slider slider-show-nav product-gallery-slider main-images mb-0">
 				<?php if (has_post_thumbnail()) :
 
@@ -63,7 +64,8 @@ do_action_deprecated('wc_quick_view_before_single_product', array(), '3.18.0', '
 				<?php do_action_deprecated('woocommerce_single_product_lightbox_summary', array(), '3.18.0', 'flatsome_single_product_lightbox_summary'); ?>
 			</div>
 		</div>
-		<div>
+		</div>
+		<div class="wrapper-form__add-to-cart">
 			<?php do_action('woocommerce_' . $product->get_type() . '_add_to_cart');
 			?>
 		</div>

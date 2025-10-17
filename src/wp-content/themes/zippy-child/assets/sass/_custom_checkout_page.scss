@@ -34,9 +34,14 @@
 
 .action_order {
   .col-inner {
-    padding: 15px !important;
     border: 0px;
-    border-top: 2px solid #ddd;
+    padding: 0px !important;
+
+    @include tablet {
+      border-top: 2px solid #ddd;
+
+      padding: 15px !important;
+    }
     .quickcheckout-content {
       margin-bottom: 10px;
       p {
