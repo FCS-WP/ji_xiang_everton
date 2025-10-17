@@ -72,10 +72,7 @@ function custom_save_admin_order_meta($order_id)
 }
 
 add_action('woocommerce_admin_order_items_after_line_items', function ($order_id) {
-  $order = wc_get_order($order_id);
-  $user_id = $order?->get_user_id() ?? 0;
-
-  echo do_shortcode('[admin_order_table order_id="' . esc_attr($order_id) . '" user_id="' . esc_attr($user_id) . '"]');
+  echo do_shortcode('[admin_order_table order_id="' . esc_attr($order_id) . '"]');
 });
 
 add_action('admin_head', 'custom_admin_order_styles');

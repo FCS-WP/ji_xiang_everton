@@ -245,6 +245,10 @@ function get_pricing_price($product, $display = false)
 
 function get_product_pricing_rules($product, $quantity, $user_id = null)
 {
+  if (! class_exists(Zippy_Functions::class)) {
+    return null;
+  }
+
   $adp = new Zippy_Functions();
   $product_price = $adp->getDiscountedProductPrice($product, $quantity, true, $user_id);
   return $product_price;
