@@ -9,6 +9,8 @@ use ADP\BaseVersion\Includes\WC\WcCustomerSessionFacade;
 use ADP\Factory;
 use DateTime;
 use DateTimeZone;
+use Zippy_Booking\Src\Services\Zippy_Datetime_Helper;
+use Zippy_Booking\Src\Woocommerce\Admin\Zippy_Woo_Manual_Order;
 
 defined('ABSPATH') or exit;
 
@@ -181,14 +183,18 @@ class CartContext
     public function getBillingDate()
     {
 
-        if (isset($_POST['action']) && $_POST['action'] == 'woocommerce_calc_line_taxes' && isset($_POST['order_id'])) {
-            $order_id = intval($_POST['order_id']);
+        if (
+            isset($_GET['order_id'])
+            && isset($_GET['action'])
+            && $_GET['action'] == Zippy_Woo_Manual_Order::ACTION_ADMIN_EDIT_ORDER
+        ) {
+            $order_id = intval($_GET['order_id']);
 
             $order = wc_get_order($order_id);
 
             $date = $order->get_meta(BILLING_DATE) ?? current_time('timestamp');
 
-            return strtotime('+8 hour', strtotime($date));
+            return Zippy_Datetime_Helper::convert_to_singapore_timestamp_from_date_string($date);
         }
 
         if (empty(WC()->session) || empty(WC()->session->get('date'))) return current_time('timestamp');
