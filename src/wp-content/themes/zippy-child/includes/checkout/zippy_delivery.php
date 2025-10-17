@@ -121,3 +121,5 @@ function set_minimum_order_notice()
     );
   }
 }
+
+remove_action( 'woocommerce_checkout_order_review', 'woocommerce_checkout_payment', 20 );
