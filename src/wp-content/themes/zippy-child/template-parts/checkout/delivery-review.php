@@ -47,8 +47,6 @@
   <!-- Delivery Information -->
   <?php get_template_part('template-parts/checkout/order-delivery-info', ''); ?>
 
-  <div class="quickcheckout-heading"><i class="fa fa-truck"></i> Payment Method</div>
-  <div class="quickcheckout-content">
-    <p>Please select the preferred payment method to use on this order.</p>
+  
   </div>
 </div>

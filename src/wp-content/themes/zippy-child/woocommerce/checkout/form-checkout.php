@@ -76,7 +76,7 @@ if (flatsome_option('facebook_login_checkout') && get_option('woocommerce_enable
 
 				<?php do_action('woocommerce_checkout_after_customer_details'); ?>
 				<!-- Line item Table  -->
-				<?php get_template_part('template-parts/checkout/order-info', ''); ?>
+				<?php do_action('woocommerce_checkout_order_review'); ?>
 
 			<?php endif; ?>
 		</div>
@@ -95,8 +95,10 @@ if (flatsome_option('facebook_login_checkout') && get_option('woocommerce_enable
 						<!-- Delivery method part  -->
 						<?php get_template_part('template-parts/checkout/delivery-review', ''); ?>
 
-						<?php do_action('woocommerce_checkout_order_review'); ?>
 					</div>
+
+					<?php get_template_part('template-parts/checkout/payment-methods', ''); ?>
+
 
 					<?php do_action('woocommerce_checkout_after_order_review'); ?>
 				</div>
