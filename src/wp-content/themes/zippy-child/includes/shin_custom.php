@@ -1,4 +1,7 @@
 <?php
+
+use Zippy_Booking\Src\Woocommerce\Admin\Zippy_Woo_Manual_Order;
+
 add_action('wp_enqueue_scripts', 'shin_scripts');
 
 function shin_scripts()
@@ -72,7 +75,10 @@ function custom_save_admin_order_meta($order_id)
 }
 
 add_action('woocommerce_admin_order_items_after_line_items', function ($order_id) {
-  echo do_shortcode('[admin_order_table order_id="' . esc_attr($order_id) . '"]');
+  $order = wc_get_order($order_id);
+  $enable_edit = empty($order->get_payment_method_title()) || $order->get_payment_method_title() == Zippy_Woo_Manual_Order::PAID_UPON_COLLECTION;
+
+  echo do_shortcode('[admin_order_table order_id="' . esc_attr($order_id) . '" enable_edit="' . esc_attr($enable_edit) . '"]');
 });
 
 add_action('admin_head', 'custom_admin_order_styles');
