@@ -68,6 +68,7 @@ do_action('woocommerce_before_mini_cart');
 
         $cart_items = Zippy_Booking_Helper::sort_cart_items_by_product_category(WC()->cart->get_cart());
 
+        var_dump($cart_items);
         foreach ($cart_items as $cart_item_key => $cart_item) {
           $_product   = apply_filters('woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key);
           $product_id = apply_filters('woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key);
