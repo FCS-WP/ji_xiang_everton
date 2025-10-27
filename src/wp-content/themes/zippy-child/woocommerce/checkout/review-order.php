@@ -22,6 +22,7 @@ defined('ABSPATH') || exit;
 
 <?php
 
+use Zippy_Booking\Src\Services\Zippy_Booking_Helper;
 use Zippy_Booking\Utils\Zippy_Wc_Calculate_Helper;
 
 $priceShippingIncludeTax = Zippy_Wc_Calculate_Helper::get_total_price_including_tax(WC()->cart->get_shipping_total());
@@ -40,7 +41,8 @@ $priceShippingIncludeTax = Zippy_Wc_Calculate_Helper::get_total_price_including_
     <tbody>
       <?php
       $cart_subtotal = 0;
-      foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
+      $cart_items = Zippy_Booking_Helper::sort_cart_items_by_product_category(WC()->cart->get_cart());
+      foreach ($cart_items as $cart_item_key => $cart_item) {
         $_product   = $cart_item['data'];
         $product_id = $cart_item['product_id'];
 
