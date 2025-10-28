@@ -1,5 +1,6 @@
 <?php
 
+use Zippy_Booking\Src\Services\Zippy_Booking_Helper;
 use Zippy_Booking\Utils\Zippy_Wc_Calculate_Helper;
 
 defined('ABSPATH') || exit;
@@ -40,6 +41,7 @@ $priceFeeIncludeTax = Zippy_Wc_Calculate_Helper::get_total_price_including_tax($
 			<?php
 			do_action('woocommerce_order_details_before_order_table_items', $order);
 
+			$order_items = Zippy_Booking_Helper::sort_order_items_by_product_category($order_items);
 			foreach ($order_items as $item_id => $item) {
 				$product = $item->get_product();
 				wc_get_template('order/order-details-item.php', [
