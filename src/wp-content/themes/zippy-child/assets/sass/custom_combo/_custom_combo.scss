@@ -129,7 +129,8 @@
             }
           }
         }
-        .single_add_to_cart_button {
+        .single_add_to_cart_button,
+        .cta_add_to_cart {
           background-color: #ec7265;
           border-radius: 10px;
           color: #fff;
@@ -141,10 +142,23 @@
             width: 80%;
           }
         }
+        .whatsapp_product_btn {
+          margin-top: 0px !important;
+        }
       }
     }
     .mfp-wrap {
       overflow: hidden !important;
+    }
+    table.variations {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    .woocommerce-variation.single_variation {
+      padding-left: 20px;
+      padding-right: 20px;
+      margin-bottom: 20px;
     }
 
     .combo-warning {
