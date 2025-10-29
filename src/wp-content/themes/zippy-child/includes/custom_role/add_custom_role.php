@@ -42,6 +42,24 @@ function custom_add_custom_user_roles()
         ]
     );
 
+    add_role(
+        'member_tier_4',
+        'Member Tier 4',
+        [
+            'read' => true,
+            'level_0' => true,
+        ]
+    );
+
+    add_role(
+        'member_tier_5',
+        'Member Tier 5',
+        [
+            'read' => true,
+            'level_0' => true,
+        ]
+    );
+
     // Vendor tiers
     add_role(
         'vendor_tier_1',
@@ -69,8 +87,6 @@ function custom_add_custom_user_roles()
             'level_0' => true,
         ]
     );
-
-
 }
 add_action('init', 'custom_add_custom_user_roles');
 
