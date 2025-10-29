@@ -104,12 +104,26 @@
           totalQty += parseInt($(this).val()) || 0;
         });
 
-        if (totalQty != parseInt(minmaxOption)) {
+        if (totalQty < parseInt(minmaxOption)) {
           e.preventDefault();
           Swal.fire({
             icon: 'warning',
             title: 'Attention',
-            text: `Please select ${minmaxOption} items before adding to cart!`,
+            html: `Please select <strong>${minmaxOption}</strong> items before adding to cart!<br>
+            <strong>(${totalQty} / ${minmaxOption})</strong>`,
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#e74c3c'
+          });
+          return false;
+        }
+
+        if (totalQty > parseInt(minmaxOption)) {
+          e.preventDefault();
+          Swal.fire({
+            icon: 'warning',
+            title: 'Attention',
+            html: `You have selected more than <strong>${minmaxOption}</strong> items!<br>
+            <strong>(${totalQty} / ${minmaxOption})</strong>`,
             confirmButtonText: 'OK',
             confirmButtonColor: '#e74c3c'
           });
