@@ -8,7 +8,7 @@ function render_min_max_option_selector()
   if (empty($options)) return;
 
   echo '<div class="akk-minmax-option">';
-  echo '<label for="min_max_option"><strong>Select Min/Max Option:</strong></label>';
+  echo '<label for="min_max_option"><strong>Select Pieces:</strong></label>';
   echo '<select id="min_max_option" name="min_max_option" class="min-max-select">';
   echo '<option value="">-- Select Pieces --</option>';
 
