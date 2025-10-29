@@ -1,4 +1,26 @@
 <?php
+add_action('woocommerce_before_add_to_cart_button', 'render_min_max_option_selector');
+function render_min_max_option_selector()
+{
+  global $product;
+  $options = get_field('min_max_options', $product->get_id());
+
+  if (empty($options)) return;
+
+  echo '<div class="akk-minmax-option">';
+  echo '<label for="min_max_option"><strong>Select Min/Max Option:</strong></label>';
+  echo '<select id="min_max_option" name="min_max_option" class="min-max-select">';
+  echo '<option value="">-- Choose an option --</option>';
+
+  foreach ($options as $opt) {
+    $val = is_array($opt) ? $opt['value'] : $opt;
+    echo '<option value="' . esc_attr($val) . '">' . esc_html($val) . '</option>';
+  }
+
+  echo '</select>';
+  echo '</div>';
+}
+
 add_action('woocommerce_before_add_to_cart_button', 'combo_display_sub_products_on_frontend');
 function combo_display_sub_products_on_frontend()
 {
@@ -73,7 +95,6 @@ function combo_display_sub_products_on_frontend()
 
 <?php
 }
-
 
 add_filter('woocommerce_add_cart_item_data', 'capture_selected_sub_products', 10, 2);
 function capture_selected_sub_products($cart_item_data, $product_id)

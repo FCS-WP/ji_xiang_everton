@@ -3,8 +3,8 @@
     "title": "Product Combo (AKK)",
     "fields": [
         {
-            "key": "field_68a58ac4f1d35",
-            "label": "Products Combo",
+            "key": "field_68a586f501794",
+            "label": "Product combo",
             "name": "",
             "aria-label": "",
             "type": "tab",
@@ -18,26 +18,6 @@
             },
             "placement": "top",
             "endpoint": 0
-        },
-        {
-            "key": "field_687f0e8a9041d",
-            "label": "Combo Name",
-            "name": "combo_name",
-            "aria-label": "",
-            "type": "text",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "",
-            "maxlength": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": ""
         },
         {
             "key": "field_6841549f8b056",
@@ -140,9 +120,26 @@
             ]
         },
         {
-            "key": "field_68a58af11ef46",
-            "label": "Min order (pcs)",
-            "name": "min_order",
+            "key": "field_68a5871c3cebc",
+            "label": "Product config",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0
+        },
+        {
+            "key": "field_687f0e8a9041d",
+            "label": "Combo Warning",
+            "name": "combo_warning",
             "aria-label": "",
             "type": "text",
             "instructions": "",
@@ -160,11 +157,11 @@
             "append": ""
         },
         {
-            "key": "field_68c27ae9c1cee",
-            "label": "Products group",
-            "name": "products_group",
+            "key": "field_68a5848c6fecf",
+            "label": "Min Order (pcs)",
+            "name": "min_order_pcs",
             "aria-label": "",
-            "type": "group",
+            "type": "text",
             "instructions": "",
             "required": 0,
             "conditional_logic": 0,
@@ -173,73 +170,14 @@
                 "class": "",
                 "id": ""
             },
-            "layout": "block",
-            "sub_fields": [
-                {
-                    "key": "field_68c279f4f20c1",
-                    "label": "Product group",
-                    "name": "product_group",
-                    "aria-label": "",
-                    "type": "post_object",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "",
-                        "id": ""
-                    },
-                    "post_type": [
-                        "product"
-                    ],
-                    "post_status": "",
-                    "taxonomy": "",
-                    "return_format": "object",
-                    "multiple": 1,
-                    "allow_null": 0,
-                    "ui": 1
-                },
-                {
-                    "key": "field_68c27a6bc1cec",
-                    "label": "Quantity products group",
-                    "name": "quantity_products_group",
-                    "aria-label": "",
-                    "type": "text",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "",
-                        "id": ""
-                    },
-                    "default_value": "",
-                    "maxlength": "",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": ""
-                }
-            ]
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
         },
         {
-            "key": "field_68a58ad7e4400",
-            "label": "Product Config",
-            "name": "",
-            "aria-label": "",
-            "type": "tab",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "placement": "top",
-            "endpoint": 0
-        },
-        {
-            "key": "field_68a58b7c56542",
+            "key": "field_68a5880232d7d",
             "label": "Pre-order Product Window",
             "name": "product_period_window",
             "aria-label": "",
@@ -257,6 +195,68 @@
             "placeholder": "",
             "prepend": "",
             "append": ""
+        },
+        {
+            "key": "field_69018a5eb5235",
+            "label": "Product Min\/Max Order",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0
+        },
+        {
+            "key": "field_69018c446e638",
+            "label": "Min\/Max Options",
+            "name": "min_max_options",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "table",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add Row",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_69018c696e639",
+                    "label": "Value",
+                    "name": "value",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_69018c446e638"
+                }
+            ]
         }
     ],
     "location": [
@@ -277,5 +277,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1757867214
+    "modified": 1761709173
 }
