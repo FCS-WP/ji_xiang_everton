@@ -58,6 +58,7 @@ if ($product->is_in_stock()) : ?>
 				?>
 
 				<button type="submit" name="add-to-cart" value="<?php echo esc_attr($product->get_id()); ?>" class="single_add_to_cart_button button alt<?php echo esc_attr(wc_wp_theme_get_element_class_name('button') ? ' ' . wc_wp_theme_get_element_class_name('button') : ''); ?>"><?php echo esc_html($product->single_add_to_cart_text()); ?></button>
+				<a href="<?php echo build_whatsapp_link($product); ?>" target="_blank" class="contact_for_sale_btn button alt" style="display:none;">Contact for Sale</a>
 			</div>
 			<?php do_action('woocommerce_after_add_to_cart_button'); ?>
 		</form>

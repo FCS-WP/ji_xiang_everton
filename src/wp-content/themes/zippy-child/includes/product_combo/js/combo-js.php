@@ -9,6 +9,30 @@
     const $comboDisplay = $('#akk-combo-price');
     const $warning = $('.akk-warning');
     const $totalQtyInput = $('.total-product-quantity');
+    const originalText = $addToCartBtn.text();
+    const originalType = $addToCartBtn.attr('type');
+    const $minmaxSelect = $('#min_max_option');
+    const $btnContactForSale = $('.contact_for_sale_btn');
+
+    //Min max options
+    const minmaxOptionOther = 'others';
+
+    if (!$minmaxSelect.val()) {
+      $btnContactForSale.hide();
+    }
+
+    $minmaxSelect.on('change', function() {
+      const val = $(this).val();
+
+      if (val && val.toLowerCase() === minmaxOptionOther) {
+        $btnContactForSale.show();
+        $addToCartBtn.hide();
+      } else {
+        $btnContactForSale.hide();
+        $addToCartBtn.show();
+      }
+    });
+
 
     function updateComboPrice() {
       let total = 0;
@@ -58,7 +82,49 @@
       updateComboPrice();
     });
 
+    function checkMinMaxOption(e) {
+      if ($minmaxSelect.length == 0) return true;
+      const minmaxOption = $('#min_max_option').val();
+      if (!minmaxOption) {
+        e.preventDefault();
+        Swal.fire({
+          icon: 'warning',
+          title: 'Attention',
+          text: `Please select an option before adding to cart!`,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#e74c3c'
+        });
+        return false;
+      }
+
+
+      if (minmaxOption.toLowerCase() != minmaxOptionOther) {
+        let totalQty = 0;
+        $('.akk-sub-product-qty').each(function() {
+          totalQty += parseInt($(this).val()) || 0;
+        });
+
+        if (totalQty != parseInt(minmaxOption)) {
+          e.preventDefault();
+          Swal.fire({
+            icon: 'warning',
+            title: 'Attention',
+            text: `Please select ${minmaxOption} items before adding to cart!`,
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#e74c3c'
+          });
+          return false;
+        }
+      }
+
+      return true;
+    }
+
     $addToCartBtn.on('click', function(e) {
+      if (!checkMinMaxOption(e)) {
+        return false;
+      }
+
       let totalQty = 0;
       let groupTotal = 0;
 

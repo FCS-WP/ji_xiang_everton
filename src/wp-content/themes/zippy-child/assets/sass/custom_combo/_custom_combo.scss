@@ -145,6 +145,26 @@
         .whatsapp_product_btn {
           margin-top: 0px !important;
         }
+        .contact_for_sale_btn {
+          background-color: #ec7265;
+          border-radius: 10px;
+          color: #fff;
+          font-size: 15px;
+          font-weight: 700;
+          margin: 0;
+          width: 50%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+
+          @include desktop {
+            width: 80%;
+          }
+        }
+      }
+      .akk-minmax-option {
+        padding: 10px;
       }
     }
     .mfp-wrap {
