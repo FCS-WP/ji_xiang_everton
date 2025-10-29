@@ -109,7 +109,7 @@
           Swal.fire({
             icon: 'warning',
             title: 'Attention',
-            text: `Please select at least ${minmaxOption} items before adding to cart!`,
+            text: `Please select ${minmaxOption} items before adding to cart!`,
             confirmButtonText: 'OK',
             confirmButtonColor: '#e74c3c'
           });
