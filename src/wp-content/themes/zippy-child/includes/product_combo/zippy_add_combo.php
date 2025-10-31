@@ -124,6 +124,10 @@ function capture_selected_sub_products($cart_item_data, $product_id)
 add_action('woocommerce_cart_loaded_from_session', 'restore_combo_price_from_session');
 function restore_combo_price_from_session($cart)
 {
+  if ((defined('REST_REQUEST') && REST_REQUEST) || is_admin()) {
+    return;
+  }
+
   foreach ($cart->get_cart() as $cart_item_key => $item) {
     $product = $item['data'];
     if (is_composite_product($product)) continue;

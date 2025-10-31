@@ -14,51 +14,6 @@ function custom_add_custom_user_roles()
             remove_role($role_slug);
         }
     }
-    // Member tiers
-    add_role(
-        'member_tier_1',
-        'Member Tier 1',
-        [
-            'read' => true,
-            'level_0' => true,
-        ]
-    );
-
-    add_role(
-        'member_tier_2',
-        'Member Tier 2',
-        [
-            'read' => true,
-            'level_0' => true,
-        ]
-    );
-
-    add_role(
-        'member_tier_3',
-        'Member Tier 3',
-        [
-            'read' => true,
-            'level_0' => true,
-        ]
-    );
-
-    add_role(
-        'member_tier_4',
-        'Member Tier 4',
-        [
-            'read' => true,
-            'level_0' => true,
-        ]
-    );
-
-    add_role(
-        'member_tier_5',
-        'Member Tier 5',
-        [
-            'read' => true,
-            'level_0' => true,
-        ]
-    );
 
     // Vendor tiers
     add_role(
@@ -82,6 +37,22 @@ function custom_add_custom_user_roles()
     add_role(
         'vendor_tier_3',
         'Vendor Tier 3',
+        [
+            'read' => true,
+            'level_0' => true,
+        ]
+    );
+    add_role(
+        'vendor_tier_4',
+        'Vendor Tier 4',
+        [
+            'read' => true,
+            'level_0' => true,
+        ]
+    );
+    add_role(
+        'vendor_tier_5',
+        'Vendor Tier 5',
         [
             'read' => true,
             'level_0' => true,
