@@ -76,7 +76,10 @@ function custom_save_admin_order_meta($order_id)
 
 add_action('woocommerce_admin_order_items_after_line_items', function ($order_id) {
   $order = wc_get_order($order_id);
-  $enable_edit = empty($order->get_payment_method_title()) || $order->get_payment_method_title() == Zippy_Woo_Manual_Order::PAID_UPON_COLLECTION;
+
+  $is_manual = $order->get_meta('is_manual_order');
+  $enable_edit = ($is_manual == 'yes' && empty($order->get_transaction_id()))
+    || ($is_manual == 'no' && empty($order->get_payment_method_title()));
 
   echo do_shortcode('[admin_order_table order_id="' . esc_attr($order_id) . '" enable_edit="' . esc_attr($enable_edit) . '"]');
 });
