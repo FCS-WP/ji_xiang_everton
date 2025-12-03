@@ -21,3 +21,28 @@ function autofill_from_session($fields)
 
     return $fields;
 }
+
+/**
+ * Conditionally disables the New Order email if the order has no line items.
+ *
+ * @param bool     $enabled Whether the email is enabled (true by default).
+ * @param WC_Order $order   The WC_Order object.
+ * @return bool
+ */
+
+function disable_new_order_email_if_empty($enabled, $order)
+{
+    if (! is_a($order, 'WC_Order')) {
+        return $enabled;
+    }
+
+    $product_items = $order->get_items('line_item');
+
+    if (empty($product_items)) {
+        return false;
+    }
+
+    return $enabled;
+}
+
+add_filter('woocommerce_email_enabled_new_order', 'disable_new_order_email_if_empty', 10, 2);
