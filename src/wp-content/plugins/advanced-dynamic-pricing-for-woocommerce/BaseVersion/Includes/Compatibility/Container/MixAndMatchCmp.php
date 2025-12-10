@@ -161,7 +161,15 @@ class MixAndMatchCmp extends AbstractContainerCompatibility
 
     public function getContainerPriceTypeByParentFacade(WcCartItemFacade $facade): ?ContainerPriceTypeEnum
     {
-        return ContainerPriceTypeEnum::BASE_PLUS_SUM_OF_SUB_ITEMS();
+        $containerPriceType = $facade->getContainerPriceType();
+
+        if (!is_null($containerPriceType)) {
+            if ($containerPriceType->equals(ContainerPriceTypeEnum::BASE_PLUS_SUM_OF_SUB_ITEMS())) {
+                return ContainerPriceTypeEnum::BASE_PLUS_SUM_OF_SUB_ITEMS();
+            }
+        }
+
+        return ContainerPriceTypeEnum::FIXED();
     }
 
     public function isPartOfContainerFacadePricedIndividually(WcCartItemFacade $facade): ?bool
@@ -169,7 +177,7 @@ class MixAndMatchCmp extends AbstractContainerCompatibility
         $product = $facade->getProduct();
 
         if (!(isset($product->mnm_child_item) && $product->mnm_child_item instanceof \WC_MNM_Child_Item)) {
-            return null;
+            return false;
         }
 
         return $product->mnm_child_item->is_priced_individually("edit");

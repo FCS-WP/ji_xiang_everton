@@ -605,4 +605,10 @@ abstract class BaseRule
     {
         return $this->blocks;
     }
+
+    public function findPossibleMaxDiscountsForProducts(&$maxRate,&$maxAmount)
+    {
+        $maxRate = $maxAmount = 0;
+    }
+
 }

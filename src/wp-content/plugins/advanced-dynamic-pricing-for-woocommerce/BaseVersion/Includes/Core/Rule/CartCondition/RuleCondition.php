@@ -68,6 +68,11 @@ interface RuleCondition
     public static function getGroup();
 
     /**
+     * @return int
+     */
+    public static function getIndex();
+
+    /**
      * @return bool
      */
     public function isValid();

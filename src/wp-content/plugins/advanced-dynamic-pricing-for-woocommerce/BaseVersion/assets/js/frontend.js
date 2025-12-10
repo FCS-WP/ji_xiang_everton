@@ -48,7 +48,7 @@ jQuery(document).ready(function ($) {
 							return;
 						}
 
-						jQItem.html(jQuery(response.data).children())
+						jQItem.html(jQuery(response.data).children()).trigger('update');
 					});
 					init_custom_event();
 					if (product_id === variable_id) {
@@ -57,6 +57,7 @@ jQuery(document).ready(function ($) {
 				} else {
 					get_table(variable_id);
 				}
+
 			},
 			error: function (response) {
 				get_table(variable_id);
@@ -122,4 +123,20 @@ jQuery(document).ready(function ($) {
 			init_events();
 		})
 	}, 0);
+
+  function watchForQuickView() {
+    let observer = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+        mutation.addedNodes.forEach(function (node) {
+          if ($(node).hasClass('product-lightbox-inner') || $(node).find('.product-lightbox-inner').length) {
+            init_events();
+          }
+        });
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+
+  watchForQuickView();
+
 });

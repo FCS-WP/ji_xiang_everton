@@ -4,6 +4,7 @@ namespace ADP\BaseVersion\Includes;
 
 use ADP\BaseVersion\Includes\AdminExtensions\AdminNotice;
 use ADP\BaseVersion\Includes\AdminExtensions\AdminPage;
+use ADP\BaseVersion\Includes\Compatibility\HeyLightCmp;
 use ADP\BaseVersion\Includes\Compatibility\PriceBasedOnCountryCmp;
 use ADP\BaseVersion\Includes\Context\Container\ContainerCompatibilityManager;
 use ADP\BaseVersion\Includes\Context\ContextBuilder;
@@ -12,6 +13,7 @@ use ADP\BaseVersion\Includes\Compatibility\WoocsCmp;
 use ADP\BaseVersion\Includes\Compatibility\YayCurrencyCmp;
 use ADP\BaseVersion\Includes\Compatibility\WooCommerceMultiCurrencyCmp;
 use ADP\BaseVersion\Includes\Compatibility\KlarnaOnSiteMessagingCmp;
+use ADP\BaseVersion\Includes\Compatibility\KlarnaCmp;
 use ADP\BaseVersion\Includes\Context\Currency;
 use ADP\BaseVersion\Includes\Context\CurrencyController;
 use ADP\BaseVersion\Includes\Context\Geolocation;
@@ -219,6 +221,16 @@ class Context
         $this->currencyController = new CurrencyController($this, new Currency($currencyCode, $symbol, 1));
         $this->currencyController->setCurrencySymbols($symbols);
 
+        $klarnaCmp = new KlarnaCmp();
+        if ($klarnaCmp->isActive()) {
+            $klarnaCmp->prepareHooks();
+        }
+
+        $heightCmp = new HeylightCmp();
+        if ($heightCmp->isActive()) {
+            $heightCmp->prepareHooks();
+        }
+
         $klarnaOsmCmp = new KlarnaOnSiteMessagingCmp();
         if ($klarnaOsmCmp->isActive()) {
             $klarnaOsmCmp->prepareHooks();
@@ -281,6 +293,7 @@ class Context
 
     protected static function isProcessingUpdatePlugin()
     {
+        //phpcs:ignore WordPress.Security.NonceVerification.Recommended
         return wp_doing_ajax() && isset($_REQUEST['action']) && $_REQUEST['action'] === 'update-plugin';
     }
 
@@ -293,6 +306,19 @@ class Context
         $rest_prefix = trailingslashit(rest_get_url_prefix());
         $request_uri = esc_url_raw(wp_unslash($_SERVER['REQUEST_URI']));
         $wordpress   = (false !== strpos($request_uri, $rest_prefix));
+
+        return $wordpress;
+    }
+
+    public function isWCStoreAPIRequest() {
+        if (empty($_SERVER['REQUEST_URI'])) {
+            return false;
+        }
+
+        $rest_prefix = trailingslashit(rest_get_url_prefix());
+        $wc_store_prefix = $rest_prefix . 'wc/store';
+        $request_uri = esc_url_raw(wp_unslash($_SERVER['REQUEST_URI']));
+        $wordpress   = (false !== strpos($request_uri, $wc_store_prefix));
 
         return $wordpress;
     }
@@ -310,9 +336,9 @@ class Context
         if ( ! isset($_SERVER["HTTP_REFERER"])) {
             return false;
         }
-
-        $referer = parse_url($_SERVER["HTTP_REFERER"]);
-        $admin   = parse_url(admin_url("admin.php"));
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+        $referer = wp_parse_url($_SERVER["HTTP_REFERER"]);
+        $admin   = wp_parse_url(admin_url("admin.php"));
 
         return isset($referer['path'], $admin['path']) && ($referer['path'] === $admin['path']);
     }
@@ -339,7 +365,12 @@ class Context
      */
     public function getOption($key, $default = false)
     {
-        return $this->settings->getOption($key);
+        static $cache;
+        if(isset($cache[$key])) return $cache[$key];
+
+        $value = $this->settings->getOption($key);
+        $cache[$key] = $value;
+        return $value;
     }
 
     /**
@@ -404,6 +435,7 @@ class Context
 
     public function isPluginAdminPage()
     {
+        //phpcs:ignore WordPress.Security.NonceVerification.Recommended
         return $this->getProp(self::ADMIN) && isset($_GET['page']) && $_GET['page'] === AdminPage::SLUG;
     }
 
@@ -725,5 +757,17 @@ class Context
     public function getContainerCompatibilityManager(): ContainerCompatibilityManager
     {
         return $this->containerCompatibilityManager;
+    }
+
+    public function isBaseVersion(): bool {
+        return !defined('WC_ADP_PRO_VERSION_PATH');
+    }
+
+    public function __serialize() {
+        return [];
+    }
+
+    public function __unserialize($data) {
+        $this->__construct();
     }
 }

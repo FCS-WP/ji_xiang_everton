@@ -69,14 +69,14 @@ class CartShippingProcessor
 
     public function setFilterToEditPackageRates()
     {
-        add_filter('woocommerce_package_rates', array($this, 'packageRates'), PHP_INT_MAX, 2);
-        add_filter('woocommerce_package_rates', array($this, 'currencyPackageRates'), PHP_INT_MAX - 1, 2);
+        add_filter('woocommerce_package_rates', array($this, 'packageRates'), PHP_INT_MAX - 1, 2);
+        add_filter('woocommerce_package_rates', array($this, 'currencyPackageRates'), PHP_INT_MAX - 2, 2);
     }
 
     public function unsetFilterToEditPackageRates()
     {
-        remove_filter('woocommerce_package_rates', array($this, 'packageRates'), PHP_INT_MAX);
-        remove_filter('woocommerce_package_rates', array($this, 'currencyPackageRates'), PHP_INT_MAX - 1);
+        remove_filter('woocommerce_package_rates', array($this, 'packageRates'), PHP_INT_MAX - 1);
+        remove_filter('woocommerce_package_rates', array($this, 'currencyPackageRates'), PHP_INT_MAX - 2);
     }
 
     public function setFilterToEditShippingMethodLabel()
@@ -131,7 +131,7 @@ class CartShippingProcessor
             }
 
             if ($this->context->currencyController->isCurrencyChanged()) {
-                $rate->set_cost($rate->get_cost() * $this->context->currencyController->getRate());
+                $rate->set_cost(floatval($rate->get_cost()) * $this->context->currencyController->getRate());
             }
         }
 
@@ -151,7 +151,7 @@ class CartShippingProcessor
         }
 
         foreach ($rates as &$rate) {
-            $cost = $rate->get_cost();
+            $cost = floatval($rate->get_cost());
 
             $adjustments = array();
 
@@ -232,6 +232,7 @@ class CartShippingProcessor
      */
     protected function fixAmounts(&$rateCost, &$appliedAdjustments)
     {
+        $rateCost = floatval($rateCost);
         foreach ($appliedAdjustments as &$adjustment) {
             $amount   = $adjustment->getAmount();
             $rateCost -= $amount;

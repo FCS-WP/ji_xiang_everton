@@ -79,7 +79,7 @@ class Ajax
         $result = null;
 
         check_ajax_referer(self::SECURITY_ACTION, self::SECURITY_QUERY_ARG);
-
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         $method = htmlspecialchars($_POST['method'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
 
         $methodName = 'ajax_' . $method;
@@ -94,6 +94,7 @@ class Ajax
 
     public function ajax_products()
     {
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         $query = htmlspecialchars($_POST['query'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
 
         /** @var \WC_Product_Data_Store_CPT $dataStore */
@@ -111,6 +112,7 @@ class Ajax
 
     public function ajax_giftable_products()
     {
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         $query = htmlspecialchars($_POST['query'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
 
         /** @var \WC_Product_Data_Store_CPT $dataStore */
@@ -160,13 +162,10 @@ class Ajax
     public function ajax_product_sku()
     {
         global $wpdb;
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         $query = htmlspecialchars($_POST['query'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
-
-        $queryResults = $wpdb->get_results("
-                                            SELECT DISTINCT meta_value, post_id
-                                            FROM $wpdb->postmeta
-                                            WHERE meta_key = '_sku' AND meta_value  like '%$query%' LIMIT $this->limit"
-        );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $queryResults = $wpdb->get_results("SELECT DISTINCT meta_value, post_id FROM $wpdb->postmeta WHERE meta_key = '_sku' AND meta_value  like '%$query%' LIMIT $this->limit");
 
         $results = array_map(function ($result) {
             return array(
@@ -180,6 +179,7 @@ class Ajax
 
     public function ajax_product_category_slug()
     {
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         $query = htmlspecialchars($_POST['query'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
         $terms = get_terms(array(
             'taxonomy'   => 'product_cat',
@@ -199,6 +199,7 @@ class Ajax
 
     public function ajax_product_categories()
     {
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         $query = htmlspecialchars($_POST['query'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
         $terms = get_terms(array(
             'taxonomy'   => 'product_cat',
@@ -214,17 +215,35 @@ class Ajax
                 $parent    = get_term($parent_id, 'product_cat');
             }
 
+            $id = (string)$term->term_id;
+
             return array(
-                'id'   => (string)$term->term_id,
-                'text' => $parent == $term ? $term->name : $parent->name . '>' . $term->name,
+                'id'   => $id,
+                'text' => $parent == $term ? "#$id $term->name" : "#$id $parent->name>$term->name",
                 'link' => $this->context->getOption("products_as_links_in_the_product_filter", false) ? get_category_link($term->term_id) : ''
             );
         }, $terms);
     }
 
+    public function ajax_check_filter_priority()
+    {
+        try {
+            if(!$this->context->getOption('show_select_filter_priority', false)) {
+                $settings = $this->context->getSettings();
+                $settings->set('show_select_filter_priority', true);
+                $settings->save();
+            }
+            wp_send_json_success();
+        } catch (\Exception $e) {
+            wp_send_json_error($e->getMessage());
+        }
+    }
+
     public function ajax_product_taxonomies()
     {
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         $query         = htmlspecialchars($_POST['query'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         $taxonomy_name = htmlspecialchars($_POST['taxonomy'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
 
         $terms = get_terms(array(
@@ -245,20 +264,15 @@ class Ajax
     public function ajax_product_attributes()
     {
         global $wc_product_attributes, $wpdb;
-
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         $query = htmlspecialchars($_POST['query'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
 
         $taxonomies = array_map(function ($item) {
             return "'$item'";
         }, array_keys($wc_product_attributes));
         $taxonomies = implode(', ', $taxonomies);
-
-        $items = $wpdb->get_results("
-SELECT $wpdb->terms.term_id, $wpdb->terms.name, taxonomy
-FROM $wpdb->term_taxonomy INNER JOIN $wpdb->terms USING (term_id)
-WHERE taxonomy in ($taxonomies)
-AND $wpdb->terms.name  like '%$query%' LIMIT $this->limit
-");
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $items = $wpdb->get_results("SELECT $wpdb->terms.term_id, $wpdb->terms.name, taxonomy FROM $wpdb->term_taxonomy INNER JOIN $wpdb->terms USING (term_id) WHERE taxonomy in ($taxonomies) AND $wpdb->terms.name  like '%$query%' LIMIT $this->limit");
 
 
         return array_map(function ($term) use ($wc_product_attributes) {
@@ -274,6 +288,7 @@ AND $wpdb->terms.name  like '%$query%' LIMIT $this->limit
 
     public function ajax_product_custom_attributes()
     {
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         $query = strtolower(htmlspecialchars($_POST['query'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401));
 
         $results = array();
@@ -283,8 +298,8 @@ AND $wpdb->terms.name  like '%$query%' LIMIT $this->limit
 
         foreach ($attributes as $attribute) {
             $pieces        = explode(":", $attribute);
-            $attributeName = sanitize_title(strtolower(trim($pieces[0])));
-            $option        = strtolower(trim($pieces[1]));
+            $attributeName = wc_clean(strtolower(trim(array_shift($pieces))));
+            $option        = strtolower(implode(":", $pieces));
 
             $results[] = array(
                 'id'   => "$attributeName:$option",
@@ -297,6 +312,7 @@ AND $wpdb->terms.name  like '%$query%' LIMIT $this->limit
 
     public function ajax_product_tags()
     {
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         $query = htmlspecialchars($_POST['query'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
         $terms = get_terms(array(
             'taxonomy'   => 'product_tag',
@@ -305,10 +321,34 @@ AND $wpdb->terms.name  like '%$query%' LIMIT $this->limit
             'number'     => $this->limit
         ));
 
+
         return array_map(function ($term) {
+            $id = (string)$term->term_id;
             return array(
-                'id'   => (string)$term->term_id,
-                'text' => $term->name,
+                'id'   => $id,
+                'text' => "#$id $term->name",
+                'link' => $this->context->getOption("products_as_links_in_the_product_filter", false) ? get_category_link($term->term_id) : ''
+            );
+        }, $terms);
+    }
+
+    public function ajax_product_brand()
+    {
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
+        $query = htmlspecialchars($_POST['query'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
+        $terms = get_terms(array(
+            'taxonomy'   => 'product_brand',
+            'name__like' => $query,
+            'hide_empty' => false,
+            'number'     => $this->limit
+        ));
+
+
+        return array_map(function ($term) {
+            $id = (string)$term->term_id;
+            return array(
+                'id'   => $id,
+                'text' => "#$id $term->name",
                 'link' => $this->context->getOption("products_as_links_in_the_product_filter", false) ? get_category_link($term->term_id) : ''
             );
         }, $terms);
@@ -317,13 +357,11 @@ AND $wpdb->terms.name  like '%$query%' LIMIT $this->limit
     public function ajax_product_custom_fields()
     {
         global $wpdb;
-
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         $query = htmlspecialchars($_POST['query'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
         $like  = $wpdb->esc_like($query);
-
-        $wpFields = $wpdb->get_col("SELECT DISTINCT CONCAT(fields.meta_key,'=',fields.meta_value) FROM {$wpdb->postmeta} AS fields
-JOIN {$wpdb->posts} AS products ON products.ID = fields.post_id
-WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.meta_key,'=',fields.meta_value) LIKE '%{$like}%' ORDER BY meta_key LIMIT $this->limit");
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $wpFields = $wpdb->get_col("SELECT DISTINCT CONCAT(fields.meta_key,'=',fields.meta_value) FROM {$wpdb->postmeta} AS fields JOIN {$wpdb->posts} AS products ON products.ID = fields.post_id WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.meta_key,'=',fields.meta_value) LIKE '%{$like}%' ORDER BY meta_key LIMIT $this->limit");
 
         return array_map(function ($custom_field) {
             return array(
@@ -335,6 +373,7 @@ WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.me
 
     public function ajax_coupons()
     {
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         $query = htmlspecialchars($_POST['query'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
 
         $postsRaw = get_posts(array(
@@ -359,10 +398,12 @@ WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.me
 
     public function ajax_rules_list()
     {
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         $query = htmlspecialchars($_POST['query'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
         $rulesList = $this->ruleRepository->getRules();
 
         $rulesList = array_values(array_filter($rulesList, function ($rule) use ($query) {
+            //phpcs:ignore WordPress.Security
             return (isset($_POST["current_rule"]) && $rule->id === $_POST["current_rule"]) ? false : stripos($rule->title,
                     $query) !== false;
         }));
@@ -377,6 +418,7 @@ WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.me
 
     public function ajax_users_list()
     {
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         $query = htmlspecialchars($_POST['query'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
         $query = "*$query*";
         $users = get_users(array(
@@ -405,9 +447,11 @@ WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.me
 
     public function ajax_save_rule()
     {
+        //phpcs:ignore WordPress.Security
         if ( ! isset($_POST['rule'])) {
             return;
         }
+        //phpcs:ignore WordPress.Security, WordPress.Security.ValidatedSanitizedInput
         $rule = $_POST['rule'];
 
         $title = htmlspecialchars(
@@ -480,7 +524,8 @@ WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.me
 
     public function ajax_remove_rule()
     {
-        $ruleId = (int)$_POST['rule_id'];
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
+        $ruleId = absint(wp_unslash($_POST['rule_id']));
         if ($ruleId) {
             $this->ruleRepository->markRuleAsDeleted($ruleId);
             $this->persistentRuleRepository->removeRule($ruleId);
@@ -490,6 +535,7 @@ WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.me
 
     public function ajax_reorder_rules()
     {
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         $items = $_POST['items'];
 
         foreach ($items as $item) {
@@ -503,7 +549,7 @@ WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.me
     public function ajax_subscriptions()
     {
         if (get_option('woocommerce_subscriptions_is_active', false)) {
-
+            //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
             $query = htmlspecialchars($_POST['query'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
 
             $posts = wc_get_products(array(
@@ -543,8 +589,10 @@ WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.me
         $table = $wpdb->prefix . Rule::TABLE_NAME;
 
         $this->persistentRuleRepository->truncate();
+        $this->persistentRuleRepository->clearCacheInProductMetaData();
 
         $sql = "SELECT id FROM $table WHERE (rule_type = 'persistent' ) AND enabled = 1 AND deleted = 0";
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
         foreach ($wpdb->get_col($sql) as $id) {
             $this->persistentRuleRepository->addRule(
                 $this->persistentRuleRepository->getAddRuleData($id, $this->context),
@@ -559,49 +607,15 @@ WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.me
         $table = $wpdb->prefix . Rule::TABLE_NAME;
 
         $this->persistentRuleRepository->truncate();
-
+        $this->persistentRuleRepository->clearCacheInProductMetaData();
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $sql = "SELECT COUNT(*) FROM $table WHERE (rule_type = 'persistent' ) AND enabled = 1 AND deleted = 0";
+        // phpcs:ignore WordPress.DB
         $totalCount = (int)($wpdb->get_var($sql));
-
+        CacheHelper::flush();
         wp_send_json_success(
             [
                 'count' => $totalCount,
-            ]
-        );
-    }
-
-    public function ajax_start_partial_rebuild_bogo_list()
-    {
-        $totalCount = Factory::callStaticMethod(
-            "Shortcodes_BogoProducts",
-            'cachedProductsCount',
-            $this->context
-        );
-        Factory::callStaticMethod(
-            "Shortcodes_BogoProducts",
-            'clearCache'
-        );
-        wp_send_json_success(
-            [
-                'count' => $totalCount
-            ]
-        );
-    }
-
-    public function ajax_start_partial_rebuild_onsale_list()
-    {
-        $totalCount = Factory::callStaticMethod(
-            "Shortcodes_OnSaleProducts",
-            'cachedProductsCount',
-            $this->context
-        );
-        Factory::callStaticMethod(
-            "Shortcodes_OnSaleProducts",
-            'clearCache'
-        );
-        wp_send_json_success(
-            [
-                'count' => $totalCount
             ]
         );
     }
@@ -610,11 +624,13 @@ WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.me
     {
         global $wpdb;
         $table = $wpdb->prefix . Rule::TABLE_NAME;
-
-        $from = (int)($_REQUEST['from'] ?? 0);
-        $count = (int)($_REQUEST['count'] ?? 0);
-
+        //phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
+        $from = (absint(wp_unslash($_REQUEST['from'])) ?? 0);
+        //phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
+        $count = (absint(wp_unslash($_REQUEST['count'])) ?? 0);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $sql = "SELECT id FROM $table WHERE (rule_type = 'persistent' ) AND enabled = 1 AND deleted = 0 LIMIT $from, $count";
+        // phpcs:ignore WordPress.DB
         $list = $wpdb->get_col($sql);
 
         if ( $wpdb->last_error ) {
@@ -631,36 +647,73 @@ WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.me
         wp_send_json_success(count($list));
     }
 
+    public function ajax_start_partial_rebuild_bogo_list()
+    {
+        $this->start_partial_rebuild_list('Shortcodes_BogoProducts');
+    }
+
+    public function ajax_start_partial_rebuild_onsale_list()
+    {
+        $this->start_partial_rebuild_list('Shortcodes_OnSaleProducts');
+    }
+
     public function ajax_partial_rebuild_bogo_list()
     {
-        $from = (int)($_REQUEST['from'] ?? null);
-        $count = (int)($_REQUEST['count'] ?? null);
-        try {
-            $ids = Factory::callStaticMethod(
-                "Shortcodes_BogoProducts",
-                'partialUpdateCachedProductsIds',
-                $from,
-                $count
-            );
-            wp_send_json_success(count($ids));
-        }
-        catch (\Exception $e) {
-            wp_send_json_error($e->getMessage());
-        }
+        $this->partial_rebuild_list('Shortcodes_BogoProducts');
     }
 
     public function ajax_partial_rebuild_onsale_list()
     {
-        $from = (int)($_REQUEST['from'] ?? null);
-        $count = (int)($_REQUEST['count'] ?? null);
+        $this->partial_rebuild_list('Shortcodes_OnSaleProducts');
+    }
+
+    public function ajax_admin_footer_text_rated()
+    {
+        $settings = $this->context->getSettings();
+        $settings->set('admin_footer_text_rated', true);
+        $settings->save();
+
+        wp_send_json_success();
+    }
+
+    protected function start_partial_rebuild_list($name)
+    {
+        $rules = Factory::callStaticMethod(
+            $name,
+            'getActiveRules',
+            $this->context
+        );
+        Factory::callStaticMethod(
+            $name,
+            'clearCache'
+        );
+        wp_send_json_success(
+            [
+                'count' => count($rules),
+                'rules' => $rules
+            ]
+        );
+    }
+
+    protected function partial_rebuild_list($name)
+    {
+        //phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+        $ruleId = sanitize_key(absint(wp_unslash($_REQUEST['ruleId']))) ?? null;
+
+        if(!$ruleId) {
+            wp_send_json_error('ruleId is required');
+        }
+
         try {
             $ids = Factory::callStaticMethod(
-                "Shortcodes_OnSaleProducts",
-                'partialUpdateCachedProductsIds',
-                $from,
-                $count
+                $name,
+                'updateCachedProductsIdsByRuleId',
+                $ruleId
             );
-            wp_send_json_success(count($ids));
+            wp_send_json_success([
+                'count' => count($ids),
+                'productIds' => $ids
+            ]);
         }
         catch (\Exception $e) {
             wp_send_json_error($e->getMessage());

@@ -79,6 +79,7 @@ class ProcessedGroupedProduct
         $this->isDiscounted = false;
         $this->usingCustomPrice = false;
         $this->childSummary = array();
+        $this->children     = array();
 
         $this->priceFunctions = new PriceFunctions();
     }

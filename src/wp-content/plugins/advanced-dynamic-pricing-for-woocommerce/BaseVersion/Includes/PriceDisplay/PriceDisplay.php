@@ -17,6 +17,7 @@ use ADP\BaseVersion\Includes\WC\PriceFunctions;
 use ADP\BaseVersion\Includes\WC\WcCustomerSessionFacade;
 use ADP\HighLander\HighLander;
 use ADP\HighLander\Queries\ClassMethodFilterQuery;
+use ADP\Factory;
 use WC_Cart;
 use WC_Product;
 use WC_Product_Variation;
@@ -29,6 +30,11 @@ class PriceDisplay
      * @var Context
      */
     protected $context;
+
+    /**
+     * @var Engine
+     */
+    protected $engine;
 
     /**
      * @var IWcProductProcessor
@@ -59,10 +65,12 @@ class PriceDisplay
      * @param Context|Processor $contextOrProcessor
      * @param Processor|null $deprecated
      */
-    public function __construct($contextOrProcessor, $deprecated = null)
+    public function __construct($contextOrProcessor, $processorOrEngine, $deprecated = null)
     {
         $this->context = adp_context();
-        $processor     = $contextOrProcessor instanceof IWcProductProcessor ? $contextOrProcessor : $deprecated;
+        $processor     = $contextOrProcessor instanceof IWcProductProcessor ? $contextOrProcessor : $processorOrEngine;
+        $this->engine  = $processorOrEngine instanceof Engine ? $processorOrEngine : $deprecated;
+
         $this->with($processor);
         $this->persistentRuleRepository = new PersistentRuleRepository();
     }
@@ -110,6 +118,10 @@ class PriceDisplay
             add_filter('woocommerce_quantity_input_args', array($this, 'hookItemPageQtyArgs'), 10, 2);
             // for variable
             add_filter('woocommerce_available_variation', array($this, 'hookWcAvailableVariation'), 10, 3);
+        }
+
+        if($context->getOption('force_displaying_variation_price', false)) {
+            add_filter("woocommerce_show_variation_price","__return_true");
         }
 
         $this->priceFunctions         = new PriceFunctions($context);
@@ -200,7 +212,16 @@ class PriceDisplay
         if ($context->getOption('show_onsale_badge') && $this->priceHtmlIsModifyNeeded()) {
             add_filter('woocommerce_product_is_on_sale', array($this, 'hookIsOnSale'), $priority, 2);
             add_filter('woocommerce_product_get_sale_price', array($this, 'hookGetSalePrice'), $priority, 2);
-            add_filter('woocommerce_product_get_regular_price', array($this, 'hookGetRegularPrice'), $priority, 2);
+            if (!$context->getOption('regular_price_for_striked_price')) {
+                add_filter('woocommerce_product_get_regular_price', array($this, 'hookGetRegularPrice'), $priority, 2);
+            }
+        }
+
+        if (!$context->isBaseVersion() AND apply_filters('adp_show_onsale_badge_for_variable', false)) {
+            add_filter('woocommerce_product_variation_get_sale_price', array($this, 'hookGetSalePrice'), $priority,
+                2);
+            add_filter('woocommerce_product_variation_get_regular_price', array($this, 'hookGetRegularPrice'),
+                $priority, 2);
         }
     }
 
@@ -265,10 +286,6 @@ class PriceDisplay
             return $onSale;
         }
 
-        if ($onSale) {
-            return $onSale;
-        }
-
         $processedProduct = $this->processor->calculateProduct($product);
         if (is_null($processedProduct)) {
             return $onSale;
@@ -296,7 +313,12 @@ class PriceDisplay
 
         if ($processed->areRulesApplied()) {
             if ($processed instanceof ProcessedProductSimple) {
+                if(defined('WOOCO_PREMIUM') && get_class($processed) == ProcessedProductContainer::class) {
+                    return $value;
+                }
                 $value = $processed->getCalculatedPrice();
+            } elseif ($processed instanceof ProcessedVariableProduct) {
+                $value = $processed->getLowestPrice();
             }
         }
 
@@ -365,7 +387,14 @@ class PriceDisplay
         // 	return $cartSubtotalHtml;
         // }
 
-        if ($compound) {
+        // Compatible with GP Premium (GeneratePress theme)
+        if ( defined('GP_PREMIUM_VERSION') ) {
+            if (generatepress_wc_get_setting( 'cart_menu_item' )) {
+                return $cartSubtotalHtml;
+            }
+        }
+
+        if ($compound || $wcCart->is_empty()) {
             return $cartSubtotalHtml;
         }
 
@@ -424,51 +453,23 @@ class PriceDisplay
             return $args;
         }
 
-        $objects = $this->persistentRuleRepository->getCacheWithProduct($product);
+        /** @var RangeDiscountTable $rangeDiscountTable */
+        $rangeDiscountTable = Factory::get("VolumePricingTable_RangeDiscountTable", $this->context, $this->engine);
 
-        foreach ( $objects as $object ) {
-            if ($object && $object->rule && $object->price !== null && $object->rule->getProductRangeAdjustmentHandler()) {
-                $matchedRuleProcessor = $object->rule->buildProcessor($context);
-                if ( $matchedRuleProcessor->isRuleOptionalMatchedCart(
-                    $this->processor->getCart(),
-                    true,
-                    true)
-                ) {
-                    $handler = $matchedRuleProcessor->getRule()->getProductRangeAdjustmentHandler();
-                    $ranges  = $handler->getRanges();
-
-                    $range = reset($ranges);
-                    if ($range) {
-                        $args['input_value'] = $range->getFrom(); // Start from this value (default = 1)
-                        $args['min_value']   = $range->getFrom(); // Min quantity (default = 0)
-                    }
-
-                    return $args;
-                }
-            }
+        if ( ! ($rule = $rangeDiscountTable->findRuleForProductTable($product))) {
+            return $args;
         }
 
-        /** @var SingleItemRuleProcessor[] $ruleProcessors */
-        $ruleProcessors = array();
-        foreach (CacheHelper::loadActiveRules($context)->getRules() as $rule) {
-            if ($rule instanceof SingleItemRule && $rule->getProductRangeAdjustmentHandler()) { // only for 'SingleItem' rule
-                $ruleProcessors[] = $rule->buildProcessor($context);
-            }
+        if ( ! ($handler = $rule->getProductRangeAdjustmentHandler())) {
+            return $args;
         }
 
-        foreach ($ruleProcessors as $ruleProcessor) {
-            if ($ruleProcessor->isProductMatched($this->processor->getCart(), $product, true)) {
-                $matchedRuleProcessor = $ruleProcessor;
+        $ranges  = $handler->getRanges();
 
-                $handler = $matchedRuleProcessor->getRule()->getProductRangeAdjustmentHandler();
-                $ranges  = $handler->getRanges();
-
-                $range = reset($ranges);
-                if ($range) {
-                    $args['input_value'] = $range->getFrom(); // Start from this value (default = 1)
-                    $args['min_value']   = $range->getFrom(); // Min quantity (default = 0)
-                }
-            }
+        $range = reset($ranges);
+        if ($range) {
+            $args['input_value'] = $range->getFrom(); // Start from this value (default = 1)
+            $args['min_value']   = $range->getFrom(); // Min quantity (default = 0)
         }
 
         return $args;

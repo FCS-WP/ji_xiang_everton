@@ -61,6 +61,7 @@ class AdminPageFilterTitles
             'giftable_categories'   => array(),
             'auto_add_products'     => array(),
             'product_tags'          => array(),
+            'product_brand'         => array(),
             'product_categories'    => array(),
             'product_category_slug' => array(),
             'product_attributes'    => array(),
@@ -73,7 +74,7 @@ class AdminPageFilterTitles
             'subscriptions'         => array(),
             'rules_list'            => array(),
         );
-        foreach (array_keys(Helpers::getCustomProductTaxonomies()) as $taxName) {
+        foreach (array_keys(Helpers::getCustomProductTaxonomies(true)) as $taxName) {
             $filtersByType[$taxName] = array();
         }
 
@@ -107,6 +108,12 @@ class AdminPageFilterTitles
                         $filtersByType['products'][] = $productId;
                     }
                 }
+
+                if (isset($filter['collections_exclude']['values'])) {
+                    foreach ($filter['collections_exclude']['values'] as $collId) {
+                        $filtersByType['product_collections'][] = $collId;
+                    }
+                }
             }
 
             if (isset($rule['get_products']['value'])) {
@@ -118,6 +125,9 @@ class AdminPageFilterTitles
 
                     $type = "giftable_products";
                     if ($giftMode === "allow_to_choose_from_product_cat") {
+                        $type = "giftable_categories";
+                    }
+                    if ($giftMode === "require_to_choose_from_product_cat") {
                         $type = "giftable_categories";
                     }
 
@@ -184,7 +194,7 @@ class AdminPageFilterTitles
                     } elseif ($condition['type'] === ProductsAll::getType() && isset($condition['options'][ListComparisonCondition::COMPARISON_LIST_KEY])) {
                         $value                     = $condition['options'][ListComparisonCondition::COMPARISON_LIST_KEY];
                         $filtersByType['products'] = array_merge($filtersByType['products'], (array)$value);
-                    } elseif ($condition['type'] === 'cart_was_rule_applied' && isset($condition['options'][ListComparisonCondition::COMPARISON_LIST_KEY])) {
+                    } elseif (($condition['type'] === 'cart_was_rule_applied' || $condition['type']  === 'customer_list_rules_aplied') && isset($condition['options'][ListComparisonCondition::COMPARISON_LIST_KEY])) {
                         $value                       = $condition['options'][ListComparisonCondition::COMPARISON_LIST_KEY];
                         $filtersByType['rules_list'] = array_merge($filtersByType['rules_list'], (array)$value);
                     } elseif ($condition['type'] === 'cart_coupons' && isset($condition['options'][ListComparisonCondition::COMPARISON_LIST_KEY])) {
@@ -238,9 +248,10 @@ class AdminPageFilterTitles
         foreach ($filtersByType['products'] as $id) {
             $result['products'][$id] = '#' . $id . ' ' . Helpers::getProductTitle($id);
         }
-
+        //phpcs:ignore WordPress.Security.NonceVerification.Recommended
         if (isset($_GET['product'])) {
-            $id                      = $_GET['product'];
+            //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            $id                      = sanitize_key(wp_unslash($_GET['product']));
             $result['products'][$id] = '#' . $id . ' ' . Helpers::getProductTitle($id);
         }
 
@@ -282,13 +293,19 @@ class AdminPageFilterTitles
         // type 'product_tags'
         $result['product_tags'] = array();
         foreach ($filtersByType['product_tags'] as $id) {
-            $result['product_tags'][$id] = Helpers::getTagTitle($id);
+            $result['product_tags'][$id] = '#' . $id . ' ' . Helpers::getTagTitle($id);
+        }
+
+        // type 'product_brand'
+        $result['product_brand'] = array();
+        foreach ($filtersByType['product_brand'] as $id) {
+            $result['product_brand'][$id] = '#' . $id . ' ' . Helpers::getCategoryTitle($id);
         }
 
         // type 'product_categories'
         $result['product_categories'] = array();
         foreach ($filtersByType['product_categories'] as $id) {
-            $result['product_categories'][$id] = Helpers::getCategoryTitle($id);
+            $result['product_categories'][$id] = '#' . $id . ' ' . Helpers::getCategoryTitle($id);
         }
 
         // type 'product_category_slug'

@@ -23,6 +23,7 @@ use ADP\BaseVersion\Includes\Core\Rule\Structures\SetDiscount;
 use ADP\BaseVersion\Includes\Core\RuleProcessor\Structures\CartItemsCollection;
 use ADP\BaseVersion\Includes\Core\RuleProcessor\Structures\CartSet;
 use ADP\BaseVersion\Includes\SpecialStrategies\CompareStrategy;
+use Exception;
 
 defined('ABSPATH') or exit;
 
@@ -76,7 +77,7 @@ class PriceCalculator
             $price = $item->getPrice();
         }
 
-        $newPrice = $this->calculateSinglePrice($price);
+        $newPrice = $this->calculateSinglePrice($price, $item);
 
         if ($item->getAddonsAmount() > 0) {
             if ($discount::TYPE_FIXED_VALUE === $discount->getType()) {
@@ -121,14 +122,11 @@ class PriceCalculator
         }
 
         $dontApplyDiscountToAddons = $compatibilitySettings->getOption('dont_apply_discount_to_addons');
-        $addonsAmount = $item->getAddonsAmount();
-        if ($dontApplyDiscountToAddons) {
-            $itemWithoutAddonsAmount = $price - $item->getAddonsAmount();
-        }
 
-        $newPrice = $this->calculateSinglePrice($itemWithoutAddonsAmount ?? $price);
-        if ($dontApplyDiscountToAddons) {
-            $newPrice += $addonsAmount;
+        if ( $dontApplyDiscountToAddons ) {
+            $newPrice = $this->calculateSinglePrice($price - $item->getAddonsAmount(), $item) + $item->getAddonsAmount();
+        } else {
+            $newPrice = $this->calculateSinglePrice($price, $item);
         }
 
         if ($item->getAddonsAmount() > 0) {
@@ -224,12 +222,108 @@ class PriceCalculator
         $item->applyPriceAdjustment($priceAdjBuilder->build());
     }
 
+    public function applyItemDiscountAmount(&$item, &$cart, $handler, $amount, $newPrice, $amountPerItem)
+    {
+        $globalContext = $cart->getContext()->getGlobalContext();
+
+        $priceAdjBuilder = CartItemPriceAdjustment::builder();
+        $priceAdjBuilder
+            ->type(CartItemPriceUpdateTypeEnum::DEFAULT())
+            ->originalPrice($newPrice + $amountPerItem)
+            ->amount(floatval($amountPerItem))
+            ->newPrice($newPrice);
+
+        if ($handler->isReplaceWithCartAdjustment()) {
+            $priceAdjBuilder->type(CartItemPriceUpdateTypeEnum::REPLACED_BY_CART_ADJUSTMENT());
+            $adjustmentCode = $handler->getReplaceCartAdjustmentCode();
+
+            if ($amount > 0) {
+                $coupon = new CouponCartItem(
+                    $globalContext,
+                    CouponCartItem::TYPE_ITEM_DISCOUNT,
+                    $adjustmentCode,
+                    $amount / $item->getQty(),
+                    $this->rule->getId(),
+                    $item->getWcItem(),
+                    $item->getQty()
+                );
+
+                $coupon->setAffectedCartItemQty($item->getQty());
+                $cart->addCoupon($coupon);
+            } elseif ($amount < 0) {
+                $taxClass = $globalContext->getIsPricesIncludeTax() ? "" : "standard";
+                $cart->addFee(
+                    new Fee(
+                        $globalContext,
+                        Fee::TYPE_ITEM_OVERPRICE,
+                        $adjustmentCode,
+                        (-1) * $amount,
+                        $taxClass,
+                        $this->rule->getId()
+                    )
+                );
+            }
+        } elseif ($globalContext->getOption('item_adjustments_as_coupon', false)
+            && $globalContext->getOption('item_adjustments_coupon_name', false)
+        ) {
+            $priceAdjBuilder->type(CartItemPriceUpdateTypeEnum::REPLACED_BY_CART_ADJUSTMENT());
+            $adjustmentCode = $globalContext->getOption('item_adjustments_coupon_name');
+
+            if ($amount > 0) {
+                $coupon = new CouponCartItem(
+                    $globalContext,
+                    CouponCartItem::TYPE_ITEM_DISCOUNT,
+                    $adjustmentCode,
+                    $amount / $item->getQty(),
+                    $this->rule->getId(),
+                    $item->getWcItem(),
+                    $item->getQty()
+                );
+
+                $coupon->setAffectedCartItemQty( $item->getQty());
+                $cart->addCoupon($coupon);
+            } elseif ($amount < 0) {
+                $taxClass = $globalContext->getIsPricesIncludeTax() ? "" : "standard";
+                $cart->addFee(
+                    new Fee(
+                        $globalContext,
+                        Fee::TYPE_ITEM_OVERPRICE,
+                        $adjustmentCode,
+                        (-1) * $amount,
+                        $taxClass,
+                        $this->rule->getId()
+                    )
+                );
+            }
+        }
+
+        if ($handler instanceof ProductsAdjustment) {
+            $priceAdjBuilder->source(CartItemPriceUpdateSourceEnum::SOURCE_SINGLE_ITEM_SIMPLE());
+        } elseif ($handler instanceof ProductsRangeAdjustments) {
+            $priceAdjBuilder->source(CartItemPriceUpdateSourceEnum::SOURCE_SINGLE_ITEM_RANGE());
+        } elseif ($handler instanceof ProductsAdjustmentTotal) {
+            $priceAdjBuilder->source(CartItemPriceUpdateSourceEnum::SOURCE_PACKAGE_SIMPLE());
+        } elseif ($handler instanceof ProductsAdjustmentSplit) {
+            $priceAdjBuilder->source(CartItemPriceUpdateSourceEnum::SOURCE_PACKAGE_SPLIT());
+        } elseif ($handler instanceof PackageRangeAdjustments) {
+            $priceAdjBuilder->source(CartItemPriceUpdateSourceEnum::SOURCE_PACKAGE_RANGE());
+        } elseif ($handler instanceof RoleDiscount) {
+            $priceAdjBuilder->source(CartItemPriceUpdateSourceEnum::SOURCE_ROLE());
+        }
+
+        $priceAdjBuilder->ruleId($this->rule->getId());
+        $item->applyPriceAdjustment($priceAdjBuilder->build());
+
+        return true;
+    }
+
     /**
      * @param float $price
+     * @param ICartItem $item
      *
      * @return float
      */
-    public function calculateSinglePrice($price)
+    public function calculateSinglePrice($price, $item = null)
     {
         $old_price = floatval($price);
 
@@ -248,6 +342,8 @@ class PriceCalculator
             $new_price = $this->makeDiscountPercentage($old_price, $operationValue);
         } elseif (Discount::TYPE_FIXED_VALUE === $operationType) {
             $new_price = $this->makePriceFixed($old_price, $operationValue);
+        } elseif (Discount::TYPE_EXPRESSION_PRICE === $operationType) {
+            $new_price = $this->makePriceExpression($old_price, $operationValue, $item);
         } else {
             $new_price = $old_price;
         }
@@ -286,7 +382,7 @@ class PriceCalculator
             if ($item->getAddonsAmount() > 0) {
                 $third_party_adjustments += $item->getAddonsAmount();
             } elseif ($globalContext->isToCompensateTrdPartAdjustmentForFixedPrice()) {
-                $third_party_adjustments += $item->prices()->getMinDiscountRangePrice();
+                $third_party_adjustments += $item->prices()->getTrdPartyAdjustmentsTotal();
             }
         }
 
@@ -431,9 +527,87 @@ class PriceCalculator
         return $set;
     }
 
+    public function calculatePriceForItemsSplitDiscountByCost($items, $cart, $handler)
+    {
+        $globalContext = $cart->getContext()->getGlobalContext();
+
+        $totalPrice = 0;
+        foreach ($items as $item) {
+            /**
+             * @var $item ICartItem
+             */
+            if (!$item->hasAttr(CartItemAttributeEnum::READONLY_PRICE())) {
+                $totalPrice += $item->getTotalPrice();
+            }
+        }
+
+        $totalQty = 0;
+        foreach ($items as $item) {
+            /**
+             * @var $item ICartItem
+             */
+            if (!$item->hasAttr(CartItemAttributeEnum::READONLY_PRICE())) {
+                $totalQty += $item->getQty();
+            }
+        }
+
+        $adjustmentsLeft = $this->checkAdjustmentTotal(
+            $this->calculateAdjustmentsLeft(
+                $items,
+                $globalContext
+            )
+        );
+
+        $overprice = $adjustmentsLeft < 0;
+        $adjustmentsLeft = $overprice ? -$adjustmentsLeft : $adjustmentsLeft;
+        $diff = 0.0;
+
+        if ($adjustmentsLeft > 0 && $totalPrice > 0) {
+            $diff = $adjustmentsLeft / $totalPrice;
+        }
+
+        foreach ($items as $item) {
+            /**
+             * @var $item ICartItem
+             */
+
+            if ($item->hasAttr(CartItemAttributeEnum::READONLY_PRICE())) {
+                continue;
+            }
+
+            $price = $item->getPrice();
+
+            $adjustmentAmount = min($price * $diff, $adjustmentsLeft);
+
+            if ((float)$adjustmentAmount === 0.0) {
+                continue;
+            }
+
+            if ($overprice) {
+                $newPrice = $this->makeOverpriceAmount($price, $adjustmentAmount);
+            } else {
+                $newPrice = $this->makeDiscountAmount($price, $adjustmentAmount);
+            }
+
+            $amount = ($price - $newPrice) * $item->getQty();
+
+            if (!$this->applyItemDiscountAmount($item, $cart, $handler, $amount, $newPrice, $price - $newPrice)) {
+                continue;
+            }
+
+            $adjustmentsLeft -= $adjustmentAmount * $item->getQty();
+
+            if ((new CompareStrategy())->floatLessAndEqual($adjustmentsLeft, 0.0)) {
+                break;
+            }
+        }
+
+        return $items;
+    }
+
     /**
      * @param ICartItem $item
-     * @param CartSet                                                                                                                          $set
+     * @param CartSet $set
      * @param Cart $cart
      * @param ProductsAdjustment|ProductsRangeAdjustments|ProductsAdjustmentTotal|ProductsAdjustmentSplit|PackageRangeAdjustments|RoleDiscount $handler
      * @param float $amount
@@ -469,7 +643,7 @@ class PriceCalculator
                     $item->getQty()
                 );
 
-                $coupon->setAffectedCartItemQty($item->getQty() * $set->getQty());
+                $coupon->setAffectedCartItemQty($item->getQty() * ($set ? $set->getQty() : 1));
                 $cart->addCoupon($coupon);
             } elseif ($amount < 0) {
                 $taxClass = $globalContext->getIsPricesIncludeTax() ? "" : "standard";
@@ -501,7 +675,7 @@ class PriceCalculator
                     $item->getQty()
                 );
 
-                $coupon->setAffectedCartItemQty($item->getQty() * $set->getQty());
+                $coupon->setAffectedCartItemQty( $item->getQty() * ($set ? $set->getQty() : 1));
                 $cart->addCoupon($coupon);
             } elseif ($amount < 0) {
                 $taxClass = $globalContext->getIsPricesIncludeTax() ? "" : "standard";
@@ -594,6 +768,116 @@ class PriceCalculator
         }
 
         return $this->checkDiscount($price, $value);
+    }
+
+    /**
+     * @param float $price
+     * @param string $expression
+     * @param ICartItem $item
+     * @return float
+     */
+    protected function makePriceExpression($price, $expression, $item)
+    {
+        $product = null;
+        if ($item && method_exists($item, 'getWcItem')) {
+            $wcItem = $item->getWcItem();
+            if ($wcItem && method_exists($wcItem, 'getProduct')) {
+                $product = $wcItem->getProduct();
+            }
+        }
+
+        $variables = [
+            'price' => (float) $price,
+        ];
+
+        if ($product && method_exists($product, 'get_meta')) {
+            preg_match_all('/\{([a-zA-Z0-9_]+)\}/', $expression, $matches);
+            foreach ($matches[1] as $var) {
+                if (!isset($variables[$var])) {
+                    $metaValue = $product->get_meta($var, true);
+                    if(empty($metaValue)) return $price;
+                    $variables[$var] = is_numeric($metaValue) ? (float)$metaValue : 1;
+                }
+            }
+        }
+
+        $preparedExpr = preg_replace_callback('/\{([a-zA-Z0-9_]+)\}/', function ($m) use ($variables) {
+            return isset($variables[$m[1]]) ? $variables[$m[1]] : 0;
+        }, $expression);
+
+        $preparedExpr = str_replace(' ', '', $preparedExpr);
+
+        try {
+            $rpn = $this->toRpn($preparedExpr);
+            $result = $this->evalRpn($rpn);
+        } catch (Exception $e) {
+            return $price;
+        }
+
+        return $result;
+    }
+
+    protected function toRpn(string $expr): array
+    {
+        $output = [];
+        $stack = [];
+        $tokens = preg_split('/([+\-*\/\(\)])/u', $expr, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+
+        $precedence = ['+' => 1, '-' => 1, '*' => 2, '/' => 2];
+
+        foreach ($tokens as $token) {
+            if (is_numeric($token)) {
+                $output[] = $token;
+            } elseif (isset($precedence[$token])) {
+                while (!empty($stack) && end($stack) != '(' &&
+                    $precedence[end($stack)] >= $precedence[$token]) {
+                    $output[] = array_pop($stack);
+                }
+                $stack[] = $token;
+            } elseif ($token === '(') {
+                $stack[] = $token;
+            } elseif ($token === ')') {
+                while (!empty($stack) && end($stack) !== '(') {
+                    $output[] = array_pop($stack);
+                }
+                array_pop($stack);
+            }
+        }
+
+        while (!empty($stack)) {
+            $output[] = array_pop($stack);
+        }
+
+        return $output;
+    }
+
+    protected function evalRpn(array $tokens): float
+    {
+        $stack = [];
+
+        foreach ($tokens as $token) {
+            if (is_numeric($token)) {
+                $stack[] = (float)$token;
+            } else {
+                $b = array_pop($stack);
+                $a = array_pop($stack);
+
+                switch ($token) {
+                    case '+': $stack[] = $a + $b; break;
+                    case '-': $stack[] = $a - $b; break;
+                    case '*': $stack[] = $a * $b; break;
+                    case '/':
+                        if ($b == 0) {
+                            throw new Exception("Division by zero");
+                        }
+                        $stack[] = $a / $b;
+                        break;
+                    default: throw new Exception("Unknown operator ". esc_html($token) );
+                }
+            }
+        }
+
+        return array_pop($stack);
     }
 
     /**

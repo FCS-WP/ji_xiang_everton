@@ -86,7 +86,7 @@ class WpcBundleCmp extends AbstractContainerCompatibility
         $reflection = new \ReflectionClass($product);
         $property = $reflection->getProperty('data');
         $property->setAccessible(true);
-        $basePrice = $property->getValue($product)['price'];
+        $basePrice = (float)$property->getValue($product)['price'];
 
         return floatval($basePrice);
     }
@@ -115,8 +115,22 @@ class WpcBundleCmp extends AbstractContainerCompatibility
     public function calculateContainerBasePrice(WcCartItemFacade $facade, array $children): float
     {
         $thirdPartyData = $facade->getThirdPartyData();
+        $parentProduct = $facade->getProduct();
+        if (!empty($thirdPartyData['woosb_discount']) && empty($thirdPartyData['woosb_price'])) {
+            $_price = floatval(CartProcessor::getProductPriceDependsOnPriceMode($parentProduct));
+            $_price   *=  (float) $thirdPartyData['woosb_discount']  / 100;
+            return -$_price;
+        }
 
-        if (isset($thirdPartyData['woosb_price'])) {
+        if (!empty($thirdPartyData['woosb_discount_amount'])) {
+            return -floatval($thirdPartyData['woosb_discount_amount']);
+        }
+
+        if (!empty($thirdPartyData['woosb_price'])) {
+            return 0.0;
+        }
+
+        if ($parentProduct instanceof \WC_Product_Woosb && !$parentProduct->is_fixed_price()) {
             return 0.0;
         }
 
@@ -129,9 +143,14 @@ class WpcBundleCmp extends AbstractContainerCompatibility
             return [];
         }
 
-        return array_map(
+        return array_filter(array_map(
             function ($bundleItem) use ($product) {
                 $bundledProduct = CacheHelper::getWcProduct($bundleItem['id']);
+
+                if(!($bundledProduct instanceof \WC_Product)) {
+                    return false;
+                }
+
                 $price = $bundledProduct->get_price('edit');
 
                 return ContainerPartProduct::of(
@@ -143,7 +162,7 @@ class WpcBundleCmp extends AbstractContainerCompatibility
                 );
             },
             $product->get_items()
-        );
+        ));
     }
 
     public function getContainerPriceTypeByParentFacade(WcCartItemFacade $facade): ?ContainerPriceTypeEnum
@@ -222,7 +241,9 @@ class WpcBundleCmp extends AbstractContainerCompatibility
         ContainerPartCartItem $subContainerItem,
         WcCartItemFacade $parentFacade
     ): ContainerPartCartItem {
-        $subContainerItem->setQty($subContainerItem->getQty() / $parentFacade->getQty());
+        if (!$parentFacade->getProduct()->is_fixed_price()) {
+            $subContainerItem->setQty($subContainerItem->getQty() / $parentFacade->getQty());
+        }
 
         return $subContainerItem;
     }

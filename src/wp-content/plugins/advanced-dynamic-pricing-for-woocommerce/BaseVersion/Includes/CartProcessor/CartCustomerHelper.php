@@ -56,8 +56,13 @@ class CartCustomerHelper
             return floatval(0);
         }
 
+        // must ignore draft orders created by blocks-based cart
+        $existing_orders_statuses = wc_get_order_statuses();
+        if(isset($existing_orders_statuses['wc-checkout-draft']))
+            unset($existing_orders_statuses['wc-checkout-draft']);
+
         $args = array(
-            'post_status' => array_keys(wc_get_order_statuses()),
+            'post_status' => array_keys($existing_orders_statuses),
         );
 
         if ( ! empty($time)) {
@@ -137,6 +142,37 @@ class CartCustomerHelper
         ));
 
         return count($orderIds) > 0;
+    }
+
+    public function getRulesAplied()
+    {
+        global $wpdb;
+        $orderIds = $this->getOrderIds(array(
+            'post_status' => $this->getPreparedIsPaidOrderStatuses(),
+        ));
+
+        if(!count($orderIds)) {
+            return [];
+        }
+
+        $tableStats = $wpdb->prefix . 'wdp_orders';
+        $orderIds = \implode(', ', $orderIds);
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $ids = $wpdb->get_col("SELECT DISTINCT rule_id FROM {$tableStats} WHERE order_id IN ({$orderIds})");
+
+        return $ids;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRulesAplied()
+    {
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+        $ids = $this->getRulesAplied();
+
+        return count($ids) > 0;
     }
 
     /**
@@ -272,9 +308,9 @@ class CartCustomerHelper
         } elseif ('this week' == $time) {
             $time = 'last monday';
         } elseif ('this month' == $time) {
-            $time = 'first day of ' . date('F Y', current_time('timestamp'));
+            $time = 'first day of ' . gmdate('F Y', current_time('timestamp'));
         } elseif ('this year' == $time) {
-            $time = 'first day of January ' . date('Y', current_time('timestamp'));
+            $time = 'first day of January ' . gmdate('Y', current_time('timestamp'));
         } elseif ('last week' == $time) {
             $time = ['last week monday 00:00:00', 'last week sunday 23:59:59'];
         } elseif ('last month' == $time) {

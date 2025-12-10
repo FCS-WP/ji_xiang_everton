@@ -81,4 +81,12 @@ class ContainerCompatibilityManager
 
         return null;
     }
+
+    public function addFilters()
+    {
+        foreach ($this->registeredContainerCompatibilities as $compatibility) {
+            if ($compatibility->isActive())
+                $compatibility->addFilters();
+        }
+    }
 }

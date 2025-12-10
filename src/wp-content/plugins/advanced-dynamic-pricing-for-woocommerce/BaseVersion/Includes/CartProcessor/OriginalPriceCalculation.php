@@ -2,10 +2,10 @@
 
 namespace ADP\BaseVersion\Includes\CartProcessor;
 
-use ADP\BaseVersion\Includes\Compatibility\TmExtraOptionsCmp;
 use ADP\BaseVersion\Includes\ProductExtensions\ProductExtension;
 use ADP\BaseVersion\Includes\WC\WcCartItemFacade;
 use ADP\BaseVersion\Includes\Context;
+use ADP\BaseVersion\Includes\Compatibility\Addons\TmExtraOptionsCmp;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
@@ -81,6 +81,7 @@ class OriginalPriceCalculation
 
         $product = $wcCartItem->getProduct();
         $product = apply_filters('adp_get_original_product_from_cart', $product, $wcCartItem);
+
         /** @var $product WC_Product */
 
         $this->isReadOnlyPrice = false;
@@ -91,26 +92,6 @@ class OriginalPriceCalculation
             $this->priceToAdjust             = $product->get_price('edit');
             $this->trdPartyAdjustmentsAmount = 0.0;
             $this->basePrice                 = $this->priceToAdjust;
-        } elseif (($tmCmp = new TmExtraOptionsCmp()) && $tmCmp->isActive() && $wcCartItem->getInitialCustomPrice()) {
-            $this->priceToAdjust = $wcCartItem->getInitialCustomPrice();
-
-            try {
-                $reflection = new ReflectionClass($product);
-                $property = $reflection->getProperty('changes');
-                $property->setAccessible(true);
-                $changes = $property->getValue($product);
-                $property->setValue($product, array());
-            } catch (ReflectionException $exception) {
-                $property = null;
-            }
-
-            $this->trdPartyAdjustmentsAmount = 0;
-            $productExt = new ProductExtension($product);
-            $this->basePrice = $productExt->getProductPriceDependsOnPriceMode();
-
-            if (isset($property, $changes)) {
-                $property->setValue($product, $changes);
-            }
         } elseif ($wcCartItem->getInitialCustomPrice()) {
             $this->priceToAdjust = $this->getPrice($product, $wcCartItem, $prodPropsWithFilters, true);
 
@@ -211,7 +192,10 @@ class OriginalPriceCalculation
         $withWcFilters,
         $withAdpFilters
     ) {
-        $result = $product->get_regular_price($withWcFilters ? 'view' : 'edit');
+        if ($product instanceof \WC_Product_Variable)
+            $result = $product->get_variation_regular_price('min', $withWcFilters);
+        else
+            $result = $product->get_regular_price($withWcFilters ? 'view' : 'edit');
         if ($withAdpFilters) {
             $result = apply_filters("adp_get_original_product_regular_price_from_cart", $result, $product,
                 $wcCartItem);
@@ -238,7 +222,10 @@ class OriginalPriceCalculation
 
         /** Always remember about scheduled WC sales */
         if ($product->is_on_sale($withWcFilters ? 'view' : 'edit')) {
-            $result = $product->get_sale_price($withWcFilters ? 'view' : 'edit');
+            if ($product instanceof \WC_Product_Variable)
+                $result = $product->get_variation_sale_price('min', $withWcFilters);
+            else
+                $result = $product->get_sale_price($withWcFilters ? 'view' : 'edit');
         }
 
         if ($withAdpFilters) {
@@ -262,7 +249,10 @@ class OriginalPriceCalculation
         $withWcFilters,
         $withAdpFilters
     ) {
-        $result = $product->get_price($withWcFilters ? 'view' : 'edit');
+        if ($product instanceof \WC_Product_Variable)
+            $result = $product->get_variation_price('min', $withWcFilters);
+        else
+            $result = $product->get_price($withWcFilters ? 'view' : 'edit');
         if ($withAdpFilters) {
             $result = apply_filters("adp_get_original_product_initial_price_from_cart", $result, $product,
                 $wcCartItem);

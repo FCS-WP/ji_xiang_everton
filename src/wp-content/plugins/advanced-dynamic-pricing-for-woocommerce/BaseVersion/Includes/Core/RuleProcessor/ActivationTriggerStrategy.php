@@ -51,7 +51,12 @@ class ActivationTriggerStrategy
      */
     public function canBeAppliedByDate($cart)
     {
+        static $rule_active = [];
         $context = $cart->getContext()->getGlobalContext();
+
+        $key = md5( json_encode($context). $this->rule->getID() );
+        if( isset($rule_active[$key]) )
+            return $rule_active[$key];
 
         // it is not actually UTC.The time has already shifted by WP. UTC is for convenience.
         $date = (new \DateTime("now", new \DateTimeZone("UTC")))->setTimestamp($cart->getContext()->time());
@@ -59,6 +64,7 @@ class ActivationTriggerStrategy
 
         if ($this->rule->getDateFrom()) {
             if ($this->rule->getDateFrom()->getTimestamp() > $date->getTimestamp()) {
+                $rule_active[$key] = false;
                 return false;
             }
         }
@@ -70,10 +76,12 @@ class ActivationTriggerStrategy
                     $this->ruleRepository->markAsDisabledByPlugin($this->rule->getId());
                 }
 
+                $rule_active[$key] = false;
                 return false;
             }
         }
 
+        $rule_active[$key] = true;
         return true;
     }
 }

@@ -70,4 +70,9 @@ abstract class AbstractCondition implements RuleCondition
     {
         return false;
     }
+
+    public static function getIndex()
+    {
+        return PHP_INT_MAX;
+    }
 }

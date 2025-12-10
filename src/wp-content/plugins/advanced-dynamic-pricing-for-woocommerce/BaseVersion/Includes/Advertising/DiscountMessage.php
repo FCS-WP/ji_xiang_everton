@@ -19,8 +19,10 @@ class DiscountMessage
     const PANEL_KEY = 'discount_message';
 
     const CONTEXT_CART = 'cart';
+    const CONTEXT_BLOCK_CART = 'block-cart';
     const CONTEXT_MINI_CART = 'mini-cart';
     const CONTEXT_CHECKOUT = 'checkout';
+    const CONTEXT_BLOCK_CHECKOUT = 'block-checkout';
     const CONTEXT_EDIT_ORDER = 'edit-order';
 
     protected $amountSavedLabel;
@@ -93,8 +95,10 @@ class DiscountMessage
         add_action('wp_loaded', function () use ($customizer) {
             $contexts = array(
                 self::CONTEXT_CART      => array($this, 'outputCartAmountSaved'),
+                self::CONTEXT_BLOCK_CART => array($this, 'outputBlockCartAmountSaved'),
                 self::CONTEXT_MINI_CART => array($this, 'outputMiniCartAmountSaved'),
                 self::CONTEXT_CHECKOUT  => array($this, 'outputCheckoutAmountSaved'),
+                self::CONTEXT_BLOCK_CHECKOUT => array($this, 'outputBlockCheckoutAmountSaved')
             );
 
             $this->installMessageHooks($customizer, $contexts);
@@ -111,24 +115,44 @@ class DiscountMessage
         $themeOptions = $customizer->getThemeOptions()->advertisingThemeProperties;
 
         if ( $amountSavedLabel = $themeOptions->global->amountSavedLabel ) {
-            $this->amountSavedLabel = _x(
-                $amountSavedLabel,
+            //phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+            $this->amountSavedLabel = _x( $amountSavedLabel,
                 "theme option 'amount saved label",
                 'advanced-dynamic-pricing-for-woocommerce'
             );
         }
+
+        $shortcodeBlockCartHooksMapping = array(
+            'woocommerce_cart_totals_before_shipping' => 'render_block_woocommerce/cart-order-summary-subtotal-block',
+            'woocommerce_cart_totals_before_order_total' => 'render_block_woocommerce/cart-order-summary-taxes-block',
+            'woocommerce_cart_totals_after_order_total' => 'render_block_woocommerce/cart-order-summary-block',
+        );
+
+        $shortcodeBlockCheckoutHooksMapping = array(
+            'woocommerce_review_order_before_cart_contents' => 'render_block_woocommerce/checkout-order-summary-cart-items-block',
+            'woocommerce_review_order_after_cart_contents' => 'render_block_woocommerce/checkout-order-summary-coupon-form-block',
+            'woocommerce_review_order_before_shipping' => 'render_block_woocommerce/checkout-order-summary-subtotal-block',
+            'woocommerce_review_order_before_order_total' => 'render_block_woocommerce/checkout-order-summary-taxes-block',
+            'woocommerce_review_order_after_order_total' => 'render_block_woocommerce/checkout-order-summary-block',
+        );
 
         foreach ($contexts as $context => $callback) {
 
             if ( $context === self::CONTEXT_CART ) {
                 $enable = $this->context->getOption('is_enable_cart_amount_saved');
                 $position = $themeOptions->cart->positionAmountSavedAction;
+            } elseif ($context === self::CONTEXT_BLOCK_CART) {
+                $enable   = $this->context->getOption('is_enable_cart_amount_saved');
+                $position = $shortcodeBlockCartHooksMapping[$themeOptions->cart->positionAmountSavedAction];
             } elseif ( $context === self::CONTEXT_MINI_CART ) {
                 $enable = $this->context->getOption('is_enable_minicart_amount_saved');
                 $position = $themeOptions->miniCart->positionAmountSavedAction;
             } elseif ( $context === self::CONTEXT_CHECKOUT ) {
                 $enable = $this->context->getOption('is_enable_checkout_amount_saved');
                 $position = $themeOptions->checkout->positionAmountSavedAction;
+            } elseif ( $context === self::CONTEXT_BLOCK_CHECKOUT ) {
+                $enable = $this->context->getOption('is_enable_checkout_amount_saved');
+                $position = $shortcodeBlockCheckoutHooksMapping[$themeOptions->checkout->positionAmountSavedAction];
             } elseif ( $context === self::CONTEXT_EDIT_ORDER ) {
                 $enable = $this->context->getOption('is_enable_backend_order_amount_saved');
                 $position = "woocommerce_admin_order_totals_after_tax";
@@ -165,6 +189,27 @@ class DiscountMessage
         }
     }
 
+    public function outputBlockCartAmountSaved($blockContent)
+    {
+        $includeTax = 'incl' === $this->context->getTaxDisplayCartMode();
+        $amount_saved = $this->getAmountSaved($includeTax);
+        $afterTotals = false;
+        if (doing_filter('render_block_woocommerce/cart-order-summary-block')) {
+            $afterTotals = true;
+        }
+
+        if ($amount_saved > 0) {
+            ob_start();
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo $blockContent;
+            $this->outputAmountSaved(self::CONTEXT_BLOCK_CART, $amount_saved, '',
+                array('afterTotals' => $afterTotals));
+            $blockContent = ob_get_clean();
+        }
+
+        return $blockContent;
+    }
+
     public function outputMiniCartAmountSaved()
     {
         $includeTax  = 'incl' === $this->context->getTaxDisplayCartMode();
@@ -183,6 +228,38 @@ class DiscountMessage
         if ($amountSaved > 0) {
             $this->outputAmountSaved(self::CONTEXT_CHECKOUT, $amountSaved);
         }
+    }
+
+    public function outputBlockCheckoutAmountSaved($blockContent)
+    {
+        $includeTax  = 'incl' === $this->context->getTaxDisplayCartMode();
+        $amountSaved = $this->getAmountSaved($includeTax);
+        $afterTotals = false;
+        $cartContentsHook = false;
+        if (doing_filter('render_block_woocommerce/checkout-order-summary-block')) {
+            $afterTotals = true;
+        } elseif (doing_filter('render_block_woocommerce/checkout-order-summary-cart-items-block') ||
+            doing_filter('render_block_woocommerce/checkout-order-summary-coupon-form-block')) {
+            $cartContentsHook = true;
+        }
+
+        if ($amountSaved > 0) {
+            ob_start();
+            if ($cartContentsHook) {
+                $this->outputAmountSaved(self::CONTEXT_BLOCK_CHECKOUT, $amountSaved, '',
+                    array('afterTotals' => $afterTotals));
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                echo $blockContent;
+            } else {
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                echo $blockContent;
+                $this->outputAmountSaved(self::CONTEXT_BLOCK_CHECKOUT, $amountSaved, '',
+                    array('afterTotals' => $afterTotals));
+            }
+            $blockContent = ob_get_clean();
+        }
+
+        return $blockContent;
     }
 
     public function outputEditOrderAmountSaved($orderId)
@@ -216,17 +293,23 @@ class DiscountMessage
         return (float)$saved;
     }
 
-    public function outputAmountSaved($context, $amountSaved, $currency = '')
+    public function outputAmountSaved($context, $amountSaved, $currency = '', $additionalArgs = array())
     {
         switch ($context) {
             case self::CONTEXT_CART:
                 $template = 'cart-totals.php';
+                break;
+            case self::CONTEXT_BLOCK_CART:
+                $template = 'block-cart-totals.php';
                 break;
             case self::CONTEXT_MINI_CART:
                 $template = 'mini-cart.php';
                 break;
             case self::CONTEXT_CHECKOUT:
                 $template = 'cart-totals-checkout.php';
+                break;
+            case self::CONTEXT_BLOCK_CHECKOUT:
+                $template = 'block-cart-totals-checkout.php';
                 break;
             case self::CONTEXT_EDIT_ORDER:
                 $template = 'edit-order.php';
@@ -240,11 +323,15 @@ class DiscountMessage
             return;
         }
 
+        // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
         echo TemplateLoader::wdpGetTemplate($template, array(
-            'amount_saved' => $amountSaved,
-            'title'        => $this->amountSavedLabel,
-            'currency'     => $currency,
+
+            'amount_saved'   => $amountSaved,
+            'title'          => $this->amountSavedLabel,
+            'currency'       => $currency,
+            'additionalArgs' => $additionalArgs
         ), 'amount-saved');
+        // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
     }
 
     public function getAmountSaved($includeTax)

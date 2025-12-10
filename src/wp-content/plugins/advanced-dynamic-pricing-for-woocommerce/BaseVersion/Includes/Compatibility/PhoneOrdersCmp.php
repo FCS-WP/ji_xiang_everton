@@ -62,7 +62,7 @@ class PhoneOrdersCmp
             );
         }
 
-        if ( ! $needToUpdate) {
+        if ( !$needToUpdate/* || $this->context->priceSettings->isIncludeTax()*/) {
             return;
         }
 

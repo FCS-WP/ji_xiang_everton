@@ -17,6 +17,10 @@ abstract class AbstractContainerCompatibility implements ContainerCompatibility
 {
     abstract protected function getContext(): Context;
 
+    public function addFilters()
+    {
+    }
+
     abstract public function calculatePartOfContainerPrice(WcCartItemFacade $facade): float;
 
     /**
@@ -57,21 +61,16 @@ abstract class AbstractContainerCompatibility implements ContainerCompatibility
         $property->setAccessible(true);
         $basePrice = $property->getValue($product)['price'];
 
-        $item = new ContainerPartCartItem(
+        $initialPrice = $this->calculatePartOfContainerPrice($facade);
+        $initialPrice = (new ToPricingAddonsAdapter())->addAddonsToInitialPriceWithFacade($initialPrice, $facade);
+
+        return new ContainerPartCartItem(
             $facade,
             floatval($basePrice),
             $this->isPartOfContainerFacadePricedIndividually($facade),
-            $this->calculatePartOfContainerPrice($facade),
+            $initialPrice,
             $qty
         );
-
-        (new ToPricingAddonsAdapter())->adaptAddonsFromFacadeAndPutIntoPricingCartItem(
-            $origPriceCalc,
-            $facade,
-            $item
-        );
-
-        return $item;
     }
 
     public function adaptContainerCartItem(
@@ -153,20 +152,12 @@ abstract class AbstractContainerCompatibility implements ContainerCompatibility
             $facade
         );
 
-        $item = new ContainerPartCartItem(
+        return new ContainerPartCartItem(
             $facade,
             $containerPartProduct->getPrice(),
             $containerPartProduct->isPricedIndividually(),
             $containerPartProduct->getPrice(),
             $containerPartProduct->getQty()
         );
-
-        (new ToPricingAddonsAdapter())->adaptAddonsFromFacadeAndPutIntoPricingCartItem(
-            $origPriceCalc,
-            $facade,
-            $item
-        );
-
-        return $item;
     }
 }

@@ -19,7 +19,7 @@ class Helpers
     public static function getProductCustomFields($id)
     {
         global $wpdb;
-
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $wp_fields = $wpdb->get_results(
             $wpdb->prepare("SELECT DISTINCT CONCAT(fields.meta_key,'=',fields.meta_value) FROM {$wpdb->postmeta} AS fields
 									JOIN {$wpdb->posts} AS products ON products.ID = fields.post_id
@@ -43,12 +43,8 @@ class Helpers
         }
 
         $ids = implode(', ', $ids);
-
-        $items = $wpdb->get_results("
-			SELECT $wpdb->terms.term_id, $wpdb->terms.name, taxonomy
-			FROM $wpdb->term_taxonomy INNER JOIN $wpdb->terms USING (term_id)
-			WHERE $wpdb->terms.term_id in ($ids)
-		");
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $items = $wpdb->get_results("SELECT $wpdb->terms.term_id, $wpdb->terms.name, taxonomy FROM $wpdb->term_taxonomy INNER JOIN $wpdb->terms USING (term_id) WHERE $wpdb->terms.term_id in ($ids)");
 
         return array_values(array_filter(array_map(function ($term) use ($wc_product_attributes) {
             if ( ! isset($wc_product_attributes[$term->taxonomy])) {
@@ -193,7 +189,7 @@ class Helpers
             );
         }
 
-        return $result;
+        return apply_filters("adp_get_payment_methods", $result);
     }
 
     public static function getAllShippingMethods()
@@ -257,6 +253,7 @@ class Helpers
 
         $result[] = array(
             'id'   => 0,
+            //phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
             'text' => __('Locations not covered by your other zones', 'woocommerce'),
         );
 
@@ -560,17 +557,31 @@ class Helpers
             'Product discounts'  => 'product_discount',
             'Role discounts'     => 'role_discount',
             'Bulk mode'          => 'bulk',
-            'Free products.'     => 'free_product',
-            'Auto add to cart.'  => 'auto_add_to_cart',
-            'Cart adjustments'   => 'cart_adjustment',
+            'Free products'     => 'free_product',
+            'Auto add to cart'  => 'auto_add_to_cart',
+            'Cart/Shipping discounts'   => 'cart_adjustment',
             'Conditions'         => 'cart_condition',
             'Discount messages'  => 'advertising',
             'Offer to buy more'  => 'offer_to_buy_more',
             'Limits'             => 'limits',
         ];
+        $map_for_pot = [  //not used in code, we need it to make .pot correctly
+            __('Filter by products' , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Product discounts'  , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Role discounts'     , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Bulk mode'          , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Free products'     , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Auto add to cart'  , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Cart adjustments'   , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Conditions'         , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Discount messages'  , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Offer to buy more'  , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Limits'             , 'advanced-dynamic-pricing-for-woocommerce'),
+        ];
 
         if(array_key_exists($name, $map)) {
             $path = WC_ADP_PLUGIN_URL."/BaseVersion/assets/images/".$map[$name].".svg";
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage
             echo "<img src=\"{$path}\" class=\"wdp-filter-img\">";
             /*?>
             <span class="wdp-filter-img-wrapper">
@@ -579,7 +590,8 @@ class Helpers
             <?php*/
         }
         echo "<div class=\"wdp-filter-title\">";
-        _e($name, $domain);
+        //phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.WP.I18n.NonSingularStringLiteralDomain
+        esc_html_e($name, $domain); // translations don't see this line!!!
         echo "</div>";
     }
 }

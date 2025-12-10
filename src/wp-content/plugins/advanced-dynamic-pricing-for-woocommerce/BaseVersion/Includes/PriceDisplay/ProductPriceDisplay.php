@@ -22,6 +22,15 @@ class ProductPriceDisplay
     public static function create($context, $processedProduct)
     {
         $product = $processedProduct->getProduct();
+
+        //force Simple for ProcessedProductSimple if  it's not variation!
+        if(  $processedProduct instanceof ProcessedProductSimple AND ! $product instanceof \WC_Product_Variation) {
+                return Factory::get("PriceDisplay_ConcreteProductPriceHtml_SimpleProductPriceHtml",
+                    $context,
+                    $processedProduct
+                );
+        }
+
         if (
             $product instanceof \WC_Product_Simple
             || $product instanceof \WC_Product_External

@@ -33,7 +33,7 @@ class DiscountAmountRepeatableSetsCount extends AbstractCartAdjustment implement
 
     public static function getLabel()
     {
-        return __('Add fixed discount to each item line affected by rule', 'advanced-dynamic-pricing-for-woocommerce');
+        return __('Add fixed discount to each item line affected by rule *', 'advanced-dynamic-pricing-for-woocommerce');
     }
 
     public static function getTemplatePath()

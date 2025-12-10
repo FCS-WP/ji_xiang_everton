@@ -1,6 +1,6 @@
 <?php
 
-namespace ADP\BaseVersion\Includes\Compatibility;
+namespace ADP\BaseVersion\Includes\Compatibility\Addons;
 
 use ADP\BaseVersion\Includes\Context;
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Base\CartItemAddon;
@@ -52,7 +52,7 @@ class WcffCmp
         $baseVersionUrl = WC_ADP_PLUGIN_URL . "/BaseVersion/";
         if ($context->is($context::WC_PRODUCT_PAGE) || $context->is($context::PRODUCT_LOOP)) {
             wp_enqueue_script('wdp-wc-fields-factory', $baseVersionUrl . 'assets/js/wdp-wc-fields-factory.js', array('jquery'),
-                WC_ADP_VERSION);
+                WC_ADP_VERSION, true);
         }
     }
 
@@ -68,8 +68,10 @@ class WcffCmp
 
         if(!($cartItemData['wccpf_pricing_applied_price_option'] ?? false)) {
             $cartItemData = wcff()->persister->persist($cartItemData, $wcCartItemFacade->getProductId(), $wcCartItemFacade->getVariationId());
+            $orgPrice = method_exists($cartItemData["data"], "get_price") ? floatval ($cartItemData['data']->get_price()) : floatval ($cartItemData['data']->price);
+
             $cartItemData = wcff()->negotiator->handle_custom_pricing($cartItemData, $wcCartItemFacade->getKey());
-            $option_price = $cartItemData["data"]->get_price();
+            $option_price = $cartItemData["data"]->get_price() - $orgPrice;
 
             $addon = new CartItemAddon(null, "", $option_price);
             $addon->currency = $wcCartItemFacade->getCurrency();

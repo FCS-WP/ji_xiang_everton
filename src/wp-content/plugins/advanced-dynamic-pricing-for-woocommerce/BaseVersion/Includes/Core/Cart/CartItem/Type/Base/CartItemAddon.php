@@ -53,4 +53,44 @@ class CartItemAddon
             $this->price
         ]));
     }
+
+    /**
+     * @return string
+     */
+    public function getKey(): string
+    {
+        return $this->key;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    /**
+     * @return float
+     */
+    public function getPrice(): float
+    {
+        return $this->price;
+    }
+
+    /**
+     * @return Currency
+     */
+    public function getCurrency(): Currency
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace ADP\BaseVersion\Includes\Compatibility;
+namespace ADP\BaseVersion\Includes\Compatibility\Addons;
 
 use ADP\BaseVersion\Includes\Context;
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Base\CartItemAddon;
@@ -46,11 +46,10 @@ class YithAddonsCmp
     {
         $thirdPartyData = $wcCartItemFacade->getThirdPartyData();
         $addonsData = $thirdPartyData['yith_wapo_options'] ?? [];
-
         $_product = $wcCartItemFacade->getProduct();
         // WooCommerce Measurement Price Calculator (compatibility).
-        if (isset($cart_item['pricing_item_meta_data']['_price'])) {
-            $product_price = $cart_item['pricing_item_meta_data']['_price'];
+        if (isset($thirdPartyData['pricing_item_meta_data']['_price'])) {
+            $product_price = $thirdPartyData['pricing_item_meta_data']['_price'];
         } else {
             $product_price = \yit_get_display_price($_product);
         }
@@ -79,38 +78,43 @@ class YithAddonsCmp
 
                     $info = \yith_wapo_get_option_info($addon_id, $option_id);
 
-                    if ('percentage' === $info['price_type']) {
-                        $option_percentage = floatval($info['price']);
-                        $option_percentage_sale = floatval($info['price_sale']);
-                        $option_price = ($product_price / 100) * $option_percentage;
-                        $option_price_sale = ($product_price / 100) * $option_percentage_sale;
-                    } elseif ('multiplied' === $info['price_type']) {
-                        $option_price = (float)$info['price'] * (float)$value;
-                        $option_price_sale = (float)$info['price_sale'] * (float)$value;
-                    } elseif ('characters' === $info['price_type']) {
-                        $remove_spaces = apply_filters('yith_wapo_remove_spaces', false);
-                        $value = $remove_spaces ? str_replace(' ', '', $value) : $value;
-                        $option_price = (float)$info['price'] * strlen($value);
-                        $option_price_sale = (float)$info['price_sale'] * strlen($value);
-                    } else {
-                        $option_price = (float)$info['price'];
-                        $option_price_sale = (float)$info['price_sale'];
+                    $option_price = 0;
+
+                    $addon_type             = $info['addon_type'] ?? '';
+                    $first_options_selected = $info['addon_first_options_selected'] ?? '';
+                    $first_options_qty      = intval( $info['addon_first_free_options'] ) ?? 0;
+                    $price_method           = $info['price_method'] ?? '';
+                    $sell_individually      = $info['sell_individually'] ?? '';
+
+                    $is_empty_select = 'select' === $addon_type && 'default' === $option_id;
+
+                    if ( $is_empty_select ) {
+                        continue;
                     }
 
-                    if ('number' === $info['addon_type']) {
-                        if ('value_x_product' === $info['price_method']) {
-                            $option_price = $value * $product_price;
-                        } else {
-                            if ('multiplied' === $info['price_type']) {
-                                $option_price = $value * $info['price'];
-                                $option_price_sale = 0; // By default 0, since sale price doesn't exists.
+                    $calculate_taxes = false;
+
+                    if ( wc_string_to_bool( $sell_individually ) ) {
+                        $calculate_taxes = true;
+                    }
+
+                    $addon_prices = YITH_WAPO_Cart()->calculate_addon_prices_on_cart( $addon_id, $option_id, $key, $value, $thirdPartyData, $product_price, $calculate_taxes );
+
+                    $option_price     = 0;
+                    $addon_price      = floatval( $addon_prices['price'] );
+                    $addon_sale_price = floatval( $addon_prices['price_sale'] );
+
+                    // First X free options check.
+                    if ( 'yes' === $first_options_selected && 0 < $first_options_qty && $first_free_options_count < $first_options_qty ) {
+                        $first_free_options_count ++;
+                    } else {
+                        if ( $addon_price !== 0 || $addon_sale_price !== 0 ) {
+                            if ( $addon_sale_price ) {
+                                $option_price = $addon_sale_price;
+                            } else {
+                                $option_price = $addon_price;
                             }
                         }
-                    }
-
-                    if ('free' === $info['price_method']) {
-                        $option_price = 0;
-                        $option_price_sale = 0;
                     }
 
                     $addon = new CartItemAddon($key, $value, $option_price);
@@ -119,7 +123,6 @@ class YithAddonsCmp
                 }
             }
         }
-
         return $addons;
     }
 }

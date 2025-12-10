@@ -54,7 +54,10 @@ class Updater
         '4.5.3' => array(
             'migratePostalCodesConditionsTo_4_5_3',
             'migrateSpentConditionsTo_4_5_3'
-        )
+        ),
+        '4.10.4' => array(
+            'migrateSummaryTo_4_10_4',
+        ),
     );
 
     public static function update()

@@ -29,6 +29,9 @@ class Loader
             if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
                 \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables',
                     WC_ADP_PLUGIN_PATH . WC_ADP_PLUGIN_FILE, true );
+
+                \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks',
+                    WC_ADP_PLUGIN_PATH . WC_ADP_PLUGIN_FILE, true );
             }
         } );
     }
@@ -41,15 +44,34 @@ class Loader
 
     public function initPlugin()
     {
+        // must load langs ASAP
+        // as Wordpress loads default transations on first usage __()
+        $this->loadTextDomain();
+
         if ( ! $this->checkRequirements()) {
             return;
         }
 
-        load_plugin_textdomain('advanced-dynamic-pricing-for-woocommerce', false,
-            basename(dirname(dirname(__FILE__))) . '/languages/');
-
         $context = adp_context(); // do not remove! Required for correct initialization
         $this->load($context);
+    }
+
+    protected function loadTextDomain()
+    {
+        // do nothing if loaded free version , it reads translations from Wordpress.org
+        if(!defined('WC_ADP_PRO_VERSION_PATH'))
+            return;
+
+        $pricingDomain = 'advanced-dynamic-pricing-for-woocommerce';
+        add_filter('load_textdomain_mofile', function ($moFile, $domain) use ($pricingDomain) {
+            if ($domain !== $pricingDomain) {
+                return $moFile;
+            }
+            $path = WP_PLUGIN_DIR . '/' . trim(basename(dirname(dirname(dirname(__FILE__)))) . '/languages/', '/');
+            $plugin_file = $path . '/' . substr($moFile, strrpos($moFile, '/') + 1);
+            return file_exists($plugin_file) ? $plugin_file : $moFile;
+        }, 10, 2);
+        load_plugin_textdomain($pricingDomain, false, basename(dirname(dirname(dirname(__FILE__)))) . '/languages/');
     }
 
     /**
@@ -87,6 +109,8 @@ class Loader
         if ($anyFeedsCmp->isActive()) {
             $anyFeedsCmp->updateContext(adp_context());
         }
+
+        wp_enqueue_style('wdp_cart-summary', WC_ADP_PLUGIN_URL . "/BaseVersion/" . 'assets/css/cart-summary.css', array(), WC_ADP_VERSION);
     }
 
     public function checkRequirements()
@@ -94,20 +118,22 @@ class Loader
         $state = true;
         if (version_compare(phpversion(), WC_ADP_MIN_PHP_VERSION, '<')) {
             add_action('admin_notices', function () {
-                echo '<div class="notice notice-error is-dismissible"><p>' . sprintf(__('Advanced Dynamic Pricing for WooCommerce requires PHP version %s or later.',
-                        'advanced-dynamic-pricing-for-woocommerce'), WC_ADP_MIN_PHP_VERSION) . '</p></div>';
+                /* translators: A message about the need for a specific php version*/
+                echo '<div class="notice notice-error is-dismissible"><p>' . sprintf(esc_html__('Advanced Dynamic Pricing for WooCommerce requires PHP version %s or later.',
+                        'advanced-dynamic-pricing-for-woocommerce'), esc_html(WC_ADP_MIN_PHP_VERSION)) . '</p></div>';
             });
             $state = false;
         } elseif ( ! class_exists('WooCommerce')) {
             add_action('admin_notices', function () {
-                echo '<div class="notice notice-error is-dismissible"><p>' . __('Advanced Dynamic Pricing for WooCommerce requires active WooCommerce!',
+                echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Advanced Dynamic Pricing for WooCommerce requires active WooCommerce!',
                         'advanced-dynamic-pricing-for-woocommerce') . '</p></div>';
             });
             $state = false;
         } elseif (version_compare(WC_VERSION, WC_ADP_MIN_WC_VERSION, '<')) {
             add_action('admin_notices', function () {
-                echo '<div class="notice notice-error is-dismissible"><p>' . sprintf(__('Advanced Dynamic Pricing for WooCommerce requires WooCommerce version %s or later.',
-                        'advanced-dynamic-pricing-for-woocommerce'), WC_ADP_MIN_WC_VERSION) . '</p></div>';
+                /* translators: A message about the need for a specific php version*/
+                echo '<div class="notice notice-error is-dismissible"><p>' . sprintf(esc_html__('Advanced Dynamic Pricing for WooCommerce requires WooCommerce version %s or later.',
+                        'advanced-dynamic-pricing-for-woocommerce'), esc_html(WC_ADP_MIN_WC_VERSION)) . '</p></div>';
             });
             $state = false;
         }

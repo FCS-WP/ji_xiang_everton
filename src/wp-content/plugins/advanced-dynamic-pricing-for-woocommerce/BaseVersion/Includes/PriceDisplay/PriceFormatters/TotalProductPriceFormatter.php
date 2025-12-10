@@ -35,13 +35,8 @@ class TotalProductPriceFormatter
         $this->context   = adp_context();
         $this->formatter = new Formatter();
 
-        $template = _x(
-            htmlspecialchars_decode(
-                $this->context->getOption(
-                    "total_price_for_product_template",
-                    "Total price : {{striked_total}}"
-                )
-            ),
+        //phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+        $template = _x( htmlspecialchars_decode( $this->context->getOption( "total_price_for_product_template",  "Total price : {{striked_total}}")),
             "Total price for product template",
             "advanced-dynamic-pricing-for-woocommerce"
         );
@@ -67,18 +62,20 @@ class TotalProductPriceFormatter
         if ($currencySwitcher->isCurrencyChanged()) {
             $price = $currencySwitcher->getCurrentCurrencyProductPrice($product);
             $regularPrice = $currencySwitcher->getCurrentCurrencyProductRegularPrice($product);
+            if(!$regularPrice)
+                $regularPrice = $price;
         } else {
             $price = $product->get_price('edit');
             $regularPrice = $product->get_regular_price('edit');
         }
 
-        if ( $regularPrice === "" ) {
+        if ( is_null($regularPrice) OR $regularPrice === "" OR $regularPrice === "0" ) {
             return "";
         }
 
         $isOnSale     = $product->is_on_sale('edit');
         $amountSaved = $regularPrice - $price;
-        $percentageSaved = round($amountSaved / $regularPrice * 100, 2);
+        $percentageSaved = round($amountSaved / $regularPrice * 100);
 
         $strikedTotal = $isOnSale ?
             $this->priceFunctions->formatSalePrice(
@@ -170,7 +167,7 @@ class TotalProductPriceFormatter
         if ( $origPrice === 0.0 ) {
             $percentageSaved = 0.0;
         } else {
-            $percentageSaved = round($amountSaved / $origPrice * 100, 2);
+            $percentageSaved = round($amountSaved / $origPrice * 100);
         }
 
         /** @var ConcreteProductPriceHtml $prodPriceDisplay */

@@ -6,6 +6,8 @@ use ADP\BaseVersion\Includes\CartProcessor\CartProcessor;
 use ADP\BaseVersion\Includes\Context;
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Container\ContainerPriceTypeEnum;
 use ADP\BaseVersion\Includes\WC\WcCartItemFacade;
+use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Container\ContainerCartItem;
+use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Container\ContainerPartCartItem;
 
 defined('ABSPATH') or exit;
 
@@ -61,6 +63,19 @@ class SomewhereWarmBundlesCmp extends AbstractContainerCompatibility
                 return $price;
             }, 10, 6);
         }
+
+        add_filter('woocommerce_bundle_price_data', function($data, $product) {
+            $discountPrice = adp_functions()->getDiscountedProductPrice($product, 1, true);
+            if (!empty($discountPrice)) {
+                if( is_array($discountPrice) ) {
+                    $data['base_price'] = reset($discountPrice); //take min value
+                } else {
+                    $data['base_price'] = $discountPrice;
+                }
+            }
+        
+            return $data;
+        }, 10, 2);
     }
 
     public function isActive(): bool
@@ -107,7 +122,7 @@ class SomewhereWarmBundlesCmp extends AbstractContainerCompatibility
                     $product,
                     $bundledProduct,
                     (float)$price,
-                    (float)$bundleItem->get_quantity("default"),
+                    (float)$bundleItem->get_quantity("min", array( 'check_optional' => true )),
                     $bundleItem->is_priced_individually()
                 );
             },
@@ -122,6 +137,7 @@ class SomewhereWarmBundlesCmp extends AbstractContainerCompatibility
     public function calculatePartOfContainerPrice(WcCartItemFacade $facade): float
     {
         $bundledProduct = $facade->getProduct();
+        $this->probablySetBundledItem($bundledProduct, $facade);
 
         if ( isset($bundledProduct->bundled_cart_item) ) {
             $childItemPrice = floatval($bundledProduct->bundled_cart_item->get_price());
@@ -180,9 +196,10 @@ class SomewhereWarmBundlesCmp extends AbstractContainerCompatibility
     public function isPartOfContainerFacadePricedIndividually(WcCartItemFacade $facade): ?bool
     {
         $product = $facade->getProduct();
+        $this->probablySetBundledItem($product, $facade);
 
         if (!(isset($product->bundled_cart_item) && $product->bundled_cart_item instanceof \WC_Bundled_Item)) {
-            return null;
+            return false;
         }
 
         $item = $product->bundled_cart_item;
@@ -211,5 +228,45 @@ class SomewhereWarmBundlesCmp extends AbstractContainerCompatibility
 
             $containerFacade->setThirdPartyData('bundled_items', $bundledItems);
         }
+    }
+
+    public function probablySetBundledItem(&$product, $facade) {
+        $data = $facade->getThirdPartyData();
+        if($product AND !empty($data['bundled_item_id']) AND $child = wc_pb_get_bundled_item($data['bundled_item_id']) )
+            $product->bundled_cart_item = $child;
+    }
+
+    public function adaptContainerCartItem(
+        WcCartItemFacade $facade,
+        array $children,
+        int $pos
+    ): ContainerCartItem {
+        $containerItem = parent::adaptContainerCartItem($facade, $children, $pos);
+
+        return $containerItem->setItems(
+            array_map(
+                function ($subContainerItem) use ($facade) {
+                    /** @var ContainerPartCartItem $subContainerItem */
+                    return $this->modifyPartOfContainerItemQty($subContainerItem, $facade);
+                },
+                array_map([$this, 'adaptContainerPartCartItem'], $children)
+            )
+        );
+    }
+
+    /**
+     * @param ContainerPartCartItem $subContainerItem
+     * @param WcCartItemFacade $parentFacade
+     * @return ContainerPartCartItem
+     */
+    protected function modifyPartOfContainerItemQty(
+        ContainerPartCartItem $subContainerItem,
+        WcCartItemFacade $parentFacade
+    ): ContainerPartCartItem {
+        if ($subContainerItem->isPricedIndividually()){
+            $subContainerItem->setQty($subContainerItem->getQty() / $parentFacade->getQty());
+        }
+
+        return $subContainerItem;
     }
 }

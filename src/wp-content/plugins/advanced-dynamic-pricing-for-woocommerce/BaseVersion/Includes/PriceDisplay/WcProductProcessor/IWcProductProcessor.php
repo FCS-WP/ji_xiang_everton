@@ -8,6 +8,7 @@ use ADP\BaseVersion\Includes\Debug\ProductCalculatorListener;
 use ADP\BaseVersion\Includes\PriceDisplay\ProcessedGroupedProduct;
 use ADP\BaseVersion\Includes\PriceDisplay\ProcessedProductSimple;
 use ADP\BaseVersion\Includes\PriceDisplay\ProcessedVariableProduct;
+use ADP\BaseVersion\Includes\PriceDisplay\WcProductCalculationWrapper;
 
 interface IWcProductProcessor
 {
@@ -21,6 +22,14 @@ interface IWcProductProcessor
      * @return ProcessedProductSimple|ProcessedVariableProduct|ProcessedGroupedProduct|null
      */
     public function calculateProduct($theProduct, $qty = 1.0, $cartItemData = array());
+
+    /**
+     * @param WcProductCalculationWrapper $wrapper
+     * @param float $qty
+     *
+     * @return ProcessedGroupedProduct|ProcessedProductSimple|ProcessedVariableProduct|null
+     */
+    public function calculateWithProductWrapper(WcProductCalculationWrapper $wrapper, float $qty = 1.0);
 
     public function withContext(Context $context);
 

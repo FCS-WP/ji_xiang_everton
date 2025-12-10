@@ -73,7 +73,7 @@ class SqlGeneratorPersistent
         }
 
         $excludeIds = array();
-        if ($this->context->getOption('allow_to_exclude_products') && $filter->getExcludeProductIds()) {
+        if ($filter->getExcludeProductIds()) {
             $excludeIds = $filter->getExcludeProductIds();
         }
 
@@ -93,6 +93,7 @@ class SqlGeneratorPersistent
     public function clear() {
         $this->appliedRules = array();
         $this->where = array();
+        $this->join = array();
         $this->excludeIds = array();
         $this->count = null;
         $this->offset = null;
@@ -131,15 +132,23 @@ class SqlGeneratorPersistent
         $sql_where    = $this->getWhere();
         $excludeWhere = $this->getExcludeWhere();
 
-        $sql = "SELECT post.ID as id, post.post_parent as parent_id, post_children.ID as child_id FROM `$wpdb->posts` AS post
+        $sql = "SELECT post.ID as id, post.post_parent as parent_id, post_children.ID as child_id
+            FROM `$wpdb->posts` AS post
             LEFT JOIN {$wpdb->posts} as post_children ON (post.ID = post_children.post_parent OR post.ID = post_children.ID)
             " . implode(" ", $sql_joins) . "
             WHERE
             post.post_type IN ( 'product', 'product_variation' ) AND post.post_status = 'publish'
-            AND post_children.post_type IN ('product', 'product_variation') AND post_children.post_status = 'publish'
-            " . ($sql_where ? " AND " : "") . implode(" OR ", array_map(function ($v) {
+            AND post_children.post_type IN ('product', 'product_variation') AND post_children.post_status = 'publish'"
+
+            . ($sql_where ? " AND (" : "")
+
+            . implode(" OR ", array_map(function ($v) {
                 return "(" . $v . ")";
-            }, $sql_where)) . ($excludeWhere ? " AND " : "") . implode(" AND ", array_map(function ($v) {
+            }, $sql_where))
+
+            . ($sql_where ? ")" : "")
+
+            . ($excludeWhere ? " AND " : "") . implode(" AND ", array_map(function ($v) {
                 return "(" . $v . ")";
             }, $excludeWhere));
 
@@ -152,7 +161,7 @@ class SqlGeneratorPersistent
         return $sql;
     }
 
-    public function getProductIds() {
+    public function getProductIds($mode = 'default') {
         global $wpdb;
 
         if ($this->isEmpty()) {
@@ -160,13 +169,20 @@ class SqlGeneratorPersistent
         }
 
         $sql = $this->getSql();
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $products = $wpdb->get_results($sql);
-        $productIds = wp_parse_id_list(wp_list_pluck($products, 'child_id'));
+
+        if($mode == 'on_sale' || $mode == 'bogo') {
+            $productIds = wp_parse_id_list(array_merge(wp_list_pluck($products, 'id'),
+                array_diff(wp_list_pluck($products, 'parent_id'), array(0))));
+        } else {
+            $productIds = wp_parse_id_list(wp_list_pluck($products, 'child_id'));
+        }
 
         return $productIds;
     }
 
-    protected function generateFilterSqlByType($type, $value, $comparisonMethod = ComparisonMethods::IN_LIST, $prop=null)
+    protected function generateFilterSqlByType($type, $value, $comparisonMethod = ComparisonMethods::IN_LIST, $prop=null, $filter=null)
     {
         if (in_array($type, $this->customTaxonomies)) {
             return $this->genSqlCustomTaxonomy($type, $value, $comparisonMethod);
@@ -174,7 +190,7 @@ class SqlGeneratorPersistent
 
         $method_name = "genSql" . ucfirst($type);
 
-        return method_exists($this, $method_name) ? call_user_func([$this, $method_name], $value, $comparisonMethod, $prop) : false;
+        return method_exists($this, $method_name) ? call_user_func([$this, $method_name], $value, $comparisonMethod, $prop, $filter) : false;
     }
 
     protected function genSqlProducts($productIds, $comparisonMethod = ComparisonMethods::IN_LIST)
@@ -282,7 +298,7 @@ class SqlGeneratorPersistent
                 "{$table}.meta_key = '{$key}'",
                 $this->compareToSql("{$table}.meta_value", ComparisonMethods::EQ, $value),
             ];
-    
+
             $where[] = "(" . implode(" AND ", $tmp_where) . ")";
         }
 
@@ -292,44 +308,32 @@ class SqlGeneratorPersistent
 
     protected function genSqlProduct_attributes($termIds, $comparisonMethod = ComparisonMethods::IN_LIST)
     {
-        static $i =0;
         global $wpdb;
 
-        //TODO check_lookup_table_exists
-        $data_store      = wc_get_container()->get( LookupDataStore::class );
-        $lookupTable     = $data_store->get_lookup_table_name();
-
-        if(ComparisonMethods::NOT_IN_LIST === $comparisonMethod) {
-            $lookupTableName = "lookup_product_attr";
-
-            $where = $this->compareToSql("{$lookupTableName}.term_id", ComparisonMethods::IN_LIST, $termIds);
-            return "post_children.ID NOT IN( 
-                SELECT product_id FROM {$lookupTable} as {$lookupTableName}
-                WHERE {$where} 
-            )
-            AND post.ID NOT IN(
-                SELECT product_or_parent_id FROM {$lookupTable} as {$lookupTableName}
-                WHERE {$where} 
-            )";
-        }
-
+        $ids = implode(', ', $termIds);
+        $where = $this->compareToSql("{$wpdb->terms}.term_id", ComparisonMethods::IN_LIST, $termIds);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $items = $wpdb->get_results("SELECT taxonomy, {$wpdb->terms}.slug, {$wpdb->terms}.term_id
+                                    FROM {$wpdb->term_taxonomy} 
+                                    INNER JOIN {$wpdb->terms} 
+                                    USING (term_id) 
+                                    WHERE {$where}");
 
         $where = [];
-        foreach($termIds as $id) {
-            $lookupTableName = "lookup_product_attr_{$id}";
-            $this->addJoin( "LEFT JOIN {$lookupTable} as {$lookupTableName} 
-                ON 
-                IF({$lookupTableName}.is_variation_attribute, 
-                    post_children.ID = {$lookupTableName}.product_id, 
-                    post.ID = {$lookupTableName}.product_or_parent_id
-                )" );
+        foreach ($items as $item) {
+            $tmp_where   = [
+                $this->compareToSql("meta_key", ComparisonMethods::EQ, "attribute_{$item->taxonomy}"),
+                $this->compareToSql("meta_value", ComparisonMethods::EQ, $item->slug),
+            ];
 
-            $where[] = "{$lookupTableName}.term_id = {$id}";
-
+            $where[] = "(" . implode(" AND ", $tmp_where) . ")";
         }
-        $where = "( " . implode(' AND ', $where) . " )";
+        $where = "( " . implode(' OR ', $where) . " )";
+        
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $productIds = $wpdb->get_col("SELECT post_id FROM {$wpdb->postmeta} WHERE {$where}");
 
-        return $where;
+        return  $this->compareToSql('post_children.ID', $comparisonMethod, $productIds);
     }
 
     protected function genSqlCustomTaxonomy($taxName, $values, $comparisonMethod = ComparisonMethods::IN_LIST)
@@ -341,23 +345,23 @@ class SqlGeneratorPersistent
     {
         static $i=0;
         global $wpdb;
-        
-        $relationshipTableName = "term_rel_{$taxName}";
-        $taxTableName          = "term_tax_{$taxName}";
+
+        $relationshipTableName = str_replace('-', '_', "term_rel_{$taxName}");
+        $taxTableName          = str_replace('-', '_', "term_tax_{$taxName}");
 
         $where = $this->compareToSql("{$taxTableName}.term_id", ComparisonMethods::IN_LIST, $termIds);
 
         if(ComparisonMethods::NOT_IN_LIST === $comparisonMethod) {
 
             return "( " .implode(" AND ", array_map(function($id) use($wpdb, $relationshipTableName, $taxTableName, $where) {
-                return "{$id} NOT IN( 
+                return "{$id} NOT IN(
                     SELECT object_id FROM {$wpdb->term_relationships} as {$relationshipTableName}
                     LEFT JOIN {$wpdb->term_taxonomy} as {$taxTableName} ON {$relationshipTableName}.term_taxonomy_id = {$taxTableName}.term_taxonomy_id
                     WHERE $where
                 )";
             }, ['post.ID', 'post.post_parent', 'post_children.ID'])) . " )";
         }
-        
+
         $this->addJoin( "LEFT JOIN {$wpdb->term_relationships} as {$relationshipTableName} ON post.ID = {$relationshipTableName}.object_id" );
         $this->addJoin( "LEFT JOIN {$wpdb->term_taxonomy} as {$taxTableName} ON {$relationshipTableName}.term_taxonomy_id = {$taxTableName}.term_taxonomy_id" );
 
@@ -380,7 +384,7 @@ class SqlGeneratorPersistent
                 "{$table}.meta_key LIKE 'adp_custom_product_attribute_%'",
                 $this->compareToSql("{$table}.meta_value", ComparisonMethods::CONTAINS, $value),
             ];
-    
+
             $where[] = "(" . implode(" AND ", $tmp_where) . ")";
         }
 
@@ -392,8 +396,8 @@ class SqlGeneratorPersistent
     protected function getSqlByPostmeta($where, $comparisonMethod, $table = 'postmeta_1') {
         global $wpdb;
         if(ComparisonMethods::NOT_IN_LIST === $comparisonMethod) {
-            return "post_children.ID NOT IN( 
-                SELECT post_id 
+            return "post_children.ID NOT IN(
+                SELECT post_id
                 FROM {$wpdb->postmeta} as {$table}
                 WHERE $where
             )";
@@ -426,23 +430,31 @@ class SqlGeneratorPersistent
             }
         } else {
             $esc_value = esc_sql($value);
+            $sql_value = is_numeric($esc_value) ? $esc_value : "'{$esc_value}'";
+            $sql_method = null;
+
             switch($comparisonMethod) {
-                case ComparisonMethods::LT:
-                    return "{$key} < '{$esc_value}'";
-                case ComparisonMethods::LTE:
-                    return "{$key} <= '{$esc_value}'";
-                case ComparisonMethods::MTE:
-                    return "{$key} >= '{$esc_value}'";
-                case ComparisonMethods::MT:
-                    return "{$key} > '{$esc_value}'";
-                case ComparisonMethods::EQ:
-                    return "{$key} = '{$esc_value}'";
-                case ComparisonMethods::NEQ:
-                    return "{$key} != '{$esc_value}'";
                 case ComparisonMethods::CONTAINS:
-                    return "{$key} LIKE '%{$esc_value}%'";
+                    $sql_method = "LIKE";
+                    $sql_value = "'%{$esc_value}%'";
+                    break;
                 case ComparisonMethods::NOT_CONTAINS:
-                    return "{$key} NOT LIKE '%{$esc_value}%'";
+                    $sql_method = "NOT LIKE";
+                    $sql_value = "'%{$esc_value}%'";
+                    break;
+                case ComparisonMethods::LATER:
+                    $sql_method = ComparisonMethods::MT;
+                    break;
+                case ComparisonMethods::EARLIER:
+                    $sql_method = ComparisonMethods::LT;
+                    break;
+                case in_array($comparisonMethod, ComparisonMethods::BASIC_METHODS):
+                    $sql_method = $comparisonMethod;
+                    break;
+            }
+
+            if (!is_null($sql_method)) {
+                return "{$key} {$sql_method} {$sql_value}";
             }
         }
         return '1 = 0';

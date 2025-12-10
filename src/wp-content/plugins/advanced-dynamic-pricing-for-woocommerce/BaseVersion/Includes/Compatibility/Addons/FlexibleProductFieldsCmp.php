@@ -1,6 +1,6 @@
 <?php
 
-namespace ADP\BaseVersion\Includes\Compatibility;
+namespace ADP\BaseVersion\Includes\Compatibility\Addons;
 
 use ADP\BaseVersion\Includes\Context;
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Base\CartItemAddon;

@@ -12,6 +12,7 @@ services:
       - ./src/wp-content/themes/index.php:/var/www/html/wp-content/plugins/index.php
       - ./src/wp-content/plugins:/var/www/html/wp-content/plugins
       - ./src/wp-content/uploads:/var/www/html/wp-content/uploads
+      - ./src/wp-content/debug.log:/var/www/html/wp-content/debug.log
       # Exclude themes default
       - /var/www/html/wp-content/themes/twentytwentyone/
       - /var/www/html/wp-content/themes/twentytwentytwo/
@@ -27,6 +28,7 @@ services:
       WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
       WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
       WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
+      WORDPRESS_DEBUG: ${WORDPRESS_DEBUG}
       WORDPRESS_CONFIG_EXTRA: ${WORDPRESS_CONFIG_EXTRA}
       APACHE_RUN_USER: www-data
       APACHE_RUN_GROUP: www-data

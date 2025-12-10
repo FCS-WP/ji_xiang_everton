@@ -5,6 +5,8 @@ namespace ADP\BaseVersion\Includes;
 use ADP\BaseVersion\Includes\CartProcessor\CartProcessor;
 use ADP\BaseVersion\Includes\CartProcessor\FreeAutoAddItemsController;
 use ADP\BaseVersion\Includes\Compatibility\CTXFeedCmp;
+use ADP\BaseVersion\Includes\Compatibility\GermanMarketCmp;
+use ADP\BaseVersion\Includes\Compatibility\KlarnaCmp;
 use ADP\BaseVersion\Includes\Compatibility\SmartCouponsCmp;
 use ADP\BaseVersion\Includes\Compatibility\WcSubscriptionsCmp;
 use ADP\BaseVersion\Includes\Compatibility\WcQuoteCmp;
@@ -74,10 +76,11 @@ class Engine
         } elseif ($this->context->getOption("process_product_strategy") === "after") {
             $this->productProcessor = new InCartWcProductProcessor();
         } else {
+            //phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             throw new \Exception("Missing process product strategy for value: " . $this->context->getOption("process_product_strategy"));
         }
 
-        $this->priceDisplay              = Factory::get('PriceDisplay_PriceDisplay', $this->productProcessor);
+        $this->priceDisplay              = Factory::get('PriceDisplay_PriceDisplay', $this->productProcessor, $this);
         $this->cartItemDisplayExtensions = Factory::get('WC_WcCartItemDisplayExtensions');
         $this->profiler                  = Factory::get(
             "Debug_CalculationProfiler",
@@ -99,6 +102,11 @@ class Engine
         $wcQuoteCmp = new WcQuoteCmp();
         if ($wcQuoteCmp->isActive()) {
             $wcQuoteCmp->prepareHooks();
+        }
+
+        $germanMarket = new GermanMarketCmp();
+        if ($germanMarket->isActive()) {
+            $germanMarket->prepareHooks();
         }
     }
 
@@ -137,7 +145,7 @@ class Engine
     public function installCartProcessAction()
     {
         add_action('wp_loaded', array($this, 'firstTimeProcessCart'), 15);
-        $this->cartProcessor->installActionFirstProcess();
+        $this->cartProcessor->installActionFirstProcess(true);
     }
 
     public function installProductProcessorWithEmptyCart()
@@ -163,7 +171,12 @@ class Engine
 
         $this->process(true);
 
-        $hookPriority = intval(apply_filters('wdp_calculate_totals_hook_priority', PHP_INT_MAX));
+        $klarnaCmp = new KlarnaCmp();
+        if($klarnaCmp->isActive()){
+            $hookPriority = intval(apply_filters('wdp_calculate_totals_hook_priority', 999998));
+        } else {
+            $hookPriority = intval(apply_filters('wdp_calculate_totals_hook_priority', PHP_INT_MAX));
+        }
         add_action('woocommerce_after_calculate_totals', array($this, 'afterCalculateTotals'), $hookPriority);
 
         /**
@@ -172,7 +185,7 @@ class Engine
         add_action('woocommerce_checkout_process', function () {
             $context = $this->context;
             $context->setProps(array($context::WC_CHECKOUT_PAGE => true));
-            $this->process();
+//            $this->process();
         }, PHP_INT_MAX);
 
         /**
@@ -185,6 +198,7 @@ class Engine
                 $context->setProps(array($context::WC_CHECKOUT_PAGE => true));
             }, PHP_INT_MAX);
         }
+
     }
 
     public function process($first = false)

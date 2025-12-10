@@ -62,8 +62,18 @@ class CartTotals
 
             if ($item->isPriceChanged()) {
                 $price = $item->getTotalPrice();
+
+                if($product->is_on_sale('edit') && 'compare_discounted_and_sale' === $context->getOption('discount_for_onsale')) {
+                    $salePrice = (float)$product->get_sale_price('edit') * $item->getQty();
+                    $price = min([$price, $salePrice]);
+                }
             } else {
-                $price = $product->is_on_sale('edit') ? (float)$product->get_sale_price('edit') : $item->getPrice();
+                $facade    = $item->getWcItem();
+                if($facade->getNewPrice() !== null) {
+                    $price = $facade->getNewPrice();
+                } else {
+                    $price = $product->is_on_sale('edit') ? (float)$product->get_sale_price('edit') : $item->getPrice();
+                }
                 $price *= $item->getQty();
             }
 
@@ -131,10 +141,10 @@ class CartTotals
                 }
             }
 
-            $itemsSubtotals += $subtotal;
+            $itemsSubtotals += wc_round_tax_total($subtotal);
 
             if ($inclTax) {
-                $itemsSubtotals += $subtotal_tax;
+                $itemsSubtotals += wc_round_tax_total($subtotal_tax);
             }
         }
 
@@ -166,7 +176,12 @@ class CartTotals
             if ($item->isPriceChanged()) {
                 $price = $item->getTotalPrice();
             } else {
-                $price = $product->is_on_sale('edit') ? (float)$product->get_sale_price('edit') : $item->getPrice();
+                $facade    = $item->getWcItem();
+                if($facade->getNewPrice() !== null) {
+                    $price = $facade->getNewPrice();
+                } else {
+                    $price = $product->is_on_sale('edit') ? (float)$product->get_sale_price('edit') : $item->getPrice();
+                }
                 $price *= $item->getQty();
             }
 
@@ -229,10 +244,10 @@ class CartTotals
                 }
             }
 
-            $itemsSubtotals += $subtotal;
+            $itemsSubtotals += wc_round_tax_total($subtotal);
 
             if ($inclTax) {
-                $itemsSubtotals += $subtotal_tax;
+                $itemsSubtotals += wc_round_tax_total($subtotal_tax);
             }
         }
 
@@ -242,7 +257,7 @@ class CartTotals
     protected static function roundLineTax($value, $in_cents = true)
     {
         if ( ! self::roundAtSubtotal()) {
-            $value = wc_round_tax_total($value, $in_cents ? 0 : null);
+            $value = wc_round_tax_total($value, $in_cents ? null : 0);
         }
 
         return $value;
@@ -315,9 +330,11 @@ class CartTotals
         $coupons = $this->getCouponsFromCart();
         $discounts = new \WC_Discounts(WC()->cart);
         $discounts->set_items($items);
+        add_filter("adp_get_price_html_is_mod_needed","__return_false");
         foreach ($coupons as $coupon) {
             $discounts->apply_coupon($coupon);
         }
+        remove_filter("adp_get_price_html_is_mod_needed","__return_false");
         $couponDiscountAmountTotal = array_sum($discounts->get_discounts_by_coupon(false));
 
         foreach ($this->cart->getCoupons() as $coupon) {
@@ -341,10 +358,15 @@ class CartTotals
             return array();
         }
         $tax_class = $item->product->get_tax_class();
-        $item_tax_rates = isset($this->item_tax_rates[$tax_class]) ? $this->item_tax_rates[$tax_class] : $this->item_tax_rates[$tax_class] = \WC_Tax::get_rates(
-            $item->product->get_tax_class(),
-            WC()->cart->get_customer()
-        );
+
+        $item_tax_rates = array();
+
+        if (isset($this->item_tax_rates)) {
+            $item_tax_rates = $this->item_tax_rates[$tax_class] ?? $this->item_tax_rates[$tax_class] = \WC_Tax::get_rates(
+                $item->product->get_tax_class(),
+                WC()->cart->get_customer()
+            );
+        }
 
         // Allow plugins to filter item tax rates.
 //        return apply_filters( 'woocommerce_cart_totals_get_item_tax_rates', $item_tax_rates, $item, $this->cart );
