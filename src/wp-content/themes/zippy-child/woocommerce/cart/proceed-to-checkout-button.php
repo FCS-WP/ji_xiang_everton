@@ -31,16 +31,9 @@ $minimum_order = floatval(get_option('minimum_order', true));
 <?php else: ?>
 	<?php
 	$order_date = !empty(WC()->session->get('date')) ? WC()->session->get('date') : '';
-
-	$time_slot = WC()->session->get('time');
-
-	if (!empty($time_slot) && !empty($time_slot['from']) && !empty($time_slot['to'])) {
-		$order_time = $time_slot['from'] . ' - ' . $time_slot['to'];
-	} else {
-		$order_time = '';
-	}
+	$order_time = !empty(WC()->session->get('time')['from']) ? WC()->session->get('time')[''] : '';
 	?>
-	<?php $order_text = sprintf('Proceed to Checkout Page<br>Order for %s %s', format_date_DdMY($order_date), $order_time);
+	<?php $order_text = sprintf('Proceed to Checkout Page<br>Order for %s %s', format_date_DdMY($order_date),	$order_time);
 	?>
 	<a href="<?php echo esc_url(wc_get_checkout_url()); ?>" class="button checkout wc-forward button-checkout-minicart"><?php echo $order_text; ?></a>
 
