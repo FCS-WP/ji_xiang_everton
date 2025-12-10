@@ -37,7 +37,7 @@ abstract class BaseEnum
      *
      * @throws UnexpectedValueException|ReflectionException if incompatible type is given.
      */
-    public function __construct($value = null)
+    final public function __construct($value = null)
     {
         if ($value instanceof static) {
             $value = $value->getValue();

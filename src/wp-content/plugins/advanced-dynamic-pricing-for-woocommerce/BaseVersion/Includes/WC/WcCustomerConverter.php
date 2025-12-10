@@ -60,6 +60,7 @@ class WcCustomerConverter
                 || $context->is($context::WC_CHECKOUT_PAGE)
                 || $context->is($context::WC_CART_PAGE)
                 || ! $context->isCatalog()
+                || $context->isWCStoreAPIRequest()
             ) {
                 $customer->setSelectedShippingMethods($wcSessionFacade->getChosenShippingMethods());
             }

@@ -2,7 +2,7 @@
 
 namespace ADP\BaseVersion\Includes\WC;
 
-use ADP\BaseVersion\Includes\Compatibility\TmExtraOptionsCmp;
+use ADP\BaseVersion\Includes\Compatibility\Addons\TmExtraOptionsCmp;
 use ADP\BaseVersion\Includes\Compatibility\WcSubscriptionsCmp;
 use ADP\BaseVersion\Includes\Compatibility\BeRocketMinMaxQuantitiesCmp;
 use ADP\BaseVersion\Includes\Context;
@@ -104,6 +104,7 @@ class WcNoFilterWorker
         $variation,
         array $cartItemData = array()
     ) {
+        $context = adp_context();
         global $wp_filter;
         remove_action('woocommerce_add_to_cart', array(WC()->cart, 'calculate_totals'), 20);
         remove_action('woocommerce_add_to_cart', array($wcCart, 'calculate_totals'), 20);
@@ -111,7 +112,7 @@ class WcNoFilterWorker
         $tmp_filters = array();
         $filters     = array('woocommerce_add_to_cart');
 
-        $tmExtraOptCmp = new TmExtraOptionsCmp();
+        $tmExtraOptCmp = new TmExtraOptionsCmp($context);
         if ($tmExtraOptCmp->isActive()) {
             $filters[] = 'woocommerce_add_cart_item_data';
         }

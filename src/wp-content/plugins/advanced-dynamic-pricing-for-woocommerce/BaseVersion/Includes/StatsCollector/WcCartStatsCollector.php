@@ -68,7 +68,7 @@ class WcCartStatsCollector
     public function setActionCheckoutOrderProcessed()
     {
         add_action('woocommerce_checkout_order_processed', array($this, 'checkoutOrderProcessed'), 10, 3);
-        add_action(
+        add_filter(
             'woocommerce_checkout_create_order_line_item_object',
             array($this, 'saveInitialPriceToOrderItem'),
             10,
@@ -87,7 +87,7 @@ class WcCartStatsCollector
     public function unsetActionCheckoutOrderProcessed()
     {
         remove_action('woocommerce_checkout_order_processed', array($this, 'checkoutOrderProcessed'), 10);
-        remove_action(
+        remove_filter(
             'woocommerce_checkout_create_order_line_item_object',
             array($this, 'saveInitialPriceToOrderItem'),
             10

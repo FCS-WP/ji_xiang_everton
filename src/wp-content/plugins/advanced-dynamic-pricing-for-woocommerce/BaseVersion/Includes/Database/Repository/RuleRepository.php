@@ -8,6 +8,60 @@ use ADP\BaseVersion\Includes\Helpers\Helpers;
 use ADP\ProVersion\Includes\Core\Rule\CartCondition\Impl\ShippingState;
 
 class RuleRepository implements RuleRepositoryInterface {
+
+    /**
+     * @return bool
+     */
+    public function hasActiveRulesWithBadges(): bool
+    {
+        global $wpdb;
+        $table = $wpdb->prefix . Rule::TABLE_NAME;
+
+        $sql = "SELECT COUNT(*) FROM $table WHERE `advertising` NOT LIKE \"a:0:{}\" AND NOT deleted AND enabled  LIMIT 1";
+        $count = $wpdb->get_var($sql);
+        return $count>0;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasActiveRulesDependOnShipping(): bool
+    {
+        global $wpdb;
+        $table = $wpdb->prefix . Rule::TABLE_NAME;
+
+        $sql = "SELECT COUNT(*) FROM $table WHERE `conditions` LIKE \"%shipping%\" AND NOT deleted AND enabled  LIMIT 1";
+        $count = $wpdb->get_var($sql);
+        return $count>0;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasActiveRulesWithLimits(): bool
+    {
+        global $wpdb;
+        $table = $wpdb->prefix . Rule::TABLE_NAME;
+
+        $sql = "SELECT COUNT(*) FROM $table WHERE `limits` NOT LIKE \"a:0:{}\" AND NOT deleted AND enabled  LIMIT 1";
+        $count = $wpdb->get_var($sql);
+        return $count>0;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasActiveRulesWithCompexCartDiscounts(): bool
+    {
+        global $wpdb;
+        $table = $wpdb->prefix . Rule::TABLE_NAME;
+
+        $sql = "SELECT COUNT(*) FROM $table WHERE (`cart_adjustments` LIKE \"%discount_repeatable%\" OR `cart_adjustments` LIKE \"%fee_repeatable%\") AND NOT deleted AND enabled LIMIT 1";
+        $count = $wpdb->get_var($sql);
+        return $count>0;
+    }
+
+
     /**
      * @return array
      */
@@ -29,19 +83,19 @@ class RuleRepository implements RuleRepositoryInterface {
                 'exclusive'                => $item->exclusive,
                 'priority'                 => $item->priority,
                 'enabled'                  => $item->enabled,
-                'options'                  => unserialize($item->options),
-                'additional'               => unserialize($item->additional),
-                'conditions'               => unserialize($item->conditions),
-                'filters'                  => unserialize($item->filters),
-                'limits'                   => unserialize($item->limits),
-                'product_adjustments'      => unserialize($item->product_adjustments),
-                'sortable_blocks_priority' => unserialize($item->sortable_blocks_priority),
-                'bulk_adjustments'         => unserialize($item->bulk_adjustments),
-                'role_discounts'           => unserialize($item->role_discounts),
-                'cart_adjustments'         => unserialize($item->cart_adjustments),
-                'get_products'             => unserialize($item->get_products),
-                'advertising'              => unserialize($item->advertising),
-                'condition_message'        => unserialize($item->condition_message),
+                'options'                  => unserialize($item->options ?? ""),
+                'additional'               => unserialize($item->additional ?? ""),
+                'conditions'               => unserialize($item->conditions ?? ""),
+                'filters'                  => unserialize($item->filters ?? ""),
+                'limits'                   => unserialize($item->limits ?? ""),
+                'product_adjustments'      => unserialize($item->product_adjustments ?? ""),
+                'sortable_blocks_priority' => unserialize($item->sortable_blocks_priority ?? ""),
+                'bulk_adjustments'         => unserialize($item->bulk_adjustments ?? ""),
+                'role_discounts'           => unserialize($item->role_discounts ?? ""),
+                'cart_adjustments'         => unserialize($item->cart_adjustments ?? ""),
+                'get_products'             => unserialize($item->get_products ?? ""),
+                'advertising'              => unserialize($item->advertising ?? ""),
+                'condition_message'        => unserialize($item->condition_message ?? ""),
             );
             return self::decodeArrayTextFields($result);
         }, $rows);
@@ -362,6 +416,8 @@ class RuleRepository implements RuleRepositoryInterface {
                 }
             }
 
+            $row = apply_filters("adp_raw_rule", $row);
+
             $rules[] = Rule::fromArray($row);
         }
 
@@ -587,7 +643,7 @@ class RuleRepository implements RuleRepositoryInterface {
         /**
          * @var Rule $rule
          */
-        foreach ($rules as $rule) {            
+        foreach ($rules as $rule) {
             if (isset($rule->conditions) && !empty($rule->conditions)) {
                 $conditions = $rule->conditions;
             } else {
@@ -669,7 +725,7 @@ class RuleRepository implements RuleRepositoryInterface {
               AND `filters` LIKE %s
               AND `filters` NOT LIKE %s
               AND `cart_adjustments` = %s
-              AND (`bulk_adjustments` = %s OR `bulk_adjustments` LIKE %s OR
+              AND (`bulk_adjustments` = %s OR `bulk_adjustments` LIKE %s OR `bulk_adjustments` LIKE %s OR
                    `bulk_adjustments` = %s OR `bulk_adjustments` = %s OR
                    `bulk_adjustments` IS NULL)
         ",
@@ -680,7 +736,8 @@ class RuleRepository implements RuleRepositoryInterface {
             '%s:4:"type";s:3:"any";%', // not any product
             'a:0:{}',
             'a:2:{s:4:"type";s:4:"bulk";s:13:"table_message";s:0:"";}', //no bulk
-            '%s:4:"type";s:4:"bulk";s:9:"qty_based";s:3:"all";%', //bulk with qty based on all matched products
+            '%s:4:"type";s:4:"bulk";%s:9:"qty_based";s:3:"all";%', //bulk with qty based on all matched products
+            '%s:4:"type";s:4:"bulk";%s:9:"qty_based";s:3:"not";%', //bulk with qty based on all matched products if import from csv
             'a:1:{s:13:"table_message";s:0:"";}', //TODO: prevent rules to save bulk like this
             'a:0:{}' //for pre-4.0.0 imported rules with no bulk
         );

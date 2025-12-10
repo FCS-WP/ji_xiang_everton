@@ -2,6 +2,8 @@
 
 namespace ADP\BaseVersion\Includes\WC;
 
+use ADP\BaseVersion\Includes\Functions;
+
 class Utils
 {
     /**
@@ -60,5 +62,23 @@ class Utils
             }
         }
         wc_set_notices($newNotices);
+    }
+
+    public static function addPersistentProductsToSaleQuery() {
+        add_filter('woocommerce_shortcode_products_query', function($query_args, $atts, $type) {
+            // Check if the shortcode is sale_products
+            if ($type === 'sale_products') {
+                $salePriceAdpProductIds = Functions::getInstance()->getProductsWithSalePriceAdp();
+
+                // Merge the product IDs with the existing post__in array if it exists
+                if (!empty($query_args['post__in'])) {
+                    $query_args['post__in'] = array_unique(array_merge($query_args['post__in'], $salePriceAdpProductIds));
+                } else {
+                    $query_args['post__in'] = $salePriceAdpProductIds;
+                }
+            }
+
+            return $query_args;
+        }, 10, 3);
     }
 }

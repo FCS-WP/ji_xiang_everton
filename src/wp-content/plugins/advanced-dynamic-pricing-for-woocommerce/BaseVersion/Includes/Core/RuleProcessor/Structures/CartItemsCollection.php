@@ -125,6 +125,16 @@ class CartItemsCollection
         return $totalQty;
     }
 
+    public function getTotalSum()
+    {
+        $totalSum = 0;
+        foreach ($this->items as $item) {
+            $totalSum += $item->getTotalPrice();
+        }
+
+        return $totalSum;
+    }
+
     /**
      * @param string $hash
      *

@@ -124,6 +124,7 @@ class Order
             'rule_id'          => $this->ruleId,
             'amount'           => $this->amount,
             'extra'            => $this->extra,
+            'qty'              => $this->qty,
             'shipping'         => $this->shipping,
             'is_free_shipping' => intval($this->isFreeShipping),
             'gifted_amount'    => $this->giftedAmount,

@@ -15,6 +15,7 @@ class AdminNotice
     const disabledRulesOption = 'wdp_rules_disabled_notify';
     const dismissedPersistenceRulesNoticeOption = 'wdp_dismissed_persistence_rules_notice';
     const persistenceRulesNoticeThreshold = 30;
+    const dismissedNoticeOption = 'wdp_dismissed_notice_';
 
     /**
      * @var Context
@@ -40,16 +41,36 @@ class AdminNotice
             }
         }
 
+        if (isset($_GET['wp-']) && $_GET['page'] == 'wdp_settings') {
+            if (isset($_GET['from_enable_persistence_rules_notice'])) {
+                $this->dismissPersistenceRulesNotice();
+            }
+        }
+
         add_action('admin_notices', array($this, 'displayPluginActivatedMessage'));
         add_action('admin_notices', array($this, 'notifyRuleDisabled'), 10);
 //        add_action('admin_notices', array($this, 'notifyCouponsDisabled'), 10);
         add_action('admin_notices', array($this, 'notifyAboutPersistenceRules'), 10);
+
+        add_action('wp_ajax_adp_notice_dismiss', array( $this, 'noticeDismiss'));
     }
 
     public static function cleanUp()
     {
         delete_option(self::activationNoticeOption);
         delete_option(self::disabledRulesOption);
+    }
+
+    public static function isDismissedNotice($key)
+    {
+        return get_option(self::dismissedNoticeOption.$key, false);
+    }
+
+    public function noticeDismiss()
+    {
+        $key = htmlspecialchars($_POST['key'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
+        update_option(self::dismissedNoticeOption.$key, true);
+        wp_send_json_success();
     }
 
     public function addActivationNotice()
@@ -206,7 +227,7 @@ class AdminNotice
 
     public function notifyAboutPersistenceRules()
     {
-        if ($this->isDismissedPersistenceRulesNotice()) {
+        if ($this->isDismissedPersistenceRulesNotice() || !(isset($_GET['page']) && $_GET['page'] == 'wdp_settings')) {
           return;
         }
 
@@ -223,7 +244,7 @@ class AdminNotice
         <div class="notice notice-success is-dismissible">
             <p>
                 <?php
-                printf( 
+                printf(
                     __( 'You have more than %s rules. You need to ', 'advanced-dynamic-pricing-for-woocommerce')
                         .'<a href="%s">' .__('enable the "Product only" rules', 'advanced-dynamic-pricing-for-woocommerce').'</a>',
                     self::persistenceRulesNoticeThreshold, $ruleEditUrl);

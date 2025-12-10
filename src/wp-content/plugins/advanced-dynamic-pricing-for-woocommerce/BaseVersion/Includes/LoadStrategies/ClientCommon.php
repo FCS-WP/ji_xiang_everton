@@ -21,9 +21,10 @@ use ADP\BaseVersion\Includes\Shortcodes\OnSaleProducts as OnSaleProductsShortCod
 use ADP\BaseVersion\Includes\Shortcodes\ProductRangeDiscountTableShortcode;
 use ADP\BaseVersion\Includes\StatsCollector\WcCartStatsCollector;
 use ADP\BaseVersion\Includes\VolumePricingTable\RangeDiscountTableDisplay;
+use ADP\BaseVersion\Includes\WC\Utils;
 use ADP\BaseVersion\Includes\WC\WcProductCustomAttributesCache;
 use ADP\Factory;
-use ADP\BaseVersion\Includes\Compatibility\WcffCmp;
+use ADP\BaseVersion\Includes\Compatibility\Addons\WcffCmp;
 
 defined('ABSPATH') or exit;
 
@@ -67,9 +68,9 @@ class ClientCommon implements LoadStrategy
 
         $this->engine = $engine;
 
-        $discountTable = new RangeDiscountTableDisplay($customizer);
-        ProductRangeDiscountTableShortcode::register($customizer);
-        CategoryRangeDiscountTableShortcode::register($customizer);
+        $discountTable = new RangeDiscountTableDisplay($customizer, $engine);
+        ProductRangeDiscountTableShortcode::register($customizer, $engine);
+        CategoryRangeDiscountTableShortcode::register($customizer, $engine);
 
         $customizer->register();
 
@@ -120,6 +121,8 @@ class ClientCommon implements LoadStrategy
 
         $wcffCmp = new WcffCmp();
         $wcffCmp->installRenderHooks();
+
+        Utils::addPersistentProductsToSaleQuery();
     }
 
     /**

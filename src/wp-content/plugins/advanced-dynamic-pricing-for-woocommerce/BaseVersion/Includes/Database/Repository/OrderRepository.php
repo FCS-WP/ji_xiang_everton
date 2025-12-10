@@ -115,4 +115,64 @@ class OrderRepository implements OrderRepositoryInterface {
 
         return (integer)$value;
     }
+
+    /**
+     * @param int $ruleId
+     * @param array $data
+     * @return int
+     */
+    public function getCountOfRuleUsagesPerCustomerData(int $ruleId, array $data): int
+    {
+        global $wpdb;
+
+        $tableOrderRules = $wpdb->prefix . Order::TABLE_NAME;
+
+        // must ignore draft orders created by blocks-based cart
+        $existing_orders_statuses = wc_get_order_statuses();
+        if(isset($existing_orders_statuses['wc-checkout-draft']))
+            unset($existing_orders_statuses['wc-checkout-draft']);
+
+        $customerOrdersIds = [];
+
+        //email ?
+        if( !empty($data['customer_email']) ) {
+            $args = array(
+                'billing_email' => $data['customer_email'],
+                'return'      => 'ids',
+                'numberposts' => -1,
+                'post_type'   => wc_get_order_types(),
+                'post_status' => array_keys($existing_orders_statuses),
+            );
+            $customerOrdersIds = wc_get_orders($args);
+        }
+
+        //got full address?
+        $args = array_filter( array(
+            'billing_first_name' => $data['customer_first_name'] ?? null,
+            'billing_last_name' => $data['customer_last_name'] ?? null,
+            'billing_address_1' => $data['customer_address_1'] ?? null,
+            'billing_city' => $data['customer_city'] ?? null,
+            'billing_state' => $data['customer_state'] ?? null,
+            'billing_postcode' => $data['customer_zip'] ?? null,
+        ));
+        if( count($args) == 6) {
+            $args = array_merge( $args, array(
+            'billing_address_2' => $data['customer_address_2'] ?? null,
+            'return'      => 'ids',
+            'numberposts' => -1,
+            'post_type'   => wc_get_order_types(),
+            'post_status' => array_keys($existing_orders_statuses),
+            ));
+            $customerOrdersIds = array_merge( $customerOrdersIds, wc_get_orders($args) );
+        }
+
+        if (empty($customerOrdersIds)) {
+            return 0;
+        }
+
+        $value = $wpdb->get_var("SELECT COUNT(*) FROM {$tableOrderRules}
+		            WHERE rule_id = $ruleId  AND order_id IN (" . implode(',', $customerOrdersIds) . ")");
+
+        return (integer)$value;
+    }
 }

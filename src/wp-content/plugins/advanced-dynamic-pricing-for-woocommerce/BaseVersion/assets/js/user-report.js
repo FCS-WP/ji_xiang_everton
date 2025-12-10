@@ -939,6 +939,14 @@ var wdp_reporter = {
             if (h >= resizerHeight && h <= maxheight) {
                 wdp_reporter.container.height(h);
             }
+
+            if (h <= jQuery('#wdp-report-control-bar').height() + 10) {
+                jQuery('#wdp-arrow-report-down').removeClass('dashicons-arrow-down-alt2').addClass('dashicons-arrow-up-alt2');
+                localStorage.setItem('downOrUpReport', JSON.stringify(false));
+            } else {
+                jQuery('#wdp-arrow-report-down').removeClass('dashicons-arrow-up-alt2').addClass('dashicons-arrow-down-alt2');
+                localStorage.setItem('downOrUpReport', JSON.stringify(true));
+            }
         }
 
         function stop_resizer_drag(event) {
@@ -946,15 +954,81 @@ var wdp_reporter = {
             jQuery(document).off('mouseup', stop_resizer_drag);
         }
 
+        /** Taking information about the debug report opening status and checking for its existence */
+        var openOrCloseReport = localStorage.getItem('openOrCloseReport');
+
+        if (openOrCloseReport === null) {
+            openOrCloseReport = false;
+            jQuery('#wdp-icon-report').hide();
+        } else {
+            openOrCloseReport = JSON.parse(openOrCloseReport);
+
+            /** Depending on the variable, the display is debug */
+            if(openOrCloseReport == false){
+                wdp_reporter.container.show();
+                jQuery('#wdp-icon-report').hide();
+            } else {
+                wdp_reporter.container.hide();
+                jQuery('#wdp-icon-report').show();
+            }
+        }
+
+        /** Registering a variable in localstorage */
         /** Close handle */
         wdp_reporter.container.on('click', '#wdp-report-window-close .dashicons', function (event) {
             wdp_reporter.container.hide();
+            localStorage.setItem('openOrCloseReport', JSON.stringify(true));
+            localStorage.setItem('downOrUpReport', JSON.stringify(true));
+            jQuery('#wdp-arrow-report-down').removeClass('dashicons-arrow-up-alt2').addClass('dashicons-arrow-down-alt2');
+            jQuery('#wdp-icon-report').show();
         });
 
         /** Open handle */
-        jQuery('#wp-toolbar').find('.wdp-report-visibility-control').click(function (e) {
+        jQuery('#wdp-icon-report').click(function (e) {
+            jQuery('#wdp-icon-report').hide();
             wdp_reporter.container.show();
+            localStorage.setItem('openOrCloseReport', JSON.stringify(false));
+
+            if (JSON.parse(localStorage.getItem('downOrUpReport'))) {
+                wdp_reporter.container.height(window.innerHeight / 2);
+            } else {
+                wdp_reporter.container.height(jQuery('#wdp-report-control-bar').height());
+            }
         });
+
+        /** Taking a variable that stores information about the status of hiding the curtain down */
+        var downOrUpReport = localStorage.getItem('downOrUpReport');
+
+        if (downOrUpReport === null) {
+            downOrUpReport = true;
+        } else {
+
+            downOrUpReport = JSON.parse(downOrUpReport);
+
+            /** Hiding or opening debug */
+            if(downOrUpReport == false){
+                wdp_reporter.container.height(jQuery('#wdp-report-control-bar').height());
+                jQuery('#wdp-arrow-report-down').removeClass('dashicons-arrow-down-alt2').addClass('dashicons-arrow-up-alt2');
+            }else {
+                wdp_reporter.container.height(window.innerHeight / 2);
+                jQuery('#wdp-arrow-report-down').removeClass('dashicons-arrow-up-alt2').addClass('dashicons-arrow-down-alt2');
+            }
+        }
+
+        /** Processing of clicking on the arrow to hide or open the degub curtain */
+        jQuery(document).on('click', '#wdp-arrow-report', function() {
+
+            if (jQuery('#wdp-arrow-report-down').hasClass('dashicons-arrow-down-alt2')) {
+                wdp_reporter.container.height(jQuery('#wdp-report-control-bar').height());
+                jQuery('#wdp-arrow-report-down').removeClass('dashicons-arrow-down-alt2').addClass('dashicons-arrow-up-alt2');
+                localStorage.setItem('downOrUpReport', JSON.stringify(false));
+            } else {
+                wdp_reporter.container.height(window.innerHeight / 2);
+                jQuery('#wdp-arrow-report-down').removeClass('dashicons-arrow-up-alt2').addClass('dashicons-arrow-down-alt2');
+                localStorage.setItem('downOrUpReport', JSON.stringify(true));
+            }
+        });
+
     },
 
 };

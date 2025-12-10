@@ -38,7 +38,7 @@ class FeeAmountRepeatable extends AbstractCartAdjustment implements FeeCartAdj, 
 
     public static function getLabel()
     {
-        return __('Add fixed fee on each rule execution', 'advanced-dynamic-pricing-for-woocommerce');
+        return __('Add fixed fee on each rule execution *', 'advanced-dynamic-pricing-for-woocommerce');
     }
 
     public static function getTemplatePath()

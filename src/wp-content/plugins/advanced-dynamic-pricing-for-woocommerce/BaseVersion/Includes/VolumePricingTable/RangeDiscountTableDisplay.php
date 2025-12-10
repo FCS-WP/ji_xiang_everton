@@ -3,6 +3,7 @@
 namespace ADP\BaseVersion\Includes\VolumePricingTable;
 
 use ADP\BaseVersion\Includes\Context;
+use ADP\BaseVersion\Includes\Engine;
 use ADP\BaseVersion\Includes\CustomizerExtensions\CustomizerExtensions;
 use ADP\BaseVersion\Includes\Database\Repository\PersistentRuleRepository;
 use ADP\BaseVersion\Includes\Database\Repository\RuleRepository;
@@ -18,6 +19,11 @@ class RangeDiscountTableDisplay
     protected $context;
 
     /**
+     * @var Engine
+     */
+    protected $engine;
+
+    /**
      * @var CustomizerExtensions
      */
     protected $customizer;
@@ -31,11 +37,12 @@ class RangeDiscountTableDisplay
      * @param Context|CustomizerExtensions $contextOrCustomizer
      * @param null $deprecated
      */
-    public function __construct($contextOrCustomizer, $deprecated = null)
+    public function __construct($contextOrCustomizer, $customizerOrEngine, $deprecated = null)
     {
         $this->context            = adp_context();
-        $this->customizer         = $contextOrCustomizer instanceof CustomizerExtensions ? $contextOrCustomizer : $deprecated;
-        $this->rangeDiscountTable = Factory::get("VolumePricingTable_RangeDiscountTable", $this->customizer);
+        $this->customizer         = $contextOrCustomizer instanceof CustomizerExtensions ? $contextOrCustomizer : $customizerOrEngine;
+        $this->engine             = $customizerOrEngine instanceof Engine ? $customizerOrEngine : $deprecated;
+        $this->rangeDiscountTable = Factory::get("VolumePricingTable_RangeDiscountTable", $this->customizer, $this->engine);
     }
 
     public function withContext(Context $context)
@@ -51,7 +58,7 @@ class RangeDiscountTableDisplay
                 $actions = array($themeOptions->productBulkTable->options->tablePositionAction);
 
                 foreach (apply_filters('wdp_product_bulk_table_action', $actions) as $action) {
-                    add_action($action, array($this, 'echoProductTableContent'), 50, 2);
+                    add_action($action, array($this, 'echoProductTableContent'), 50, 0);
                 }
             }
 
@@ -59,7 +66,7 @@ class RangeDiscountTableDisplay
                 $actions = array($themeOptions->categoryBulkTable->options->tablePositionAction);
 
                 foreach (apply_filters('wdp_category_bulk_table_action', $actions) as $action) {
-                    add_action($action, array($this, 'echoCategoryTableContent'), 50, 2);
+                    add_action($action, array($this, 'echoCategoryTableContent'), 50, 0);
                 }
             }
 
@@ -79,16 +86,16 @@ class RangeDiscountTableDisplay
         echo $this->getProductTableContent($product);
     }
 
-    public function getProductTableContent($product): string
+    public function getProductTableContent($product, $ruleId = null): string
     {
         if ($product instanceof \WC_Product_Variable) {
-            return $this->getTableContentWithDefaultVariation($product);
+            return $this->getTableContentWithDefaultVariation($product, $ruleId);
         } else {
-            return $this->rangeDiscountTable->getProductTableContent($product);
+            return $this->rangeDiscountTable->getProductTableContent($product, [], $ruleId);
         }
     }
 
-    protected function getTableContentWithDefaultVariation(\WC_Product_Variable $product): string
+    protected function getTableContentWithDefaultVariation(\WC_Product_Variable $product, $ruleId = null): string
     {
         $attributes = [];
         foreach ($product->get_variation_attributes() as $attrName => $options) {
@@ -97,7 +104,7 @@ class RangeDiscountTableDisplay
 
         $variationId = \WC_Data_Store::load('product')->find_matching_product_variation($product, $attributes);
 
-        return $this->rangeDiscountTable->getProductTableContent($variationId, $attributes);
+        return $this->rangeDiscountTable->getProductTableContent($variationId, $attributes, $ruleId);
     }
 
     public function echoCategoryTableContent()

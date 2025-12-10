@@ -61,6 +61,7 @@ class AdminPageFilterTitles
             'giftable_categories'   => array(),
             'auto_add_products'     => array(),
             'product_tags'          => array(),
+            'product_brand'         => array(),
             'product_categories'    => array(),
             'product_category_slug' => array(),
             'product_attributes'    => array(),
@@ -73,7 +74,7 @@ class AdminPageFilterTitles
             'subscriptions'         => array(),
             'rules_list'            => array(),
         );
-        foreach (array_keys(Helpers::getCustomProductTaxonomies()) as $taxName) {
+        foreach (array_keys(Helpers::getCustomProductTaxonomies(true)) as $taxName) {
             $filtersByType[$taxName] = array();
         }
 
@@ -118,6 +119,9 @@ class AdminPageFilterTitles
 
                     $type = "giftable_products";
                     if ($giftMode === "allow_to_choose_from_product_cat") {
+                        $type = "giftable_categories";
+                    }
+                    if ($giftMode === "require_to_choose_from_product_cat") {
                         $type = "giftable_categories";
                     }
 
@@ -282,13 +286,19 @@ class AdminPageFilterTitles
         // type 'product_tags'
         $result['product_tags'] = array();
         foreach ($filtersByType['product_tags'] as $id) {
-            $result['product_tags'][$id] = Helpers::getTagTitle($id);
+            $result['product_tags'][$id] = '#' . $id . ' ' . Helpers::getTagTitle($id);
+        }
+
+        // type 'product_brand'
+        $result['product_brand'] = array();
+        foreach ($filtersByType['product_brand'] as $id) {
+            $result['product_brand'][$id] = '#' . $id . ' ' . Helpers::getCategoryTitle($id);
         }
 
         // type 'product_categories'
         $result['product_categories'] = array();
         foreach ($filtersByType['product_categories'] as $id) {
-            $result['product_categories'][$id] = Helpers::getCategoryTitle($id);
+            $result['product_categories'][$id] = '#' . $id . ' ' . Helpers::getCategoryTitle($id);
         }
 
         // type 'product_category_slug'

@@ -95,6 +95,7 @@ class ProcessedVariableProduct
         $this->usingCustomPrice               = false;
         $this->isFullyAffectedByRangeDiscount = null;
         $this->childSummary                   = array();
+        $this->children                       = array();
 
         $this->priceFunctions = new PriceFunctions();
     }

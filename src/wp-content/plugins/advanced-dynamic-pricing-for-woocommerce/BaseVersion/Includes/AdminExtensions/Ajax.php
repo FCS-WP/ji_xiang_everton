@@ -214,9 +214,11 @@ class Ajax
                 $parent    = get_term($parent_id, 'product_cat');
             }
 
+            $id = (string)$term->term_id;
+
             return array(
-                'id'   => (string)$term->term_id,
-                'text' => $parent == $term ? $term->name : $parent->name . '>' . $term->name,
+                'id'   => $id,
+                'text' => $parent == $term ? "#$id $term->name" : "#$id $parent->name>$term->name",
                 'link' => $this->context->getOption("products_as_links_in_the_product_filter", false) ? get_category_link($term->term_id) : ''
             );
         }, $terms);
@@ -283,8 +285,8 @@ AND $wpdb->terms.name  like '%$query%' LIMIT $this->limit
 
         foreach ($attributes as $attribute) {
             $pieces        = explode(":", $attribute);
-            $attributeName = sanitize_title(strtolower(trim($pieces[0])));
-            $option        = strtolower(trim($pieces[1]));
+            $attributeName = sanitize_title( strtolower(trim(array_shift($pieces))) );
+            $option        = strtolower(implode(":", $pieces));
 
             $results[] = array(
                 'id'   => "$attributeName:$option",
@@ -305,10 +307,33 @@ AND $wpdb->terms.name  like '%$query%' LIMIT $this->limit
             'number'     => $this->limit
         ));
 
+
         return array_map(function ($term) {
+            $id = (string)$term->term_id;
             return array(
-                'id'   => (string)$term->term_id,
-                'text' => $term->name,
+                'id'   => $id,
+                'text' => "#$id $term->name",
+                'link' => $this->context->getOption("products_as_links_in_the_product_filter", false) ? get_category_link($term->term_id) : ''
+            );
+        }, $terms);
+    }
+
+    public function ajax_product_brand()
+    {
+        $query = htmlspecialchars($_POST['query'] ?? "", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
+        $terms = get_terms(array(
+            'taxonomy'   => 'product_brand',
+            'name__like' => $query,
+            'hide_empty' => false,
+            'number'     => $this->limit
+        ));
+
+
+        return array_map(function ($term) {
+            $id = (string)$term->term_id;
+            return array(
+                'id'   => $id,
+                'text' => "#$id $term->name",
                 'link' => $this->context->getOption("products_as_links_in_the_product_filter", false) ? get_category_link($term->term_id) : ''
             );
         }, $terms);
@@ -543,6 +568,7 @@ WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.me
         $table = $wpdb->prefix . Rule::TABLE_NAME;
 
         $this->persistentRuleRepository->truncate();
+        $this->persistentRuleRepository->clearCacheInProductMetaData();
 
         $sql = "SELECT id FROM $table WHERE (rule_type = 'persistent' ) AND enabled = 1 AND deleted = 0";
         foreach ($wpdb->get_col($sql) as $id) {
@@ -559,6 +585,7 @@ WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.me
         $table = $wpdb->prefix . Rule::TABLE_NAME;
 
         $this->persistentRuleRepository->truncate();
+        $this->persistentRuleRepository->clearCacheInProductMetaData();
 
         $sql = "SELECT COUNT(*) FROM $table WHERE (rule_type = 'persistent' ) AND enabled = 1 AND deleted = 0";
         $totalCount = (int)($wpdb->get_var($sql));
@@ -566,42 +593,6 @@ WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.me
         wp_send_json_success(
             [
                 'count' => $totalCount,
-            ]
-        );
-    }
-
-    public function ajax_start_partial_rebuild_bogo_list()
-    {
-        $totalCount = Factory::callStaticMethod(
-            "Shortcodes_BogoProducts",
-            'cachedProductsCount',
-            $this->context
-        );
-        Factory::callStaticMethod(
-            "Shortcodes_BogoProducts",
-            'clearCache'
-        );
-        wp_send_json_success(
-            [
-                'count' => $totalCount
-            ]
-        );
-    }
-
-    public function ajax_start_partial_rebuild_onsale_list()
-    {
-        $totalCount = Factory::callStaticMethod(
-            "Shortcodes_OnSaleProducts",
-            'cachedProductsCount',
-            $this->context
-        );
-        Factory::callStaticMethod(
-            "Shortcodes_OnSaleProducts",
-            'clearCache'
-        );
-        wp_send_json_success(
-            [
-                'count' => $totalCount
             ]
         );
     }
@@ -631,36 +622,72 @@ WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.me
         wp_send_json_success(count($list));
     }
 
+    public function ajax_start_partial_rebuild_bogo_list()
+    {
+        $this->start_partial_rebuild_list('Shortcodes_BogoProducts');
+    }
+
+    public function ajax_start_partial_rebuild_onsale_list()
+    {
+        $this->start_partial_rebuild_list('Shortcodes_OnSaleProducts');
+    }
+
     public function ajax_partial_rebuild_bogo_list()
     {
-        $from = (int)($_REQUEST['from'] ?? null);
-        $count = (int)($_REQUEST['count'] ?? null);
-        try {
-            $ids = Factory::callStaticMethod(
-                "Shortcodes_BogoProducts",
-                'partialUpdateCachedProductsIds',
-                $from,
-                $count
-            );
-            wp_send_json_success(count($ids));
-        }
-        catch (\Exception $e) {
-            wp_send_json_error($e->getMessage());
-        }
+        $this->partial_rebuild_list('Shortcodes_BogoProducts');
     }
 
     public function ajax_partial_rebuild_onsale_list()
     {
-        $from = (int)($_REQUEST['from'] ?? null);
-        $count = (int)($_REQUEST['count'] ?? null);
+        $this->partial_rebuild_list('Shortcodes_OnSaleProducts');
+    }
+
+    public function ajax_admin_footer_text_rated()
+    {
+        $settings = $this->context->getSettings();
+        $settings->set('admin_footer_text_rated', true);
+        $settings->save();
+
+        wp_send_json_success();
+    }
+
+    protected function start_partial_rebuild_list($name)
+    {
+        $rules = Factory::callStaticMethod(
+            $name,
+            'getActiveRules',
+            $this->context
+        );
+        Factory::callStaticMethod(
+            $name,
+            'clearCache'
+        );
+        wp_send_json_success(
+            [
+                'count' => count($rules),
+                'rules' => $rules
+            ]
+        );
+    }
+
+    protected function partial_rebuild_list($name)
+    {
+        $ruleId = $_REQUEST['ruleId'] ?? null;
+
+        if(!$ruleId) {
+            wp_send_json_error('ruleId is required');
+        }
+
         try {
             $ids = Factory::callStaticMethod(
-                "Shortcodes_OnSaleProducts",
-                'partialUpdateCachedProductsIds',
-                $from,
-                $count
+                $name,
+                'updateCachedProductsIdsByRuleId',
+                $ruleId
             );
-            wp_send_json_success(count($ids));
+            wp_send_json_success([
+                'count' => count($ids),
+                'productIds' => $ids
+            ]);
         }
         catch (\Exception $e) {
             wp_send_json_error($e->getMessage());

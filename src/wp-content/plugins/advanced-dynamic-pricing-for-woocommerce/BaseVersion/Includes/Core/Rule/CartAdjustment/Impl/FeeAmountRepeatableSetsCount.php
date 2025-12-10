@@ -38,7 +38,7 @@ class FeeAmountRepeatableSetsCount extends AbstractCartAdjustment implements Fee
 
     public static function getLabel()
     {
-        return __('Add fixed fee to each item line affected by rule', 'advanced-dynamic-pricing-for-woocommerce');
+        return __('Add fixed fee to each item line affected by rule *', 'advanced-dynamic-pricing-for-woocommerce');
     }
 
     public static function getTemplatePath()

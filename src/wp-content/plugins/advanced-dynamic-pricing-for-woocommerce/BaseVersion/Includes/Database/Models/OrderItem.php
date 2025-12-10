@@ -21,6 +21,12 @@ class OrderItem
     /**
      * @var int
      */
+
+    public $order_item_id;
+
+    /**
+     * @var int
+     */
     public $productId;
 
     /**

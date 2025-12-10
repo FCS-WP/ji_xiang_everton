@@ -10,13 +10,13 @@ defined('ABSPATH') or exit;
  */
 ?>
 <div class="wdp-column wdp-condition-subfield wdp-condition-field-qty">
-    <input type="number" placeholder="qty" min="1" name="rule[conditions][{c}][options][<?php echo RangeValueCondition::START_RANGE_KEY ?>]" value="1">
+    <input type="number" placeholder="<?php _e('qty', 'advanced-dynamic-pricing-for-woocommerce')?>" min="1" name="rule[conditions][{c}][options][<?php echo RangeValueCondition::START_RANGE_KEY ?>]" value="1">
 </div>
 
 <div class="wdp-column wdp-condition-field-qty-separator">—</div>
 
 <div class="wdp-column wdp-condition-subfield wdp-condition-field-qty">
-    <input type="number" placeholder="qty" min="1" name="rule[conditions][{c}][options][<?php echo RangeValueCondition::END_RANGE_KEY ?>]" value="">
+    <input type="number" placeholder="<?php _e('qty', 'advanced-dynamic-pricing-for-woocommerce')?>" min="1" name="rule[conditions][{c}][options][<?php echo RangeValueCondition::END_RANGE_KEY ?>]" value="">
 </div>
 
 <div class="wdp-column wdp-condition-subfield wdp-condition-field-method">

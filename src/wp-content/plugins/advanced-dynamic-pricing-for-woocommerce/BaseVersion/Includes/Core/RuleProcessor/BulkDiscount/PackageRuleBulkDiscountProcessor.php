@@ -114,8 +114,9 @@ class PackageRuleBulkDiscountProcessor
                 $valueSet = floatval(0);
 
                 foreach ($items as $item) {
-                    if (!in_array($item->getWcItem()->getVariationId(), $variations)) {
-                        $variations[] = $item->getWcItem()->getVariationId();
+                    $productId = $item->getWcItem()->getVariationId() ?: $item->getWcItem()->getProductId();
+                    if (!in_array($productId, $variations)) {
+                        $variations[] = $productId;
                         $valueSet += $calculationCallback($item) * $set->getQty();
                     }
                 }

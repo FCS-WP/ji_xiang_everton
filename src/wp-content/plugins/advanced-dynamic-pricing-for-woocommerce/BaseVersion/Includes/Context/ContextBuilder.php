@@ -2,11 +2,14 @@
 
 namespace ADP\BaseVersion\Includes\Context;
 
+use ADP\BaseVersion\Includes\Compatibility\Addons\TmExtraOptionsCmp;
 use ADP\BaseVersion\Includes\Compatibility\AeliaSwitcherCmp;
 use ADP\BaseVersion\Includes\Compatibility\AlgWcCurrencySwitcherCmp;
 use ADP\BaseVersion\Includes\Compatibility\Container\MixAndMatchCmp;
+use ADP\BaseVersion\Includes\Compatibility\Container\SomewhereWarmCompositesCmp;
 use ADP\BaseVersion\Includes\Compatibility\Container\SomewhereWarmBundlesCmp;
 use ADP\BaseVersion\Includes\Compatibility\Container\WpcBundleCmp;
+use ADP\BaseVersion\Includes\Compatibility\Container\WpcCompositeCmp;
 use ADP\BaseVersion\Includes\Compatibility\Container\YithBundlesCmp;
 use ADP\BaseVersion\Includes\Compatibility\PriceBasedOnCountryCmp;
 use ADP\BaseVersion\Includes\Compatibility\VillaThemeMultiCurrencyCmp;
@@ -14,6 +17,7 @@ use ADP\BaseVersion\Includes\Compatibility\WooCommerceMultiCurrencyCmp;
 use ADP\BaseVersion\Includes\Compatibility\WoocsCmp;
 use ADP\BaseVersion\Includes\Compatibility\YayCurrencyCmp;
 use ADP\BaseVersion\Includes\Context;
+use ADP\Factory;
 
 class ContextBuilder
 {
@@ -23,6 +27,7 @@ class ContextBuilder
 
         $this->registerCurrencyCompatibility($context);
         $this->registerContainerCompatibility($context);
+        $this->registerAddonsCompatibility($context);
 
         return $context;
     }
@@ -31,8 +36,10 @@ class ContextBuilder
     {
         $context->getContainerCompatibilityManager()->register(new SomewhereWarmBundlesCmp($context));
         $context->getContainerCompatibilityManager()->register(new WpcBundleCmp($context));
+        $context->getContainerCompatibilityManager()->register(new WpcCompositeCmp($context));
         $context->getContainerCompatibilityManager()->register(new MixAndMatchCmp($context));
         $context->getContainerCompatibilityManager()->register(new YithBundlesCmp($context));
+        $context->getContainerCompatibilityManager()->register(new SomewhereWarmCompositesCmp($context));
     }
 
     protected function registerCurrencyCompatibility(Context $context)
@@ -72,5 +79,12 @@ class ContextBuilder
         }
 
         $wcMultiCurrencyCmp = new WooCommerceMultiCurrencyCmp($context);
+    }
+
+    protected function registerAddonsCompatibility(Context $context)
+    {
+        /** @var TmExtraOptionsCmp $tmExtraOptionsCmp */
+        $tmExtraOptionsCmp = Factory::get("Compatibility_Addons_TmExtraOptionsCmp", $context);
+        $tmExtraOptionsCmp->register();
     }
 }

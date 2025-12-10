@@ -2,6 +2,8 @@
 
 namespace ADP\BaseVersion\Includes\Core\Cart;
 
+use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Free\FreeCartItem;
+
 class FreeCartItemCollection
 {
     /** @var array<string, FreeCartItem> */

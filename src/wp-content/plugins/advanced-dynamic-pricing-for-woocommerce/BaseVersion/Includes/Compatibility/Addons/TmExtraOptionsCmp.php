@@ -1,15 +1,15 @@
 <?php
 
-namespace ADP\BaseVersion\Includes\Compatibility;
+namespace ADP\BaseVersion\Includes\Compatibility\Addons;
 
 use ADP\BaseVersion\Includes\Cache\CacheHelper;
 use ADP\BaseVersion\Includes\CartProcessor\CartBuilder;
 use ADP\BaseVersion\Includes\Context;
-use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Base\CartItemAddon;
 use ADP\BaseVersion\Includes\Core\Cart\Cart;
 use ADP\BaseVersion\Includes\Core\Cart\CartCustomer;
-use ADP\BaseVersion\Includes\Core\Rule\SingleItemRule;
+use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Base\CartItemAddon;
 use ADP\BaseVersion\Includes\Core\Rule\PersistentRule;
+use ADP\BaseVersion\Includes\Core\Rule\SingleItemRule;
 use ADP\BaseVersion\Includes\Core\Rule\SingleItemRule\ProductsAdjustment;
 use ADP\BaseVersion\Includes\Core\Rule\SingleItemRule\ProductsRangeAdjustments;
 use ADP\BaseVersion\Includes\Core\RuleProcessor\RoleDiscountStrategy;
@@ -20,7 +20,7 @@ use ADP\BaseVersion\Includes\WC\WcCartItemFacade;
 defined('ABSPATH') or exit;
 
 /**
- * Plugin Name: WooCommerce TM Extra Product Options
+ * Plugin Name: Extra Product Options & Add-Ons for WooCommerce ( ex. WooCommerce TM Extra Product Options )
  * Author: ThemeComplete
  */
 class TmExtraOptionsCmp
@@ -30,14 +30,13 @@ class TmExtraOptionsCmp
      */
     protected $context;
 
-    public function __construct()
-    {
-        $this->context = adp_context();
-    }
-
-    public function withContext(Context $context)
+    public function __construct(Context $context)
     {
         $this->context = $context;
+    }
+
+    public function register()
+    {
     }
 
     public function isActive()

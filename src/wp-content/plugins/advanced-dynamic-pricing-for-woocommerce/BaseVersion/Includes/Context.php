@@ -4,6 +4,7 @@ namespace ADP\BaseVersion\Includes;
 
 use ADP\BaseVersion\Includes\AdminExtensions\AdminNotice;
 use ADP\BaseVersion\Includes\AdminExtensions\AdminPage;
+use ADP\BaseVersion\Includes\Compatibility\HeyLightCmp;
 use ADP\BaseVersion\Includes\Compatibility\PriceBasedOnCountryCmp;
 use ADP\BaseVersion\Includes\Context\Container\ContainerCompatibilityManager;
 use ADP\BaseVersion\Includes\Context\ContextBuilder;
@@ -12,6 +13,7 @@ use ADP\BaseVersion\Includes\Compatibility\WoocsCmp;
 use ADP\BaseVersion\Includes\Compatibility\YayCurrencyCmp;
 use ADP\BaseVersion\Includes\Compatibility\WooCommerceMultiCurrencyCmp;
 use ADP\BaseVersion\Includes\Compatibility\KlarnaOnSiteMessagingCmp;
+use ADP\BaseVersion\Includes\Compatibility\KlarnaCmp;
 use ADP\BaseVersion\Includes\Context\Currency;
 use ADP\BaseVersion\Includes\Context\CurrencyController;
 use ADP\BaseVersion\Includes\Context\Geolocation;
@@ -219,6 +221,16 @@ class Context
         $this->currencyController = new CurrencyController($this, new Currency($currencyCode, $symbol, 1));
         $this->currencyController->setCurrencySymbols($symbols);
 
+        $klarnaCmp = new KlarnaCmp();
+        if ($klarnaCmp->isActive()) {
+            $klarnaCmp->prepareHooks();
+        }
+
+        $heightCmp = new HeylightCmp();
+        if ($heightCmp->isActive()) {
+            $heightCmp->prepareHooks();
+        }
+
         $klarnaOsmCmp = new KlarnaOnSiteMessagingCmp();
         if ($klarnaOsmCmp->isActive()) {
             $klarnaOsmCmp->prepareHooks();
@@ -297,6 +309,19 @@ class Context
         return $wordpress;
     }
 
+    public function isWCStoreAPIRequest() {
+        if (empty($_SERVER['REQUEST_URI'])) {
+            return false;
+        }
+
+        $rest_prefix = trailingslashit(rest_get_url_prefix());
+        $wc_store_prefix = $rest_prefix . 'wc/store';
+        $request_uri = esc_url_raw(wp_unslash($_SERVER['REQUEST_URI']));
+        $wordpress   = (false !== strpos($request_uri, $wc_store_prefix));
+
+        return $wordpress;
+    }
+
     protected static function isDoingPhpUnit()
     {
         return defined("PHPUNIT_COMPOSER_INSTALL");
@@ -339,7 +364,12 @@ class Context
      */
     public function getOption($key, $default = false)
     {
-        return $this->settings->getOption($key);
+        static $cache;
+        if(isset($cache[$key])) return $cache[$key];
+
+        $value = $this->settings->getOption($key);
+        $cache[$key] = $value;
+        return $value;
     }
 
     /**
@@ -725,5 +755,17 @@ class Context
     public function getContainerCompatibilityManager(): ContainerCompatibilityManager
     {
         return $this->containerCompatibilityManager;
+    }
+
+    public function isBaseVersion(): bool {
+        return defined('WC_ADP_PRO_VERSION_PATH');
+    }
+
+    public function __serialize() {
+        return [];
+    }
+
+    public function __unserialize($data) {
+        $this->__construct();
     }
 }

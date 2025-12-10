@@ -121,14 +121,11 @@ class PriceCalculator
         }
 
         $dontApplyDiscountToAddons = $compatibilitySettings->getOption('dont_apply_discount_to_addons');
-        $addonsAmount = $item->getAddonsAmount();
-        if ($dontApplyDiscountToAddons) {
-            $itemWithoutAddonsAmount = $price - $item->getAddonsAmount();
-        }
 
-        $newPrice = $this->calculateSinglePrice($itemWithoutAddonsAmount ?? $price);
-        if ($dontApplyDiscountToAddons) {
-            $newPrice += $addonsAmount;
+        if ( $dontApplyDiscountToAddons ) {
+            $newPrice = $this->calculateSinglePrice($price - $item->getAddonsAmount()) + $item->getAddonsAmount();
+        } else {
+            $newPrice = $this->calculateSinglePrice($price);
         }
 
         if ($item->getAddonsAmount() > 0) {
@@ -224,6 +221,101 @@ class PriceCalculator
         $item->applyPriceAdjustment($priceAdjBuilder->build());
     }
 
+    public function applyItemDiscountAmount(&$item, &$cart, $handler, $amount, $newPrice, $amountPerItem)
+    {
+        $globalContext = $cart->getContext()->getGlobalContext();
+
+        $priceAdjBuilder = CartItemPriceAdjustment::builder();
+        $priceAdjBuilder
+            ->type(CartItemPriceUpdateTypeEnum::DEFAULT())
+            ->originalPrice($newPrice + $amountPerItem)
+            ->amount(floatval($amountPerItem))
+            ->newPrice($newPrice);
+
+        if ($handler->isReplaceWithCartAdjustment()) {
+            $priceAdjBuilder->type(CartItemPriceUpdateTypeEnum::REPLACED_BY_CART_ADJUSTMENT());
+            $adjustmentCode = $handler->getReplaceCartAdjustmentCode();
+
+            if ($amount > 0) {
+                $coupon = new CouponCartItem(
+                    $globalContext,
+                    CouponCartItem::TYPE_ITEM_DISCOUNT,
+                    $adjustmentCode,
+                    $amount / $item->getQty(),
+                    $this->rule->getId(),
+                    $item->getWcItem(),
+                    $item->getQty()
+                );
+
+                $coupon->setAffectedCartItemQty($item->getQty());
+                $cart->addCoupon($coupon);
+            } elseif ($amount < 0) {
+                $taxClass = $globalContext->getIsPricesIncludeTax() ? "" : "standard";
+                $cart->addFee(
+                    new Fee(
+                        $globalContext,
+                        Fee::TYPE_ITEM_OVERPRICE,
+                        $adjustmentCode,
+                        (-1) * $amount,
+                        $taxClass,
+                        $this->rule->getId()
+                    )
+                );
+            }
+        } elseif ($globalContext->getOption('item_adjustments_as_coupon', false)
+            && $globalContext->getOption('item_adjustments_coupon_name', false)
+        ) {
+            $priceAdjBuilder->type(CartItemPriceUpdateTypeEnum::REPLACED_BY_CART_ADJUSTMENT());
+            $adjustmentCode = $globalContext->getOption('item_adjustments_coupon_name');
+
+            if ($amount > 0) {
+                $coupon = new CouponCartItem(
+                    $globalContext,
+                    CouponCartItem::TYPE_ITEM_DISCOUNT,
+                    $adjustmentCode,
+                    $amount / $item->getQty(),
+                    $this->rule->getId(),
+                    $item->getWcItem(),
+                    $item->getQty()
+                );
+
+                $coupon->setAffectedCartItemQty( $item->getQty());
+                $cart->addCoupon($coupon);
+            } elseif ($amount < 0) {
+                $taxClass = $globalContext->getIsPricesIncludeTax() ? "" : "standard";
+                $cart->addFee(
+                    new Fee(
+                        $globalContext,
+                        Fee::TYPE_ITEM_OVERPRICE,
+                        $adjustmentCode,
+                        (-1) * $amount,
+                        $taxClass,
+                        $this->rule->getId()
+                    )
+                );
+            }
+        }
+
+        if ($handler instanceof ProductsAdjustment) {
+            $priceAdjBuilder->source(CartItemPriceUpdateSourceEnum::SOURCE_SINGLE_ITEM_SIMPLE());
+        } elseif ($handler instanceof ProductsRangeAdjustments) {
+            $priceAdjBuilder->source(CartItemPriceUpdateSourceEnum::SOURCE_SINGLE_ITEM_RANGE());
+        } elseif ($handler instanceof ProductsAdjustmentTotal) {
+            $priceAdjBuilder->source(CartItemPriceUpdateSourceEnum::SOURCE_PACKAGE_SIMPLE());
+        } elseif ($handler instanceof ProductsAdjustmentSplit) {
+            $priceAdjBuilder->source(CartItemPriceUpdateSourceEnum::SOURCE_PACKAGE_SPLIT());
+        } elseif ($handler instanceof PackageRangeAdjustments) {
+            $priceAdjBuilder->source(CartItemPriceUpdateSourceEnum::SOURCE_PACKAGE_RANGE());
+        } elseif ($handler instanceof RoleDiscount) {
+            $priceAdjBuilder->source(CartItemPriceUpdateSourceEnum::SOURCE_ROLE());
+        }
+
+        $priceAdjBuilder->ruleId($this->rule->getId());
+        $item->applyPriceAdjustment($priceAdjBuilder->build());
+
+        return true;
+    }
+
     /**
      * @param float $price
      *
@@ -286,7 +378,7 @@ class PriceCalculator
             if ($item->getAddonsAmount() > 0) {
                 $third_party_adjustments += $item->getAddonsAmount();
             } elseif ($globalContext->isToCompensateTrdPartAdjustmentForFixedPrice()) {
-                $third_party_adjustments += $item->prices()->getMinDiscountRangePrice();
+                $third_party_adjustments += $item->prices()->getTrdPartyAdjustmentsTotal();
             }
         }
 
@@ -431,9 +523,87 @@ class PriceCalculator
         return $set;
     }
 
+    public function calculatePriceForItemsSplitDiscountByCost($items, $cart, $handler)
+    {
+        $globalContext = $cart->getContext()->getGlobalContext();
+
+        $totalPrice = 0;
+        foreach ($items as $item) {
+            /**
+             * @var $item ICartItem
+             */
+            if (!$item->hasAttr(CartItemAttributeEnum::READONLY_PRICE())) {
+                $totalPrice += $item->getTotalPrice();
+            }
+        }
+
+        $totalQty = 0;
+        foreach ($items as $item) {
+            /**
+             * @var $item ICartItem
+             */
+            if (!$item->hasAttr(CartItemAttributeEnum::READONLY_PRICE())) {
+                $totalQty += $item->getQty();
+            }
+        }
+
+        $adjustmentsLeft = $this->checkAdjustmentTotal(
+            $this->calculateAdjustmentsLeft(
+                $items,
+                $globalContext
+            )
+        );
+
+        $overprice = $adjustmentsLeft < 0;
+        $adjustmentsLeft = $overprice ? -$adjustmentsLeft : $adjustmentsLeft;
+        $diff = 0.0;
+
+        if ($adjustmentsLeft > 0 && $totalPrice > 0) {
+            $diff = $adjustmentsLeft / $totalPrice;
+        }
+
+        foreach ($items as $item) {
+            /**
+             * @var $item ICartItem
+             */
+
+            if ($item->hasAttr(CartItemAttributeEnum::READONLY_PRICE())) {
+                continue;
+            }
+
+            $price = $item->getPrice();
+
+            $adjustmentAmount = min($price * $diff, $adjustmentsLeft);
+
+            if ((float)$adjustmentAmount === 0.0) {
+                continue;
+            }
+
+            if ($overprice) {
+                $newPrice = $this->makeOverpriceAmount($price, $adjustmentAmount);
+            } else {
+                $newPrice = $this->makeDiscountAmount($price, $adjustmentAmount);
+            }
+
+            $amount = ($price - $newPrice) * $item->getQty();
+
+            if (!$this->applyItemDiscountAmount($item, $cart, $handler, $amount, $newPrice, $price - $newPrice)) {
+                continue;
+            }
+
+            $adjustmentsLeft -= $adjustmentAmount * $item->getQty();
+
+            if ((new CompareStrategy())->floatLessAndEqual($adjustmentsLeft, 0.0)) {
+                break;
+            }
+        }
+
+        return $items;
+    }
+
     /**
      * @param ICartItem $item
-     * @param CartSet                                                                                                                          $set
+     * @param CartSet $set
      * @param Cart $cart
      * @param ProductsAdjustment|ProductsRangeAdjustments|ProductsAdjustmentTotal|ProductsAdjustmentSplit|PackageRangeAdjustments|RoleDiscount $handler
      * @param float $amount
@@ -469,7 +639,7 @@ class PriceCalculator
                     $item->getQty()
                 );
 
-                $coupon->setAffectedCartItemQty($item->getQty() * $set->getQty());
+                $coupon->setAffectedCartItemQty($item->getQty() * ($set ? $set->getQty() : 1));
                 $cart->addCoupon($coupon);
             } elseif ($amount < 0) {
                 $taxClass = $globalContext->getIsPricesIncludeTax() ? "" : "standard";
@@ -501,7 +671,7 @@ class PriceCalculator
                     $item->getQty()
                 );
 
-                $coupon->setAffectedCartItemQty($item->getQty() * $set->getQty());
+                $coupon->setAffectedCartItemQty( $item->getQty() * ($set ? $set->getQty() : 1));
                 $cart->addCoupon($coupon);
             } elseif ($amount < 0) {
                 $taxClass = $globalContext->getIsPricesIncludeTax() ? "" : "standard";

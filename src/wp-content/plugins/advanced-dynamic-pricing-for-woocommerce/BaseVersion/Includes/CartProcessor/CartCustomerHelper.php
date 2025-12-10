@@ -56,8 +56,13 @@ class CartCustomerHelper
             return floatval(0);
         }
 
+        // must ignore draft orders created by blocks-based cart
+        $existing_orders_statuses = wc_get_order_statuses();
+        if(isset($existing_orders_statuses['wc-checkout-draft']))
+            unset($existing_orders_statuses['wc-checkout-draft']);
+
         $args = array(
-            'post_status' => array_keys(wc_get_order_statuses()),
+            'post_status' => array_keys($existing_orders_statuses),
         );
 
         if ( ! empty($time)) {

@@ -118,6 +118,7 @@ class ProductFiltering
      */
     public function checkProductSuitability($product, $cartItem = array())
     {
+
         if ($this->type === 'any' && $this->method === 'in_list') {
             return true;
         }
@@ -132,13 +133,25 @@ class ProductFiltering
 
         $func = array($this, "compareProductWith" . ucfirst($this->type));
 
-        if (is_callable($func)) {
-            return call_user_func($func, $product, $cartItem);
-        } elseif (in_array($this->type, array_keys(Helpers::getCustomProductTaxonomies()))) {
-            return $this->compareProductWithCustom_taxonomy($product, $cartItem);
-        }
+        static $cached_results = array();
+        $func_name = "compareProductWith" . ucfirst($this->type);
+        $key = md5($func_name . $product->get_id() . json_encode($cartItem) . json_encode($this->values). $this->method);
+        if(isset($cached_results[$key]))
+            return $cached_results[$key];
 
-        return false;
+        if (is_callable($func)) {
+            $result = call_user_func($func, $product, $cartItem);
+        } elseif (in_array($this->type, array_keys(Helpers::getCustomProductTaxonomies(true)))) {
+            $result = $this->compareProductWithCustom_taxonomy($product, $cartItem);
+        } else
+            $result = false;
+
+        //truncate if too many values in cache
+        if( count($cached_results) >1000)
+            $cached_results = array_slice($cached_results,count($cached_results)- 900);
+        $cached_results[$key] = $result;
+
+        return $result;
     }
 
     protected function compareProductWithProducts($product, $cartItem)
@@ -468,8 +481,8 @@ class ProductFiltering
         $inList = false;
         foreach ($this->values as $customAttr) {
             $pieces        = explode(":", $customAttr);
-            $attributeName = strtolower(trim($pieces[0]));
-            $option        = strtolower(trim($pieces[1]));
+            $attributeName = strtolower(trim(array_shift($pieces)));
+            $option        = strtolower(implode(":",$pieces));
 
             if (isset($attrsCustom[$attributeName])) {
                 if (in_array($option, $attrsCustom[$attributeName], true)) {

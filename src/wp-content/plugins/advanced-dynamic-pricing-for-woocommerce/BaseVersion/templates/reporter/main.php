@@ -11,6 +11,10 @@ defined('ABSPATH') or exit;
     <div id="wdp-report-control-bar">
         <div id="wdp-report-resizer"></div>
 
+        <div class="tab-link icon-logo-report">
+            <?php include(WC_ADP_PLUGIN_PATH."/BaseVersion/assets/images/pricing_logo.svg") ?>
+        </div>
+
         <div id="wdp-report-main-tab-selector" class="tab-links-list">
 
             <div class="tab-link selected" data-tab-id="cart"><?php echo __('Cart',
@@ -53,12 +57,21 @@ defined('ABSPATH') or exit;
             </button>
         </div>
 
-        <div id="wdp-report-window-close">
+        <div id="wdp-arrow-report" style="padding-top: 0.85rem; margin-right: 0.3rem; cursor: pointer;">
+            <span id="wdp-arrow-report-down" class="dashicons dashicons-arrow-down-alt2"></span>
+        </div>
+
+        <div id="wdp-report-window-close" style="padding-top: 0.2rem;">
             <span class="dashicons dashicons-no-alt"></span>
         </div>
     </div>
 
-
     <div id="wdp-report-tab-window"></div>
 
+</div>
+
+<div id="wdp-icon-report" class="wdp-icon-report-class">
+    <div class="tab-link icon-logo-report">
+        <?php include(WC_ADP_PLUGIN_PATH."/BaseVersion/assets/images/pricing_logo.svg") ?>
+    </div>
 </div>

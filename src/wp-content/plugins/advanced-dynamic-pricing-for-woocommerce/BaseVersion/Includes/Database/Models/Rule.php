@@ -214,6 +214,7 @@ class Rule
         );
         $rule = array_merge($rule, $data);
 
+        $rule['filters']           = stripslashes_deep($rule['filters']);
         $rule['advertising']       = stripslashes_deep($rule['advertising']);
         $rule['cart_adjustments']  = stripslashes_deep($rule['cart_adjustments']);
         $rule['condition_message'] = stripslashes_deep($rule['condition_message']);
@@ -276,6 +277,7 @@ class Rule
 
     public function getDataForDB()
     {
+
         $data = array(
             'deleted'                  => isset($this->deleted) ? intval($this->deleted) : null,
             'enabled'                  => isset($this->enabled) ? intval($this->enabled) : null,
@@ -291,7 +293,7 @@ class Rule
             'cart_adjustments'         => is_array($this->cartAdjustments) ? serialize(self::sanitizeArrayTextFields($this->cartAdjustments)) : null,
             'product_adjustments'      => is_array($this->productAdjustments) ? serialize(self::sanitizeArrayTextFields($this->productAdjustments)) : null,
             'sortable_blocks_priority' => is_array($this->sortableBlocksPriority) ? serialize(self::sanitizeArrayTextFields($this->sortableBlocksPriority)) : null,
-            'bulk_adjustments'         => is_array($this->bulkAdjustments) ? serialize(self::sanitizeArrayTextFields($this->bulkAdjustments)) : null,
+            'bulk_adjustments'         => is_array($this->bulkAdjustments) ? serialize($this->bulkAdjustments) : null,
             'role_discounts'           => is_array($this->roleDiscounts) ? serialize(self::sanitizeArrayTextFields($this->roleDiscounts)) : null,
             'get_products'             => is_array($this->getProducts) ? serialize(self::sanitizeArrayTextFields($this->getProducts)) : null,
             'auto_add_products'        => is_array($this->autoAddProducts) ? serialize(self::sanitizeArrayTextFields($this->autoAddProducts)) : null,
@@ -483,13 +485,15 @@ class Rule
         $wpdb->query("DROP TABLE IF EXISTS $tableName");
     }
 
-    public static function sanitizeArrayTextFields($array)
+    public static function sanitizeArrayTextFields($array, $allowed_html_tags = array())
     {
         foreach ($array as &$value) {
             if (is_array($value)) {
                 $value = self::sanitizeArrayTextFields($value);
+            }elseif (is_null($value)) {
+                $value = '';
             } else {
-                $value = sanitize_text_field($value);
+                $value = wp_kses($value, $allowed_html_tags);
             }
         }
 

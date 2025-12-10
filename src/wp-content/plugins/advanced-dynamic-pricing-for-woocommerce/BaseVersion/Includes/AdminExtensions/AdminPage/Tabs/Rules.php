@@ -52,6 +52,14 @@ class Rules implements AdminTabInterface
     public function handleSubmitAction()
     {
         if ( $bulkAction = $this->getBulkAction() ) {
+            if(wp_verify_nonce($_POST[Ajax::SECURITY_QUERY_ARG] ?? null, Ajax::SECURITY_ACTION) === false) {
+                wp_die(
+                    __('Invalid nonce specified', 'advanced-dynamic-pricing-for-woocommerce'),
+                    __('Error', 'advanced-dynamic-pricing-for-woocommerce'),
+                    array('response' => 403,)
+                );
+            }
+            
             $ruleRepository = new RuleRepository();
             $rulesList = array_map('intval', is_array($_POST['rules']) ? $_POST['rules'] : []);
 
@@ -156,10 +164,26 @@ class Rules implements AdminTabInterface
             }
         }
 
+        //This code disables complex cart discounts for free version only
+        // and if user NOT added them to existing rules already!
+        $cart_adjustments_disabled_options = array();
+        if( !defined('WC_ADP_PRO_VERSION_PATH') ) {
+            $ruleRepository = new RuleRepository();
+            if ( apply_filters("adp_disable_complex_cart_discounts", !$ruleRepository->hasActiveRulesWithCompexCartDiscounts() ) ) {
+                $cart_adjustments_disabled_options[] ='discount_repeatable__amount';
+                $cart_adjustments_disabled_options[] ='discount_repeatable_sets_count__amount';
+                $cart_adjustments_disabled_options[] ='fee_repeatable__amount';
+                $cart_adjustments_disabled_options[] ='fee_repeatable_sets_count__amount';
+            }
+        }
+
         $cart_templates = array();
         $cart_titles    = array();
         foreach ($cartAdjLoader->getAsList() as $group => $items) {
             foreach ($items as $item) {
+                if ( in_array($item[$cartAdjLoader::LIST_TYPE_KEY], $cart_adjustments_disabled_options))
+                    continue;
+                //$cart_adjustments_disabled_options
                 $key          = $item[$cartAdjLoader::LIST_TYPE_KEY];
                 $label        = $item[$cartAdjLoader::LIST_LABEL_KEY];
                 $templatePath = $item[$cartAdjLoader::LIST_TEMPLATE_PATH_KEY];
@@ -252,7 +276,7 @@ class Rules implements AdminTabInterface
 
     protected function getSearchQueryIfExists()
     {
-        return isset($_GET['action']) && $_GET['action'] === 'search_rules' && isset($_GET['q']) ? $_GET['q'] : "";
+        return isset($_GET['action']) && $_GET['action'] === 'search_rules' && isset($_GET['q']) ? esc_attr($_GET['q']) : "";
     }
 
     protected function getBulkAction()
@@ -327,7 +351,7 @@ class Rules implements AdminTabInterface
         $args['exclusive'] = 0;
 
         if ($this->getSearchQueryIfExists()) {
-            $args['q'] = sanitize_text_field((string)$_GET['q']);
+            $args['q'] = $this->getSearchQueryIfExists();
         }
 
         return $args;
@@ -433,6 +457,12 @@ class Rules implements AdminTabInterface
                     "Are you sure to delete the selected rules?",
                     'advanced-dynamic-pricing-for-woocommerce'
                 ),
+                'qty_from' => __('qty from', 'advanced-dynamic-pricing-for-woocommerce'),
+                'qty_to' => __('qty to', 'advanced-dynamic-pricing-for-woocommerce'),
+                'sum_from' => __('sum from', 'advanced-dynamic-pricing-for-woocommerce'),
+                'sum_to' => __('sum to', 'advanced-dynamic-pricing-for-woocommerce'),
+                'weight_from' => __('weight from', 'advanced-dynamic-pricing-for-woocommerce'),
+                'weight_to' => __('weight to', 'advanced-dynamic-pricing-for-woocommerce'),
             ),
             'lists' => $preloaded_lists,
             'selected_rule' => isset($_GET['rule_id']) ? (int)$_GET['rule_id'] : -1,
@@ -443,7 +473,6 @@ class Rules implements AdminTabInterface
             'persistence_bulk_rule' => static::getAllAvailablePersistenceTypes(),
             'options' => array(
                 'close_on_select' => defined("WC_ADP_PRO_VERSION_URL") ? false : true,
-                'enable_product_exclude' => $context->getOption('allow_to_exclude_products'),
                 'rules_per_page' => $context->getOption('rules_per_page'),
             ),
             'paged' => $paged,
@@ -744,6 +773,13 @@ class Rules implements AdminTabInterface
         );
     }
 
+    protected static function rangeDiscountAmount() {
+        return array(
+            'key'   => 'range_discount__amount',
+            'label' => __('Fixed discount for the range', 'advanced-dynamic-pricing-for-woocommerce'),
+        );
+    }
+
     protected static function discountPercentage()
     {
         return array(
@@ -765,6 +801,14 @@ class Rules implements AdminTabInterface
         return array(
             'key'   => 'set_price__fixed',
             'label' => __('Fixed price for set', 'advanced-dynamic-pricing-for-woocommerce'),
+        );
+    }
+
+    protected static function rangePriceFixed()
+    {
+        return array(
+            'key'   => 'range_price__fixed',
+            'label' => __('Fixed price for the range', 'advanced-dynamic-pricing-for-woocommerce'),
         );
     }
 

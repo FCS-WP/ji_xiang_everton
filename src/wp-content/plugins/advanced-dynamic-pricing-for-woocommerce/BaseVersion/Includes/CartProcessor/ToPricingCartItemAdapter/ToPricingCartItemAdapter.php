@@ -3,6 +3,7 @@
 namespace ADP\BaseVersion\Includes\CartProcessor\ToPricingCartItemAdapter;
 
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\ICartItem;
+use ADP\BaseVersion\Includes\PriceDisplay\WcProductCalculationWrapper;
 use ADP\BaseVersion\Includes\WC\WcCartItemFacade;
 
 class ToPricingCartItemAdapter
@@ -18,7 +19,7 @@ class ToPricingCartItemAdapter
     public function __construct()
     {
         $this->chain = [
-            new CompositeToPricingCartItemAdapter(),
+//            new CompositeToPricingCartItemAdapter(),
             new SubscriptionToPricingCartItemAdapter(),
             new ContainerToPricingCartItemAdapter(),
             new SimpleToPricingCartItemAdapter()
@@ -36,11 +37,11 @@ class ToPricingCartItemAdapter
         return false;
     }
 
-    public function adaptWcProduct(\WC_Product $product, $cartItemData = []): ?ICartItem
+    public function adaptWcProduct(WcProductCalculationWrapper $wrapper): ?ICartItem
     {
         foreach ($this->chain as $adapter) {
-            if ($adapter->canAdaptWcProduct($product)) {
-                return $adapter->adaptWcProduct($product, $cartItemData);
+            if ($adapter->canAdaptWcProduct($wrapper->getWcProduct())) {
+                return $adapter->adaptWcProduct($wrapper);
             }
         }
 

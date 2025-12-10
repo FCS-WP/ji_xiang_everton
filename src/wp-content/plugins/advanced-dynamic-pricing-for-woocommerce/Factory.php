@@ -27,13 +27,16 @@ class Factory
      */
     public static function getClassName($name)
     {
+        static $paths= array();
+        if(isset($paths[$name])) return $paths[$name];
+
         $className    = self::BASE_VERSION_NAMESPACE . "\\" . self::convertAlias($name);
         $proClassName = self::PRO_VERSION_NAMESPACE . "\\" . self::convertAlias($name);
 
         if ( ! self::$forceBaseVersion && class_exists($proClassName)) {
             $className = $proClassName;
         }
-
+        $paths[$name] = $className;
         return $className;
     }
 

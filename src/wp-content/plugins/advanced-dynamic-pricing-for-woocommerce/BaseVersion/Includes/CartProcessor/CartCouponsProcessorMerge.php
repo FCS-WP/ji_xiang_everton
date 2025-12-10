@@ -100,7 +100,7 @@ class CartCouponsProcessorMerge implements ICartCouponsProcessor
     {
         add_filter('woocommerce_cart_coupon_types', array($this, 'addCouponCartType'), 10, 1);
         add_filter('woocommerce_coupon_discount_types', array($this, 'addCouponDiscountType'), 10, 1);
-        add_filter('woocommerce_coupon_custom_discounts_array', array($this, 'calculateCouponDiscountsArray'), 10, 5);
+        add_filter('woocommerce_coupon_custom_discounts_array', array($this, 'calculateCouponDiscountsArray'), 10, 2);
     }
 
     public function init()
@@ -252,14 +252,14 @@ class CartCouponsProcessorMerge implements ICartCouponsProcessor
 
             if ($coupon instanceof CouponCart && $coupon->getValue()) {
                 if ($coupon->isType($coupon::TYPE_FIXED_VALUE) && $context->isCombineMultipleDiscounts()) {
-                    $coupon->setCode($context->getOption('default_discount_name'));
+                    $coupon->setCode(strtolower($context->getOption('default_discount_name')));
                 }
 
                 $this->addToMerged($coupon->getCode(), $coupon);
                 $this->addExternalWcCouponWithSameCodeIfPossible($cart, $wcCart, $coupon->getCode());
             } elseif ($coupon instanceof CouponCartItem && $coupon->getValue()) {
                 if ($context->isCombineMultipleDiscounts()) {
-                    $coupon->setCode($context->getOption('default_discount_name'));
+                    $coupon->setCode(strtolower($context->getOption('default_discount_name')));
                 }
 
                 $this->addToMerged($coupon->getCode(), $coupon);
@@ -276,64 +276,42 @@ class CartCouponsProcessorMerge implements ICartCouponsProcessor
 
     protected function processIndividualUseCoupons(Cart $cart, WC_Cart $wcCart)
     {
-        $mergedCoupons = $this->mergedCoupons;
+        $hasIndividual = false;
+        $mergedCoupons = [];
 
-        $atLeastOneNonIndividualExists = false;
-        foreach ($mergedCoupons as $couponCode => $coupons) {
+        foreach ($this->mergedCoupons as $couponCode => $coupons) {
             foreach ($coupons as $coupon) {
                 if ($coupon instanceof WcCouponCart) {
                     $wcCoupon = $this->loadWcCouponByCode($coupon->getCode());
-
-                    if (!$wcCoupon->get_individual_use("edit")) {
-                        $atLeastOneNonIndividualExists = true;
-                        break;
-                    }
-                } elseif ($coupon instanceof WcCouponExternal) {
-                    $wcCoupon = $coupon->getWcCoupon();
-                    if (!$wcCoupon->get_individual_use("edit")) {
-                        $atLeastOneNonIndividualExists = true;
-                        break;
-                    }
-                } else {
-                    $atLeastOneNonIndividualExists = true;
-                    break;
-                }
-            }
-        }
-
-        $individualExists = false;
-        foreach ($mergedCoupons as $couponCode => $coupons) {
-            $newCoupons = [];
-            foreach ($coupons as $coupon) {
-                if ($coupon instanceof WcCouponCart) {
-                    $wcCoupon = $this->loadWcCouponByCode($coupon->getCode());
-
                     if ($wcCoupon->get_individual_use("edit")) {
-                        if (!$atLeastOneNonIndividualExists && !$individualExists) {
-                            $newCoupons[] = $coupon;
-                            $individualExists = true;
-                        }
-
-                        continue;
+                        $mergedCoupons = [$couponCode => [$coupon]];
+                        $hasIndividual = true;
+                        break 2;
                     }
                 } elseif ($coupon instanceof WcCouponExternal) {
                     $wcCoupon = $coupon->getWcCoupon();
                     if ($wcCoupon->get_individual_use("edit")) {
-                        if (!$atLeastOneNonIndividualExists && !$individualExists) {
-                            $newCoupons[] = $coupon;
-                            $individualExists = true;
-                        }
-
-                        continue;
+                        $mergedCoupons = [$couponCode => [$coupon]];
+                        $hasIndividual = true;
+                        break 2;
                     }
                 }
-
-                $newCoupons[] = $coupon;
             }
-            $mergedCoupons[$couponCode] = $newCoupons;
         }
 
-        $this->mergedCoupons = array_filter($mergedCoupons);
+        if($hasIndividual) {
+            if(!$this->context->getOption('individual_wc_coupon_suppress_coupons')) {
+                foreach ($this->mergedCoupons as $couponCode => $coupons) {
+                    foreach ($coupons as $coupon) {
+                        if ($coupon instanceof CouponCart) {
+                            $mergedCoupons[$couponCode] = array_merge($mergedCoupons[$couponCode] ?? [], [$coupon]); 
+                        }
+                    }
+                }
+            }
+
+            $this->mergedCoupons = $mergedCoupons;
+        }
     }
 
     protected function addExternalWcCouponWithSameCodeIfPossible(Cart $cart, WC_Cart $wcCart, string $couponCode)

@@ -7,7 +7,7 @@ defined('ABSPATH') or exit;
     <th scope="row" class="titledesc">
     </th>
     <td class="forminp forminp-checkbox">
-        <a href="https://docs.algolplus.com/algol_pricing/common-faq/"
+        <a href="https://docs.algolplus.com/algol_pricing/faq/common-3/"
            target="_blank">
             <?php _e('Guide for supported tags', 'advanced-dynamic-pricing-for-woocommerce') ?>
         </a>

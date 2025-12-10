@@ -45,7 +45,7 @@ class WooCommerceMultiCurrencyCmp
                 'advanced-dynamic-pricing-for-woocommerce'), 'load_requirements', 'plugins_loaded'), WC_ADP_VERSION);
         }
 
-        if (function_exists('WC_Payments_Features') && function_exists('WC_Payments_Multi_Currency')) {
+        if (class_exists('WC_Payments_Features') && function_exists('WC_Payments_Multi_Currency')) {
             if ( \WC_Payments_Features::is_customer_multi_currency_enabled() ) {
                 $this->multi_currency = WC_Payments_Multi_Currency();
             }
@@ -54,7 +54,35 @@ class WooCommerceMultiCurrencyCmp
 
     public function prepareHooks() {
         $frontend_prices = $this->multi_currency->get_frontend_prices();
-        remove_filter( 'woocommerce_shipping_method_add_rate_args', [ $frontend_prices, 'convert_shipping_method_rate_cost' ], 900 );
+        remove_filter( 'woocommerce_shipping_method_add_rate_args', [ $frontend_prices, 'convert_shipping_method_rate_cost' ], 99 );
+        $hooks = array(
+            'woocommerce_product_get_price',
+            'woocommerce_product_variation_get_price',
+            'woocommerce_product_variation_get_regular_price',
+            'woocommerce_product_get_regular_price',
+            'woocommerce_product_get_sale_price',
+            'woocommerce_get_variation_regular_price',
+            'woocommerce_get_variation_sale_price'
+        );
+        foreach ($hooks as $hook) {
+            $returnFalseCallback = function () {
+                return false;
+            };
+            add_filter($hook, function ($price, $product) use ($returnFalseCallback) {
+                if ($product->get_meta('adp_price_converted')) {
+                    add_filter(\WCPay\MultiCurrency\MultiCurrency::FILTER_PREFIX . 'should_convert_product_price', $returnFalseCallback);
+                }
+                return $price;
+            }, 10, 2);
+            add_filter($hook, function ($price) use ($returnFalseCallback) {
+                HighLanderShortcuts::removeFilters(
+                    [
+                        \WCPay\MultiCurrency\MultiCurrency::FILTER_PREFIX . 'should_convert_product_price' => [$returnFalseCallback]
+                    ]
+                );
+                return $price;
+            }, PHP_INT_MAX);
+        }
     }
 
     public function isActive()

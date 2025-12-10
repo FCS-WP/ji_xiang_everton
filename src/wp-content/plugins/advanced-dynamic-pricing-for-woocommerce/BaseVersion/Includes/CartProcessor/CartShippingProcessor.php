@@ -69,14 +69,14 @@ class CartShippingProcessor
 
     public function setFilterToEditPackageRates()
     {
-        add_filter('woocommerce_package_rates', array($this, 'packageRates'), PHP_INT_MAX, 2);
-        add_filter('woocommerce_package_rates', array($this, 'currencyPackageRates'), PHP_INT_MAX - 1, 2);
+        add_filter('woocommerce_package_rates', array($this, 'packageRates'), PHP_INT_MAX - 1, 2);
+        add_filter('woocommerce_package_rates', array($this, 'currencyPackageRates'), PHP_INT_MAX - 2, 2);
     }
 
     public function unsetFilterToEditPackageRates()
     {
-        remove_filter('woocommerce_package_rates', array($this, 'packageRates'), PHP_INT_MAX);
-        remove_filter('woocommerce_package_rates', array($this, 'currencyPackageRates'), PHP_INT_MAX - 1);
+        remove_filter('woocommerce_package_rates', array($this, 'packageRates'), PHP_INT_MAX - 1);
+        remove_filter('woocommerce_package_rates', array($this, 'currencyPackageRates'), PHP_INT_MAX - 2);
     }
 
     public function setFilterToEditShippingMethodLabel()

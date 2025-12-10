@@ -8,6 +8,7 @@ use ADP\BaseVersion\Includes\Core\Cart\Cart;
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Base\CartItemAttributeEnum;
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Basic\BasicCartItem;
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\ICartItem;
+use ADP\BaseVersion\Includes\PriceDisplay\WcProductCalculationWrapper;
 use ADP\BaseVersion\Includes\WC\WcCartItemFacade;
 use ADP\Factory;
 
@@ -44,16 +45,21 @@ class SimpleToPricingCartItemAdapter implements IToPricingCartItemAdapter
 
         $qty = floatval(apply_filters('wdp_get_product_qty', $facade->getQty(), $facade));
 
-        /** Build generic item */
-        $initialCost = $origPriceCalc->priceToAdjust;
-        if ($facade->isImmutable() && $facade->getHistory()) {
-            foreach ($facade->getHistory() as $amounts) {
-                $initialCost += array_sum($amounts);
-            }
+        $addonsAdapter = new ToPricingAddonsAdapter();
+        if ( $addonsAdapter->hasAddons($facade) ) {
+            $initialCost = $origPriceCalc->basePrice ?? 0.0;
+            $initialCost = $this->removeImmutableAdjustmentsFromInitialPrice($initialCost, $facade);
+            $initialCost = $addonsAdapter->addAddonsToInitialPriceWithFacade($initialCost, $facade);
+            $item = new BasicCartItem($facade, $initialCost, $qty, $pos);
+            $item->prices()->setTrdPartyAdjustmentsTotal($origPriceCalc->trdPartyAdjustmentsAmount);
+        } else {
+            /** Build generic item */
+            $initialCost = $origPriceCalc->priceToAdjust ?? 0.0;
+            $initialCost = $this->removeImmutableAdjustmentsFromInitialPrice($initialCost, $facade);
+            $item = new BasicCartItem($facade, $initialCost, $qty, $pos);
+            $item->prices()->setTrdPartyAdjustmentsTotal($origPriceCalc->trdPartyAdjustmentsAmount);
+            /** Build generic item end */
         }
-        $item = new BasicCartItem($facade, $initialCost, $qty, $pos);
-        $item->prices()->setTrdPartyAdjustmentsTotal($origPriceCalc->trdPartyAdjustmentsAmount);
-        /** Build generic item end */
 
         if ($origPriceCalc->isReadOnlyPrice || $facade->isHasReadOnlyPrice()) {
             $item->addAttr(CartItemAttributeEnum::READONLY_PRICE());
@@ -70,13 +76,23 @@ class SimpleToPricingCartItemAdapter implements IToPricingCartItemAdapter
             $item->addAttr(CartItemAttributeEnum::IMMUTABLE());
         }
 
-        (new ToPricingAddonsAdapter())->adaptAddonsFromFacadeAndPutIntoPricingCartItem(
+        $addonsAdapter->adaptAddonsFromFacadeAndPutIntoPricingCartItem(
             $origPriceCalc,
             $facade,
             $item
         );
 
         return $item;
+    }
+
+    protected function removeImmutableAdjustmentsFromInitialPrice(float $initialPrice, WcCartItemFacade $facade) {
+        if ($facade->isImmutable() && $facade->getHistory()) {
+            foreach ($facade->getHistory() as $amounts) {
+                $initialPrice += array_sum($amounts);
+            }
+        }
+
+        return $initialPrice;
     }
 
     public function adaptFacadeAndPutIntoCart($cart, WcCartItemFacade $facade, int $pos): bool
@@ -99,11 +115,15 @@ class SimpleToPricingCartItemAdapter implements IToPricingCartItemAdapter
         return true;
     }
 
-    public function adaptWcProduct(\WC_Product $product, $cartItemData = []): ?ICartItem
+    public function adaptWcProduct(WcProductCalculationWrapper $wrapper): ?ICartItem
     {
         $pos = -1;
 
-        $facade = WcCartItemFacade::createFromProduct($this->context, $product, $cartItemData);
+        $facade = WcCartItemFacade::createFromProduct(
+            $this->context,
+            $wrapper->getWcProduct(),
+            $wrapper->getCartItemData()
+        );
         $facade->withContext($this->context);
 
         try {
@@ -122,22 +142,20 @@ class SimpleToPricingCartItemAdapter implements IToPricingCartItemAdapter
 
         $qty = floatval(apply_filters('wdp_get_product_qty', $facade->getQty(), $facade));
 
-        /** Build generic item */
-        $initialCost = $origPriceCalc->priceToAdjust;
-        if ($facade->isImmutable() && $facade->getHistory()) {
-            foreach ($facade->getHistory() as $amounts) {
-                $initialCost += array_sum($amounts);
-            }
+        if ( $wrapper->getAddons() ) {
+            $initialCost = $origPriceCalc->basePrice ?? 0.0;
+            $initialCost = $this->removeImmutableAdjustmentsFromInitialPrice($initialCost, $facade);
+            $initialCost = (new ToPricingAddonsAdapter())->addAddonsToInitialPrice($initialCost, $wrapper->getAddons());
+            $item = new BasicCartItem($facade, $initialCost, $qty, $pos);
+            $item->prices()->setTrdPartyAdjustmentsTotal($origPriceCalc->trdPartyAdjustmentsAmount);
+        } else {
+            /** Build generic item */
+            $initialCost = $origPriceCalc->priceToAdjust ?? 0.0;
+            $initialCost = $this->removeImmutableAdjustmentsFromInitialPrice($initialCost, $facade);
+            $item = new BasicCartItem($facade, $initialCost, $qty, $pos);
+            $item->prices()->setTrdPartyAdjustmentsTotal($origPriceCalc->trdPartyAdjustmentsAmount);
+            /** Build generic item end */
         }
-        $item = new BasicCartItem($facade, $initialCost, $qty, $pos);
-        $item->prices()->setTrdPartyAdjustmentsTotal($origPriceCalc->trdPartyAdjustmentsAmount);
-        /** Build generic item end */
-
-        (new ToPricingAddonsAdapter())->adaptAddonsFromFacadeAndPutIntoPricingCartItem(
-            $origPriceCalc,
-            $facade,
-            $item
-        );
 
         if ($origPriceCalc->isReadOnlyPrice) {
             $item->addAttr(CartItemAttributeEnum::READONLY_PRICE());
@@ -154,6 +172,13 @@ class SimpleToPricingCartItemAdapter implements IToPricingCartItemAdapter
             $item->addAttr(CartItemAttributeEnum::IMMUTABLE());
         }
 
+        (new ToPricingAddonsAdapter())->adaptAddonsFromFacadeAndPutIntoPricingCartItem(
+            $origPriceCalc,
+            $facade,
+            $item
+        );
+
+        
         return $item;
     }
 }

@@ -945,8 +945,8 @@ div.wdp-row.wdp-options select {
 .wdp-settings-wrapper .subsubsub {
     display: flex;
     flex-direction: column;
-    margin-right: 50px;
-    margin-top: 1em;
+    margin-right: 50px !important;
+    margin-top: 1em !important;
 }
 
 .wdp-settings-wrapper .wdp-settings-sections-wrapper {
@@ -1193,4 +1193,16 @@ div.wdp-row.wdp-options select {
 .wdp-select2-img {
 	width: 100px;
 	margin-right: 5px;
+}
+
+/* .wdp-product-exclude details summary {
+	list-style: none;
+} */
+
+.wdp-product-exclude details[open] summary {
+	display: none;
+}
+
+.wdp-setting-changed {
+	border-color: #3917ab !important;
 }

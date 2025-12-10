@@ -193,7 +193,7 @@ class Helpers
             );
         }
 
-        return $result;
+        return apply_filters("adp_get_payment_methods", $result);
     }
 
     public static function getAllShippingMethods()
@@ -368,7 +368,7 @@ class Helpers
 
         /** @var WC_Product[] $posts */
         $posts = wc_get_products(array(
-            'name' => $name,
+            'title' => $name,
             'type' => array_merge(array_keys(wc_get_product_types()), array('variation'))
         ));
 
@@ -560,13 +560,26 @@ class Helpers
             'Product discounts'  => 'product_discount',
             'Role discounts'     => 'role_discount',
             'Bulk mode'          => 'bulk',
-            'Free products.'     => 'free_product',
-            'Auto add to cart.'  => 'auto_add_to_cart',
+            'Free products'     => 'free_product',
+            'Auto add to cart'  => 'auto_add_to_cart',
             'Cart adjustments'   => 'cart_adjustment',
             'Conditions'         => 'cart_condition',
             'Discount messages'  => 'advertising',
             'Offer to buy more'  => 'offer_to_buy_more',
             'Limits'             => 'limits',
+        ];
+        $map_for_pot = [  //not used in code, we need it to make .pot correctly
+            __('Filter by products' , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Product discounts'  , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Role discounts'     , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Bulk mode'          , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Free products'     , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Auto add to cart'  , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Cart adjustments'   , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Conditions'         , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Discount messages'  , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Offer to buy more'  , 'advanced-dynamic-pricing-for-woocommerce'),
+            __('Limits'             , 'advanced-dynamic-pricing-for-woocommerce'),
         ];
 
         if(array_key_exists($name, $map)) {
@@ -579,7 +592,7 @@ class Helpers
             <?php*/
         }
         echo "<div class=\"wdp-filter-title\">";
-        _e($name, $domain);
+        _e($name, $domain); // translations don't see this line!!!
         echo "</div>";
     }
 }

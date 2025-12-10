@@ -7,6 +7,7 @@ use ADP\BaseVersion\Includes\Core\Cart\Cart;
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Container\ContainerCartItem;
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Container\ContainerPartCartItem;
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\ICartItem;
+use ADP\BaseVersion\Includes\PriceDisplay\WcProductCalculationWrapper;
 use ADP\BaseVersion\Includes\WC\WcCartItemFacade;
 
 class ContainerToPricingCartItemAdapter implements IToPricingCartItemAdapter
@@ -97,10 +98,12 @@ class ContainerToPricingCartItemAdapter implements IToPricingCartItemAdapter
         return $this->context->getContainerCompatibilityManager()->isContainerProduct($product);
     }
 
-    public function adaptWcProduct(\WC_Product $product, $cartItemData = []): ?ICartItem
+    public function adaptWcProduct(WcProductCalculationWrapper $wrapper): ?ICartItem
     {
-        $containerCmp = $this->context->getContainerCompatibilityManager()->getCompatibilityFromContainerWcProduct($product);
+        $containerCmp = $this->context
+            ->getContainerCompatibilityManager()
+            ->getCompatibilityFromContainerWcProduct($wrapper->getWcProduct());
 
-        return $containerCmp->adaptContainerWcProduct($product, $cartItemData);
+        return $containerCmp->adaptContainerWcProduct($wrapper->getWcProduct(), $wrapper->getCartItemData());
     }
 }

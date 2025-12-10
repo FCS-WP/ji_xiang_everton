@@ -299,11 +299,7 @@ class ProcessedProductSimple
             return false;
         }
 
-        $totalAdjustments = array_sum(array_map(function ($amounts) {
-            return array_sum($amounts);
-        }, $item->getDiscounts()));
-
-        return $totalAdjustments > 0;
+        return $this->compareStrategy->floatLess($this->getPrice($pos), $this->product->get_regular_price('edit'));
     }
 
     /**

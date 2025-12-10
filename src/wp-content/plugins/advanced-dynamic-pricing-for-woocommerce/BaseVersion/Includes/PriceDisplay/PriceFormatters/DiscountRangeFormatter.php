@@ -74,8 +74,16 @@ class DiscountRangeFormatter
         }
 
         $isHavingMinDiscountRangePrice = (
-            ($processedProduct instanceof ProcessedProductSimple && $processedProduct->getMinDiscountRangePrice() !== null)
-            || ($processedProduct instanceof ProcessedVariableProduct && $processedProduct->getLowestRangeDiscountPriceProduct() !== null)
+            (
+                $processedProduct instanceof ProcessedProductSimple 
+                && $processedProduct->getMinDiscountRangePrice() !== null 
+                // && $processedProduct->getMinDiscountRangePrice() > $processedProduct->getProduct()->get_sale_price() 
+            )
+            || 
+            (
+                $processedProduct instanceof ProcessedVariableProduct 
+                && $processedProduct->getLowestRangeDiscountPriceProduct() !== null
+            )
         );
 
         return $this->context->isCatalog() && $isHavingMinDiscountRangePrice;
@@ -140,6 +148,10 @@ class DiscountRangeFormatter
             'regular_price_striked' => '<del>' . $this->priceFunctions->format(
                     $this->priceFunctions->getPriceToDisplay($product, array("price" => $regularPrice))
                 ) . '</del>',
+            'min_variation_price'         => $this->priceFunctions->format($minDiscountRangePrice),
+            'min_variation_price_initial' => ($minDiscountRangePriceForDisplay !== $initialPriceForDisplay)
+                ? '<del>' . $this->priceFunctions->format($minDiscountRangePriceForDisplay) . '</del>'
+                : "",
         );
 
         $replacements = apply_filters(

@@ -1,6 +1,7 @@
 <?php
 defined('ABSPATH') or exit;
 
+use ADP\BaseVersion\Includes\AdminExtensions\Ajax;
 /**
  * @var boolean $hide_inactive
  * @var string $pagination Pagination HTML
@@ -70,6 +71,7 @@ defined('ABSPATH') or exit;
         </div>
 
         <form id="bulk-action" method="post" style="display: inline-block; float: left; margin-right: 10px; ">
+            <?php wp_nonce_field(Ajax::SECURITY_ACTION, Ajax::SECURITY_QUERY_ARG); ?>
             <input type="hidden" name="page" value="<?php echo $page; ?>"/>
             <input type="hidden" name="tab" value="<?php echo $tab; ?>"/>
             <select id="bulk-action-selector" name="bulk_action" style="width: 131px;">

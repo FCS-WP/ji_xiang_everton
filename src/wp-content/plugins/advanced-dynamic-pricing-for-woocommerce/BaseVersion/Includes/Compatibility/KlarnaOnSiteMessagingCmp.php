@@ -9,7 +9,7 @@ defined('ABSPATH') or exit;
  * Plugin Name: Klarna On-Site Messaging for WooCommerce
  * Author: krokedil, klarna
  *
- * @see https://krokedil.se/ 
+ * @see https://krokedil.se/
  */
 
 class KlarnaOnSiteMessagingCmp
@@ -21,7 +21,7 @@ class KlarnaOnSiteMessagingCmp
 
     public function isActive()
     {
-        return class_exists("\Klarna_OnSite_Messaging_For_WooCommerce");
+        return class_exists("\Klarna_OnSite_Messaging_For_WooCommerce") || class_exists("\WC_Klarna_Payments");
     }
 
     public function prepareHooks()
@@ -34,8 +34,11 @@ class KlarnaOnSiteMessagingCmp
     }
 
     public function hookWcAvailableVariation($args, $product, $variation) {
-        $price = adp_functions()->getDiscountedProductPrice($variation, 1);
-        $args['display_price'] = $price;
+        $adp = adp_functions();
+        if ($adp && method_exists($adp, 'getDiscountedProductPrice')) {
+            $price = $adp->getDiscountedProductPrice($variation, 1);
+            $args['display_price'] = $price;
+        }
         return $args;
     }
 

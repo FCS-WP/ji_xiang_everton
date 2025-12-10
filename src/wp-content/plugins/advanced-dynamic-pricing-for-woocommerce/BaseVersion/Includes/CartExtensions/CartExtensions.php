@@ -195,7 +195,11 @@ class CartExtensions
     {
         $baseVersionUrl = WC_ADP_PLUGIN_URL . "/BaseVersion/";
 
-        if ($this->ruleRepository->isConditionTypeActive(array('customer_shipping_method'))) {
+        if(!$this->context->is($this->context::WC_CHECKOUT_PAGE) && !$this->context->is($this->context::WC_CART_PAGE)) {
+            return;
+        }
+        
+        if ($this->ruleRepository->hasActiveRulesDependOnShipping()) {
             wp_enqueue_script(
                 'wdp_update_cart',
                 $baseVersionUrl . 'assets/js/update-cart.js',

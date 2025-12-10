@@ -6,6 +6,8 @@ use ADP\BaseVersion\Includes\Context;
 use ADP\BaseVersion\Includes\Database\Repository\OrderItemRepository;
 use ADP\BaseVersion\Includes\Database\Repository\OrderRepository;
 use ADP\BaseVersion\Includes\Engine;
+use ADP\BaseVersion\Includes\WC\WcAdpMergedCoupon\WcAdpMergedCoupon;
+use ADP\BaseVersion\Includes\WC\WcCouponFacade;
 use ADP\BaseVersion\Includes\WC\WcProductCustomAttributesCache;
 use ADP\BaseVersion\Includes\StatsCollector\WcCartStatsCollector;
 use ADP\Factory;
@@ -31,7 +33,24 @@ class RestApi implements LoadStrategy
 
     public function start()
     {
-        if (!apply_filters("adp_wp_rest_api_strategy_load", true)) {
+        $settings = $this->context->getSettings();
+        $settings->set('show_onsale_badge', true);
+
+        add_filter('woocommerce_coupon_discount_types',function ($coupon_types) {
+            if ( ! in_array(WcAdpMergedCoupon::COUPON_DISCOUNT_TYPE, $coupon_types) )
+                $coupon_types[WcAdpMergedCoupon::COUPON_DISCOUNT_TYPE] = __('ADP Coupon', 'advanced-dynamic-pricing-for-woocommerce');
+            if ( ! in_array(WcCouponFacade::TYPE_CUSTOM_PERCENT_WITH_LIMIT, $coupon_types) )
+                $coupon_types[WcCouponFacade::TYPE_CUSTOM_PERCENT_WITH_LIMIT] = __('ADP Coupon (percent with limit)', 'advanced-dynamic-pricing-for-woocommerce');
+            if ( ! in_array(WcCouponFacade::TYPE_ADP_FIXED_CART_ITEM, $coupon_types) )
+                $coupon_types[WcCouponFacade::TYPE_ADP_FIXED_CART_ITEM] = __('ADP Coupon (fixed cart item)', 'advanced-dynamic-pricing-for-woocommerce');
+            if ( ! in_array(WcCouponFacade::TYPE_ADP_RULE_TRIGGER, $coupon_types) )
+                $coupon_types[WcCouponFacade::TYPE_ADP_RULE_TRIGGER] = __('ADP Coupon  (rule trigger)', 'advanced-dynamic-pricing-for-woocommerce');
+            return $coupon_types;
+        });
+
+        if (!apply_filters("adp_wp_rest_api_strategy_load",
+            $this->context->getOption('update_prices_while_doing_rest_api') OR $this->context->isWCStoreAPIRequest() )) {
+
             return false;
         }
 
@@ -48,6 +67,7 @@ class RestApi implements LoadStrategy
          * @var Engine $engine
          */
         $engine = Factory::get("Engine", WC()->cart);
+        $engine->getCartProcessor()->installActionFirstProcess_Blocks();
 
         // Should we install all price display hooks?
         $engine->installProductProcessorWithEmptyCart();

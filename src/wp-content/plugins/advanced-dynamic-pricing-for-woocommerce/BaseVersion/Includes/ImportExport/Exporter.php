@@ -190,6 +190,11 @@ class Exporter
 
         $additional                            = array();
         $additional['conditions_relationship'] = $ruleObject->getConditionsRelationship() ? $ruleObject->getConditionsRelationship() : "";
+
+        $additional['date_from'] = $ruleObject->getDateFrom() ? $ruleObject->getDateFrom()->format('Y-m-d') : '';
+        $additional['date_to'] = $ruleObject->getDateTo() ? $ruleObject->getDateTo()->format('Y-m-d') : '';
+        $additional['trigger_coupon_code'] = $ruleObject->getActivationCouponCode() ?? '';
+
         $additional['blocks'] = $ruleObject->getBlocks();
         if ( ! ($ruleObject instanceof NoItemRule)) {
             if ($ruleObject->hasProductAdjustment()) {

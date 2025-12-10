@@ -105,13 +105,14 @@ class BasicCartItem extends AbstractCartItem implements ICartItem
     }
 
     /**
+     * @param bool $adjustAmountsForCouponMode
      * @return array<int, array<int, float>>
      */
-    public function getDiscounts(): array
+    public function getDiscounts(bool $adjustAmountsForCouponMode = false): array
     {
         $discounts = [];
         foreach ($this->priceAdjustments as $adjustment) {
-            if (!$adjustment->getType()->equals(CartItemPriceUpdateTypeEnum::DEFAULT())) {
+            if (!$adjustAmountsForCouponMode && !$adjustment->getType()->equals(CartItemPriceUpdateTypeEnum::DEFAULT())) {
                 continue;
             }
 
@@ -165,7 +166,7 @@ class BasicCartItem extends AbstractCartItem implements ICartItem
 
     public function isHistoryEqualsDiscounts(): bool
     {
-        return $this->getDiscounts() === $this->getHistory();
+        return $this->getDiscounts(true) === $this->getHistory();
     }
 
     // hash methods

@@ -34,7 +34,7 @@ add_action('woocommerce_new_order', 'custom_save_admin_order_meta', 10, 1);
 function custom_save_admin_order_meta($order_id)
 {
   // ✅ Only run on creating new orders, not updating
-  if (! $_POST['custom_billing_meta_data']) {
+  if (!isset($_POST['custom_billing_meta_data']) || empty($_POST['custom_billing_meta_data'])) {
     return;
   }
   $order = wc_get_order($order_id);

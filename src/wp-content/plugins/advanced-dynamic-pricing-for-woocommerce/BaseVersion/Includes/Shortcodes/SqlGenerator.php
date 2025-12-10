@@ -68,7 +68,7 @@ class SqlGenerator
         }
 
         $excludeIds = array();
-        if ($this->context->getOption('allow_to_exclude_products') && $filter->getExcludeProductIds()) {
+        if ($filter->getExcludeProductIds()) {
             $excludeIds = $filter->getExcludeProductIds();
         }
 
@@ -78,7 +78,7 @@ class SqlGenerator
             $this->where[] = $generated['where'];
         }
 
-//        if ($this->context->getOption('allow_to_exclude_products') && $filter->getExcludeProductIds()) {
+//        if ($filter->getExcludeProductIds()) {
 //            $ids                  = "( '" . implode("','",
 //                    array_map('esc_sql', $filter->getExcludeProductIds())) . "' )";
 //            $this->excludeWhere[] = "post.ID NOT IN {$ids} AND post.post_parent NOT IN {$ids}";

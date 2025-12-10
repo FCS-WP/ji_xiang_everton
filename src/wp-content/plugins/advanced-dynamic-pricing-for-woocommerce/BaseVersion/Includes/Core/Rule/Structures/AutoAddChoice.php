@@ -132,15 +132,15 @@ class AutoAddChoice implements \Serializable
      */
     public function unserialize($data)
     {
-        $data = unserialize($data);
+        $data = maybe_unserialize($data);
 
-        $this->type   = $data['type'];
-        $this->method = $data['method'];
-        $this->values = $data['values'];
+        $this->__unserialize($data);
     }
 
     public function __unserialize($data)
     {
-        $this->unserialize($data);
+        $this->type   = $data['type'];
+        $this->method = $data['method'];
+        $this->values = $data['values'];
     }
 }

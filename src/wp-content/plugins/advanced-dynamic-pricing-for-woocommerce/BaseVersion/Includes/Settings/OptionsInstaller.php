@@ -32,7 +32,7 @@ class OptionsInstaller
 
         $optionsList->register(
             $builder::boolean('show_unmodified_price_if_discounts_with_coupon',
-                false,
+                true,
                 __('Show unmodified price if product discounts added as coupon', 'advanced-dynamic-pricing-for-woocommerce')
             ),
 
@@ -188,6 +188,12 @@ class OptionsInstaller
                     'advanced-dynamic-pricing-for-woocommerce')
             ),
             $builder::boolean(
+                'force_displaying_variation_price',
+                false,
+                __('Force displaying variation price',
+                    'advanced-dynamic-pricing-for-woocommerce')
+            ),
+            $builder::boolean(
                 'show_message_after_add_free_product',
                 false,
                 __('Show message after adding free product|Enable', 'advanced-dynamic-pricing-for-woocommerce')
@@ -223,21 +229,14 @@ class OptionsInstaller
                 __('Apply pricing rules while doing cron', 'advanced-dynamic-pricing-for-woocommerce')
             ),
             $builder::boolean(
-                'allow_to_edit_prices_in_po',
-                false,
-                __('Allow to edit prices in Phone Orders', 'advanced-dynamic-pricing-for-woocommerce')
+                'update_prices_while_doing_rest_api',
+                true,
+                __('Apply pricing rules while doing REST API', 'advanced-dynamic-pricing-for-woocommerce')
             ),
             $builder::boolean(
                 'suppress_other_pricing_plugins',
                 false,
                 __('Suppress other pricing plugins in frontend', 'advanced-dynamic-pricing-for-woocommerce')
-            ),
-
-
-            $builder::boolean(
-                'allow_to_exclude_products',
-                true,
-                __('Allow to exclude products in filters', 'advanced-dynamic-pricing-for-woocommerce')
             ),
 
             $builder::boolean(
@@ -284,6 +283,13 @@ class OptionsInstaller
                 false,
                 __('Hide "Coupon" word in cart totals', 'advanced-dynamic-pricing-for-woocommerce')
             ),
+
+            $builder::boolean(
+                'individual_wc_coupon_suppress_coupons',
+                false,
+                __('"Individual use" WC coupon suppress coupons added by rules', 'advanced-dynamic-pricing-for-woocommerce')
+            ),
+
 
             $builder::selective(
                 "process_product_strategy",
@@ -395,6 +401,11 @@ class OptionsInstaller
                 "apply"
             ),
 
+            $builder::boolean('admin_footer_text_rated',
+                false,
+                __('Has the administrator visited the plugin review page', 'advanced-dynamic-pricing-for-woocommerce')
+            ),
+
             // deprecated
             $builder::selective(
                 'disable_external_coupons',
@@ -423,10 +434,20 @@ class OptionsInstaller
                 __("From {{price}} {{price_suffix}}", 'advanced-dynamic-pricing-for-woocommerce'),
                 __('Replace price with lowest bulk price|Output template', 'advanced-dynamic-pricing-for-woocommerce')
             ),
+            $builder::integer(
+                'req_variations_for_optimization_at_shop',
+                10,
+                __('Show approximate price range if product has X variations or more', 'advanced-dynamic-pricing-for-woocommerce')
+            ),
             $builder::boolean(
                 'disable_shipping_calc_during_process',
                 false,
                 __('Disable shipping calculation', 'advanced-dynamic-pricing-for-woocommerce')
+            ),
+            $builder::boolean(
+                'dont_recalculate_cart_on_page_load',
+                false,
+                __('Don\'t recalculate cart on page load', 'advanced-dynamic-pricing-for-woocommerce')
             ),
             $builder::boolean(
                 'support_persistence_rules',
@@ -449,11 +470,6 @@ class OptionsInstaller
                 'readonly_price_for_free_products',
                 true,
                 __('Read-only quantity for free products', 'advanced-dynamic-pricing-for-woocommerce')
-            ),
-            $builder::boolean(
-                'update_prices_while_doing_rest_api',
-                false,
-                __('Apply pricing rules while doing REST API', 'advanced-dynamic-pricing-for-woocommerce')
             )
         );
 

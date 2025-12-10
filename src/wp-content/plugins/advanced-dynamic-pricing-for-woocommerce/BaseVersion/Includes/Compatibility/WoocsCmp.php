@@ -54,6 +54,27 @@ class WoocsCmp
     {
         if ($this->isActive()) {
             remove_action('woocommerce_package_rates', array($this->woocs, 'woocommerce_package_rates'), 9999);
+            $hooks = array(
+                'woocommerce_product_get_price',
+                'woocommerce_product_variation_get_price',
+                'woocommerce_product_variation_get_regular_price',
+                'woocommerce_product_get_regular_price',
+                'woocommerce_product_get_sale_price',
+                'woocommerce_get_variation_regular_price',
+                'woocommerce_get_variation_sale_price'
+            );
+            foreach ($hooks as $hook) {
+                add_filter($hook, function ($price, $product) {
+                    if ($product->get_meta('adp_price_converted')) {
+                        $_REQUEST['woocs_block_price_hook'] = true;
+                    }
+                    return $price;
+                }, 10, 2);
+                add_filter($hook, function ($price) {
+                    unset($_REQUEST['woocs_block_price_hook']);
+                    return $price;
+                }, PHP_INT_MAX);
+            }
         }
     }
 

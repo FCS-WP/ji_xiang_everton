@@ -41,7 +41,7 @@ use ADP\BaseVersion\Includes\ImportExport\ImporterCSV;
             </label>
         </div>
     </div>
-    <div class="button" style="padding-right: 0;">
+    <div class="button" style="padding-right: 0; margin-top: 5px; margin-bottom: 5px;">
         <input type="file" name="rules-to-import" id="rules-to-import-csv" accept=".csv" style="margin-top: 3px;"/>
         <button
                 id="wdp-import-csv"
@@ -53,5 +53,11 @@ use ADP\BaseVersion\Includes\ImportExport\ImporterCSV;
             >
                 <?php _e( 'Import', 'advanced-dynamic-pricing-for-woocommerce' ); ?>
             </button>
+    </div>
+    <div>
+        <input type="checkbox" id="wdp-import-data-optimize-rules" name="wdp-import-data-optimize-import" style="margin-top: 2px">
+        <label for="wdp-import-data-add-rules">
+            <?php _e('Don\'t optimize the rules during importing', 'advanced-dynamic-pricing-for-woocommerce'); ?>
+        </label>
     </div>
 </form>

@@ -20,7 +20,7 @@ defined('ABSPATH') or exit;
                 <input <?php checked($options['support_persistence_rules']) ?>
                     name="support_persistence_rules" id="support_persistence_rules" type="checkbox">
             </label>
-            <a href="https://docs.algolplus.com/algol_pricing/product-only-type-rule/" 
+            <a href="https://docs.algolplus.com/algol_pricing/rules/product-only-rule-type/"
                target="_blank"><?php _e('Read short guide', 'advanced-dynamic-pricing-for-woocommerce') ?></a>
             <a href="<?php echo admin_url('admin.php?page=wdp_settings&tab=tools#section=migration_rules');?>" style="margin-left: 10px;"
                target="_blank"><?php _e('Migrate rules', 'advanced-dynamic-pricing-for-woocommerce') ?></a>

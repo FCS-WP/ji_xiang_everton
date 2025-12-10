@@ -42,6 +42,8 @@ defined('ABSPATH') or exit;
     </ul><br class="clear"/>
 
     <div class="wdp-settings-sections-wrapper">
+        <script>
+            </script>
         <form method="post">
             <input type="hidden" name="action" value="wdp">
             <input type="hidden" name="tab" value="<?php echo $tabHandler::getKey(); ?>"/>
@@ -77,7 +79,7 @@ defined('ABSPATH') or exit;
                 </div>
             <?php endforeach; ?>
 
-            <a href="https://algolplus.com/plugins/downloads/advanced-dynamic-pricing-woocommerce-pro/"
+            <a href="https://algolplus.com/plugins/downloads/advanced-dynamic-pricing-woocommerce-pro/?currency=USD"
                target=_blank><?php _e('Need more settings?', 'advanced-dynamic-pricing-for-woocommerce') ?></a>
 
             <p class="wdp-settings-button">

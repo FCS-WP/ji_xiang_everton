@@ -2,7 +2,6 @@
 
 namespace ADP\BaseVersion\Includes\CartProcessor;
 
-use ADP\BaseVersion\Includes\CartProcessor\ToPricingCartItemAdapter\SimpleToPricingCartItemAdapter;
 use ADP\BaseVersion\Includes\CartProcessor\CartCouponsProcessorMerge\MergeCoupon\IMergeAdpCoupon;
 use ADP\BaseVersion\Includes\Compatibility\AvataxCmp;
 use ADP\BaseVersion\Includes\Compatibility\FacebookCommerceCmp;
@@ -10,12 +9,14 @@ use ADP\BaseVersion\Includes\Compatibility\GiftCardsSomewhereWarmCmp;
 use ADP\BaseVersion\Includes\Compatibility\PDFProductVouchersCmp;
 use ADP\BaseVersion\Includes\Compatibility\PhoneOrdersCmp;
 use ADP\BaseVersion\Includes\Compatibility\ShoptimizerCmp;
-use ADP\BaseVersion\Includes\Compatibility\SomewhereWarmCompositesCmp;
-use ADP\BaseVersion\Includes\Compatibility\TmExtraOptionsCmp;
+use ADP\BaseVersion\Includes\Compatibility\Addons\TmExtraOptionsCmp;
 use ADP\BaseVersion\Includes\Compatibility\WcDepositsCmp;
+use ADP\BaseVersion\Includes\Compatibility\WcChainedProductsCmp;
 use ADP\BaseVersion\Includes\Compatibility\WcsAttCmp;
 use ADP\BaseVersion\Includes\Compatibility\WcSubscriptionsCmp;
+use ADP\BaseVersion\Includes\Compatibility\YoastSEOCmp;
 use ADP\BaseVersion\Includes\Compatibility\YithGiftCardsCmp;
+use ADP\BaseVersion\Includes\Compatibility\WcFreeGiftCouponsCmp;
 use ADP\BaseVersion\Includes\Context;
 use ADP\BaseVersion\Includes\Core\Cart\Cart;
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\CartItemConverter;
@@ -126,11 +127,6 @@ class CartProcessor
     protected $vouchers;
 
     /**
-     * @var SomewhereWarmCompositesCmp
-     */
-    protected $compositesCmp;
-
-    /**
      * @var wcDepositsCmp
      */
     protected $wcDepositsCmp;
@@ -144,11 +140,6 @@ class CartProcessor
      * @var FacebookCommerceCmp
      */
     protected $facebookCommerce;
-
-    /**
-     * @var TmExtraOptionsCmp
-     */
-    protected $tmExtraOptCmp;
 
     /**
      * @var AvataxCmp
@@ -169,6 +160,21 @@ class CartProcessor
      * @var ShoptimizerCmp
      */
     protected $shoptimizerCmp;
+
+    /**
+     * @var YoastSEOCmp
+     */
+    protected $yoastSEOCmp;
+
+    /**
+     * @var WcFreeGiftCouponsCmp
+     */
+    protected $wcFreeGiftCouponsCmp;
+
+    /**
+     * @var WcChainedProductsCmp
+     */
+    protected $wcchainprCmp;
 
     /**
      * CartProcessor constructor.
@@ -210,14 +216,15 @@ class CartProcessor
         $this->wcSubsCmp             = new WcSubscriptionsCmp();
         $this->wcsAttCmp             = new WcsAttCmp();
         $this->vouchers              = new PDFProductVouchersCmp();
-        $this->compositesCmp         = new SomewhereWarmCompositesCmp();
-        $this->tmExtraOptCmp         = new TmExtraOptionsCmp();
         $this->wcDepositsCmp         = new WcDepositsCmp();
         $this->yithGiftCardsCmp      = new YithGiftCardsCmp();
         $this->giftCart              = new GiftCardsSomewhereWarmCmp();
+        $this->yoastSEOCmp              = new YoastSEOCmp();
         $this->facebookCommerce      = new FacebookCommerceCmp();
         $this->shoptimizerCmp        = new ShoptimizerCmp();
         $this->avataxCmp             = new AvataxCmp();
+        $this->wcFreeGiftCouponsCmp  = new WcFreeGiftCouponsCmp();
+        $this->wcchainprCmp          = new WcChainedProductsCmp();
 
         if ($this->giftCart->isActive()) {
             $this->giftCart->applyCompatibility();
@@ -234,6 +241,16 @@ class CartProcessor
         if ($this->avataxCmp->isActive()) {
             $this->avataxCmp->applyCompatibility();
         }
+        if($this->yoastSEOCmp->isActive()) {
+            $this->yoastSEOCmp->applyCompatibility();
+        }
+        if($this->wcFreeGiftCouponsCmp->isActive()) {
+            $this->wcFreeGiftCouponsCmp->applyCompatibility();
+        }
+
+        if ($this->wcchainprCmp->isActive()) {
+            $this->wcchainprCmp->applyCompatibility();
+        }
 
         $this->cartItemConverter = new CartItemConverter();
     }
@@ -247,10 +264,10 @@ class CartProcessor
         $this->wcSubsCmp->withContext($context);
         $this->wcsAttCmp->withContext($context);
         $this->vouchers->withContext($context);
-        $this->compositesCmp->withContext($context);
         $this->wcDepositsCmp->withContext($context);
         $this->giftCart->withContext($context);
         $this->facebookCommerce->withContext($context);
+        $this->wcchainprCmp->withContext($context);
     }
 
     public function installActionFirstProcess()
@@ -269,6 +286,11 @@ class CartProcessor
         );
     }
 
+    public function installActionFirstProcess_Blocks()
+    {
+        $this->cartCouponsProcessor->installActions();
+    }
+
     /**
      * The main process function.
      * WC_Cart -> Cart -> Cart processing -> New Cart -> modifying global WC_Cart
@@ -279,6 +301,7 @@ class CartProcessor
      */
     public function process($first = false)
     {
+        static $doFirst = false;
         $wcCart           = $this->wcCart;
         $wcNoFilterWorker = $this->wcNoFilterWorker;
 
@@ -305,12 +328,18 @@ class CartProcessor
             return $cart;
         }
 
+        $optionDontProcessCart = apply_filters('adp_dont_process_cart_on_page_load', $this->context->getOption("dont_recalculate_cart_on_page_load", true));
+        if( $first AND $optionDontProcessCart ) {
+            $doFirst = true;
+            return $cart;
+        }
+
         $chosenShippingMethods    = WC()->session->get("chosen_shipping_methods");
         $chosenOwnShippingMethods = array();
 
         if (is_array($chosenShippingMethods)) {
             foreach ($chosenShippingMethods as $index => $chosenShippingMethod) {
-                if (strpos($chosenShippingMethod, ShippingMethodEnum::TYPE_ADP_FREE_SHIPPING) !== false) {
+                if (is_string($chosenShippingMethod) && strpos($chosenShippingMethod, ShippingMethodEnum::TYPE_ADP_FREE_SHIPPING) !== false) {
                     $chosenOwnShippingMethods[$index] = $chosenShippingMethod;
                 }
             }
@@ -390,6 +419,7 @@ class CartProcessor
 
                 $facade->setCurrency($currencySwitcher->getCurrentCurrency());
                 $clonedWcCart->cart_contents[$cartKey] = $facade->getData();
+                $product->add_meta_data('adp_price_converted', true);
             }
         } else {
             foreach ($clonedWcCart->cart_contents as $cartKey => $wcCartItem) {
@@ -399,7 +429,8 @@ class CartProcessor
 
                 $productExt = new ProductExtension($this->context, $product);
 
-                if ($first) {
+                if ($first || $doFirst) {
+                    $doFirst = false;
                     $facade->setInitialCustomPrice(null);
 
                     if ( $facade->isContainerType() ) {
@@ -430,9 +461,6 @@ class CartProcessor
                         $facade->setInitialCustomPrice(floatval($product->get_price('view')));
                     } elseif ( ! isset($product->get_changes()['price'])) {
                         self::setProductPriceDependsOnPriceMode($product);
-                    } elseif (($tmCmp = new TmExtraOptionsCmp()) && $tmCmp->isActive() && ($item = (new SimpleToPricingCartItemAdapter())->adapt($facade)) && count($item->getAddons()) > 0) {
-                        $productExt = new ProductExtension($product);
-                        $facade->setInitialCustomPrice(floatval($productExt->getProductPriceDependsOnPriceMode()) + $item->getAddonsAmount());
                     } else {
                         $facade->setInitialCustomPrice($product->get_price('edit'));
                     }
@@ -444,7 +472,6 @@ class CartProcessor
 
                         if ( $containerCmp !== null ) {
                             $containerItem = $containerCmp->adaptContainerCartItem($facade, [], -1);
-
                             $product->set_price($containerItem->getBasePrice());
                         }
                     } elseif ($facade->isContaineredType()) {
@@ -570,6 +597,8 @@ class CartProcessor
 
             $this->addCommonItems($cart, $wcCart);
 
+            do_action('adp_after_add_common_items');
+
             $wcNoFilterWorker->calculateTotals($wcCart, ...$flags);
 
             $this->cartCouponsProcessor->applyCouponsToWcCart($cart, $wcCart);
@@ -597,11 +626,9 @@ class CartProcessor
                 $flags[] = $wcNoFilterWorker::FLAG_ALLOW_PRICE_HOOKS;
             }
 
-            if ($this->compositesCmp->isActive()) {
-                $flags[] = $wcNoFilterWorker::FLAG_ALLOW_PRICE_HOOKS;
-            }
-
             $wcNoFilterWorker->calculateTotals($wcCart, ...$flags);
+
+            $this->normalizeCart($wcCart);
 
             $this->modifySession($cart, $wcCart, $initialTotals);
             $wcCart->set_session(); // Push updated totals into the session. Should be after 'updateTotals'
@@ -648,8 +675,17 @@ class CartProcessor
                 }
             }
         } else {
-            $cart->getContext()->getSession()->flush()->push();
+            $flags = array();
+            if ($this->wcSubsCmp->isActive() && $this->wcsAttCmp->isActive()) {
+                $flags[] = $wcNoFilterWorker::FLAG_ALLOW_PRICE_HOOKS;
+            }
+            // required to process bundles
+            $this->addCommonItems($cart, $wcCart);
+            $wcNoFilterWorker->calculateTotals($wcCart, ...$flags);
 
+            $this->normalizeCart($wcCart);
+
+            $cart->getContext()->getSession()->flush()->push();
             if ($this->context->refreshShippingProcessorWhenNoAppliedRules()) {
                 if ( ! $this->context->getOption("disable_shipping_calc_during_process", false)) {
                     $this->shippingProcessor->purgeCalculatedPackagesInSession();
@@ -663,6 +699,17 @@ class CartProcessor
         do_action('wdp_process_complete', $wcCart, $result, $cart, $this);
 
         return $cart;
+    }
+
+    protected function normalizeCart($wcCart) {
+        if( apply_filters('adp_force_integer_qty', true) ) {
+            foreach ($wcCart->cart_contents as $item_key => $item) {
+                if((float)$item['quantity'] == (int)$item['quantity']) {
+                    $item['quantity'] = (int)$item['quantity'];
+                }
+                $wcCart->cart_contents[$item_key] = $item;
+            }
+        }
     }
 
     protected function replaceCouponSuccessNotices($initialCoupons) {
@@ -727,9 +774,10 @@ class CartProcessor
                 }
 
                 $wrapper->setContainerChildrenHashes($newChildrenHashes);
+                $wrapper->setContainerType();
                 $wcCart->cart_contents[$wrapper->getKey()] = $wrapper->getData();
             } elseif ( $context->getContainerCompatibilityManager()->getCompatibilityFromPartOfContainerFacade($wrapper) ) {
-                if ( isset($wcCart->cart_contents[$wrapper->getParentContainerCartItemHash()]) ) {
+                if ( isset($wcCart->cart_contents[$wrapper->getParentContainerCartItemHash()]) ) { //TODO: bug always null
                     $parent = new WcCartItemFacade(
                         $wcCart->cart_contents[$wrapper->getParentContainerCartItemHash()],
                         $wrapper->getParentContainerCartItemHash()
@@ -737,6 +785,7 @@ class CartProcessor
 
                     if ($parent->getOriginalKey()) {
                         $wrapper->setParentContainerCartItemHash($parent->getOriginalKey());
+                        $wrapper->setContaineredType();
                         $wcCart->cart_contents[$wrapper->getKey()] = $wrapper->getData();
                     }
                 }
@@ -774,11 +823,12 @@ class CartProcessor
     protected function processFreeItems($cart, $wcCart)
     {
         $pos = 0;
+        $tmExtraOptCmp = new TmExtraOptionsCmp($this->context);
         foreach ($wcCart->cart_contents as $cartKey => $wcCartItem) {
             $wrapper = new WcCartItemFacade($this->context, $wcCartItem, $cartKey);
             if ($wrapper->isFreeItem()) {
-                if ( $this->tmExtraOptCmp->isActive() ) {
-                    $this->tmExtraOptCmp->removeKeysFromFreeCartItem($wrapper);
+                if ( $tmExtraOptCmp->isActive() ) {
+                    $tmExtraOptCmp->removeKeysFromFreeCartItem($wrapper);
                 }
                 $item = $this->cartItemConverter->fromFacadeToFreeCartItem($wrapper, $pos);
                 $cart->addToCart($item);
@@ -1111,12 +1161,12 @@ class CartProcessor
 
         if ($product->is_on_sale('edit')) {
             if ('sale_price' === $priceMode || 'discount_sale' === $priceMode) {
-                $price = $product->get_sale_price('edit');
+                $price = ($product instanceof \WC_Product_Variable) ? $product->get_variation_sale_price('min') : $product->get_sale_price('edit');
             } else {
-                $price = $product->get_regular_price('edit');
+                $price = ($product instanceof \WC_Product_Variable) ? $product->get_variation_regular_price('min') : $product->get_regular_price('edit');
             }
         } else {
-            $price = $product->get_price('edit');
+            $price = ($product instanceof \WC_Product_Variable) ? $product->get_variation_price('min') : $product->get_price('edit');
         }
 
         $product->set_props($changesToRestore, 'edit');
@@ -1225,8 +1275,9 @@ class CartProcessor
             $facade             = new WcCartItemFacade($wcCartItem, $cartItemKey);
             $globalWcCartFacade = new WcCartItemFacade($wcCart->cart_contents[$cartItemKey], $cartItemKey);
 
-            $globalWcCartFacade->setRegularPriceWithoutTax($facade->getSubtotal() / $facade->getQty());
-            $globalWcCartFacade->setRegularPriceTax($facade->getSubtotalTax() / $facade->getQty());
+            // gift has 0 qty when it's in process of adding to cart
+            $globalWcCartFacade->setRegularPriceWithoutTax($facade->getQty() > 0 ? $facade->getSubtotal() / $facade->getQty() : 0);
+            $globalWcCartFacade->setRegularPriceTax($facade->getQty() > 0 ? $facade->getSubtotalTax() / $facade->getQty() : 0);
 
             $wcCart->cart_contents[$cartItemKey] = $globalWcCartFacade->getData();
         }
@@ -1274,14 +1325,13 @@ class CartProcessor
                 $facade->setNewPrice($hostFacade->getProduct()->get_price('edit'));
 
                 if ($facade->getReplaceWithCoupon() && $facade->getReplaceCouponCode()) {
-                    $cartItemQty = $hostFacade->getQty();
 
                     if ($this->context->priceSettings->isIncludeTax()) {
-                        $couponAmount = $hostFacade->getSubtotal() + $hostFacade->getExactSubtotalTax();
+                        $couponAmount = $hostFacade->getOriginalPriceWithoutTax() + $facade->getOriginalPriceTax();
                     } else {
-                        $couponAmount = $hostFacade->getSubtotal();
+                        $couponAmount = $hostFacade->getOriginalPriceWithoutTax();
                     }
-                    $couponAmount = ($couponAmount / $cartItemQty) * $freeItem->getQty();
+                    $couponAmount = $couponAmount * $freeItem->getQty();
 
                     $coupon = new CouponCartItem(
                         $this->context,
@@ -1506,7 +1556,8 @@ class CartProcessor
          */
         $flags = array($wcNoFilterWorker::FLAG_ALLOW_PRICE_HOOKS);
         if ($this->context->getOption("disable_shipping_calc_during_process", false) && !did_action( "wpo_before_update_cart" )) {
-            $flags[] = $wcNoFilterWorker::FLAG_DISALLOW_SHIPPING_CALCULATION;
+            //BUG: shipping cost ignored if rules are NOT applied to the cart
+            //$flags[] = $wcNoFilterWorker::FLAG_DISALLOW_SHIPPING_CALCULATION;
         }
         $wcNoFilterWorker->calculateTotals($wcCart, ...$flags);
         // Delete all 'pricing' data from the cart ended

@@ -4,6 +4,7 @@ namespace ADP\BaseVersion\Includes\Core\Cart\CartItem\Type;
 
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\CartItemPriceAdjustment\CartItemPriceAdjustment;
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Base\CartItemAddon;
+use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Base\CartItemAttributeEnum;
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Base\CartItemPrices;
 use ADP\BaseVersion\Includes\WC\WcCartItemFacade;
 
@@ -16,6 +17,8 @@ interface ICartItem
     public function setAddons(array $addons);
 
     public function getAddonsAmount(): float;
+
+    public function hasAttr(CartItemAttributeEnum $attribute): bool;
 
     public function addAttr(...$attributes);
 
@@ -52,7 +55,7 @@ interface ICartItem
     /**
      * @return array<int, array<int, float>>
      */
-    public function getDiscounts(): array;
+    public function getDiscounts(bool $adjustAmountsForCouponMode): array;
 
     public function getHash(): string;
 

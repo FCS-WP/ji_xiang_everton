@@ -85,8 +85,8 @@ class Help implements AdminTabInterface
                 'link' => esc_url('https://docs.algolplus.com/algol_pricing/rules-list/'),
             ),
             array(
-                'title' => __('Need more settings? Go to PRO'),
-                'description' => __('Difference between free and pro.'),
+                'title' => __('Need more settings? Go to PRO', 'advanced-dynamic-pricing-for-woocommerce'),
+                'description' => __('Difference between free and pro.', 'advanced-dynamic-pricing-for-woocommerce'),
                 'link' => esc_url('https://docs.algolplus.com/algol_pricing/go-to-pro/')
             ),
             array(
@@ -96,7 +96,7 @@ class Help implements AdminTabInterface
             ),
             array(
                 'title' => __('Rules Settings', 'advanced-dynamic-pricing-for-woocommerce'),
-                'description' => __('More detailed about applying of the sections/rules, as a coupon.'),
+                'description' => __('More details about applying of the sections/rules as a coupon.', 'advanced-dynamic-pricing-for-woocommerce'),
                 'link' => esc_url('https://docs.algolplus.com/algol_pricing/rules-settings/')
             ),
             array(
@@ -116,8 +116,8 @@ class Help implements AdminTabInterface
             ),
             array(
                 'title' => __('Tools', 'advanced-dynamic-pricing-for-woocommerce'),
-                'description' => __('More detailed about Tools tab.', 'advanced-dynamic-pricing-for-woocommerce'),
-                'link' => esc_url('https://docs.algolplus.com/algol_pricing/tools-free/')
+                'description' => __('More details about Tools tab.', 'advanced-dynamic-pricing-for-woocommerce'),
+                'link' => esc_url('https://docs.algolplus.com/algol_pricing/system-report/')
             ),
         );
     }

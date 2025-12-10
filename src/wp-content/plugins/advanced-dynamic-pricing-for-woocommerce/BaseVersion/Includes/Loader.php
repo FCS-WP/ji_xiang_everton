@@ -29,6 +29,9 @@ class Loader
             if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
                 \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables',
                     WC_ADP_PLUGIN_PATH . WC_ADP_PLUGIN_FILE, true );
+
+                \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', 
+                    WC_ADP_PLUGIN_PATH . WC_ADP_PLUGIN_FILE, true );
             }
         } );
     }
@@ -87,6 +90,8 @@ class Loader
         if ($anyFeedsCmp->isActive()) {
             $anyFeedsCmp->updateContext(adp_context());
         }
+
+        wp_enqueue_style('wdp_cart-summary', WC_ADP_PLUGIN_URL . "/BaseVersion/" . 'assets/css/cart-summary.css', array(), WC_ADP_VERSION);
     }
 
     public function checkRequirements()

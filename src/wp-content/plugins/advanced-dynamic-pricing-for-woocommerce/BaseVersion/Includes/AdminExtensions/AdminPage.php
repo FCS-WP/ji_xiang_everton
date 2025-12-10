@@ -47,6 +47,7 @@ class AdminPage
         add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
         add_filter('script_loader_src', array($this, 'doNotLoadExternalSelect2'), PHP_INT_MAX, 2);
         add_filter('script_loader_src', array($this, 'doNotLoadExternalPostbox'), PHP_INT_MAX, 2);
+        add_filter('admin_footer_text', array( $this, 'adminFooterText' ), 1 );
 
         add_action('admin_enqueue_scripts', function () {
             if (adp_context()->isPluginAdminPage()) {
@@ -111,6 +112,9 @@ class AdminPage
         wp_enqueue_script('wdp_postbox', $baseVersionUrl . 'assets/js/postbox.js',
             array('jquery', 'jquery-ui-sortable'), WC_ADP_VERSION);
 
+        wp_enqueue_script('wdp_admin-notice', $baseVersionUrl . 'assets/js/admin-notice.js',
+            array('jquery'), WC_ADP_VERSION);
+
         // jQuery UI Datepicker
         wp_enqueue_script('jquery-ui-datepicker');
 
@@ -144,11 +148,15 @@ class AdminPage
 
         wp_enqueue_script('wdp_cache_recalculation', $baseVersionUrl . 'assets/js/cache-recalculation.js', array('jquery'), WC_ADP_VERSION);
 
+
         $wdp_data = array(
             'security'           => wp_create_nonce(Ajax::SECURITY_ACTION),
             'security_query_arg' => Ajax::SECURITY_QUERY_ARG,
         );
         wp_localize_script('wdp_cache_recalculation', 'wdp_cache_recalculation_data', $wdp_data);
+
+        wp_enqueue_script('wdp_admin-footer-text-rated', $baseVersionUrl . 'assets/js/admin-footer-text-rated.js', array('jquery'), WC_ADP_VERSION);
+        wp_localize_script('wdp_admin-footer-text-rated', 'wdp_admin_footer_text_rated_data', $wdp_data);
 
         $this->currentTab->enqueueScripts();
     }
@@ -206,7 +214,7 @@ class AdminPage
     {
         // don't load ANY select2.js / select2.min.js  and OUTDATED select2.full.js
         if ( ! preg_match('/\/select2\.full\.js\?ver=[1-3]/', $src) && ! preg_match('/\/select2\.min\.js/',
-                $src) && ! preg_match('/\/select2\.js/', $src)) {
+                $src) && ! preg_match('/\/select2\.js/', $src) && ! strpos($src, 'woo-advanced-discounts/admin/js/wad-select2.js')) {
             return $src;
         }
 
@@ -221,5 +229,24 @@ class AdminPage
         }
 
         return "";
+    }
+
+    public function adminFooterText( $footer_text )
+    {
+        if ( ! adp_context()->isPluginAdminPage()) {
+            return $footer_text;
+        }
+
+        if ( ! $this->context->getOption('admin_footer_text_rated') ) {
+            $footer_text = sprintf(
+                __( 'If you like %1$s please leave us a %2$s rating. A huge thanks in advance!', 'advanced-dynamic-pricing-for-woocommerce' ),
+                sprintf( '<strong>%s</strong>', 'Advanced Dynamic Pricing for WooCommerce' ),
+                '<a href="https://wordpress.org/support/plugin/advanced-dynamic-pricing-for-woocommerce/reviews?rate=5#new-post" target="_blank" class="wdp-rating-link" aria-label="' . esc_attr__( 'five star', 'advanced-dynamic-pricing-for-woocommerce' ) . '" data-rated="' . esc_attr__( 'Thanks!', 'advanced-dynamic-pricing-for-woocommerce' ) . '">&#9733;&#9733;&#9733;&#9733;&#9733;</a>'
+            );
+        } else {
+            $footer_text = __( 'Thank you for selling with Advanced Dynamic Pricing for WooCommerce.', 'advanced-dynamic-pricing-for-woocommerce' );
+        }
+
+        return $footer_text;
     }
 }

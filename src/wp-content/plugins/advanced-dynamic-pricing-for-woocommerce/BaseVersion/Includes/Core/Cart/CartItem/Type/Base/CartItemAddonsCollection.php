@@ -4,7 +4,7 @@ namespace ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Base;
 
 class CartItemAddonsCollection
 {
-    /** @var array<int, CartItemAddon> */
+    /** @var array<string, CartItemAddon> */
     private $addons;
 
     public function __construct()
@@ -13,7 +13,7 @@ class CartItemAddonsCollection
     }
 
     /**
-     * @param array<int, CartItemAddon> $addons
+     * @param array<string, CartItemAddon> $addons
      */
     public static function ofList($addons)
     {

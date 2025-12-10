@@ -216,6 +216,11 @@ abstract class AbstractCartItem
         $this->recalculateHash();
     }
 
+    public function setPriceAdjustments(array $adjustments)
+    {
+        $this->priceAdjustments = $adjustments;
+    }
+
     public function getPriceAdjustments(): array
     {
         return $this->priceAdjustments;
@@ -246,11 +251,11 @@ abstract class AbstractCartItem
     /**
      * @return array<int, array<int, float>>
      */
-    public function getDiscounts(): array
+    public function getDiscounts(bool $adjustAmountsForCouponMode = false): array
     {
         $discounts = [];
         foreach ($this->priceAdjustments as $adjustment) {
-            if (!$adjustment->getType()->equals(CartItemPriceUpdateTypeEnum::DEFAULT())) {
+            if (!$adjustAmountsForCouponMode && !$adjustment->getType()->equals(CartItemPriceUpdateTypeEnum::DEFAULT())) {
                 continue;
             }
 
@@ -268,6 +273,8 @@ abstract class AbstractCartItem
     {
         return $this->getPrice() * $this->qty;
     }
+
+    abstract function getPrice();
 
     public function areRuleApplied(): bool
     {
@@ -293,7 +300,7 @@ abstract class AbstractCartItem
 
     public function isHistoryEqualsDiscounts(): bool
     {
-        return $this->getDiscounts() === $this->getHistory();
+        return $this->getDiscounts(true) === $this->getHistory();
     }
 
     abstract protected function recalculateHash();

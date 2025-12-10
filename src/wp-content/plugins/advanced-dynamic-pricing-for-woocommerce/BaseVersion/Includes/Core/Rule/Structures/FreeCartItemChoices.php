@@ -155,15 +155,15 @@ class FreeCartItemChoices implements \Serializable
      */
     public function unserialize($data)
     {
-        $data = unserialize($data);
+        $data = maybe_unserialize($data);
 
-        $this->choices     = $data['choices'];
-        $this->requiredQty = $data['requiredQty'];
+        $this->__unserialize($data);
     }
 
     public function __unserialize($data)
     {
-        $this->unserialize($data);
+        $this->choices     = $data['choices'];
+        $this->requiredQty = $data['requiredQty'];
     }
 
     /**

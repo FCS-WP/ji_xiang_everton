@@ -107,7 +107,7 @@ class CartCouponsProcessor implements ICartCouponsProcessor
             if ($coupon instanceof CouponCart && $coupon->getValue()) {
                 if ($coupon->isType($coupon::TYPE_FIXED_VALUE)) {
                     if ($context->isCombineMultipleDiscounts()) {
-                        $coupon->setCode($context->getOption('default_discount_name'));
+                        $coupon->setCode(strtolower($context->getOption('default_discount_name')));
                     }
                     $this->addGroupCoupon($coupon);
                 } elseif ($coupon->isType($coupon::TYPE_PERCENTAGE)) {
@@ -115,7 +115,7 @@ class CartCouponsProcessor implements ICartCouponsProcessor
                 }
             } elseif ($coupon instanceof CouponCartItem && $coupon->getValue()) {
                 if ($context->isCombineMultipleDiscounts()) {
-                    $coupon->setCode($context->getOption('default_discount_name'));
+                    $coupon->setCode(strtolower($context->getOption('default_discount_name')));
                     $this->addGroupCoupon($coupon);
                 } else {
                     $this->addGroupCoupon($coupon);

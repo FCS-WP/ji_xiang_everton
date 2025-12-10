@@ -7,8 +7,6 @@ use ADP\BaseVersion\Includes\Database\Repository\OrderRepository;
 use ADP\BaseVersion\Includes\Database\Repository\OrderRepositoryInterface;
 use ADP\BaseVersion\Includes\WC\WcCustomerSessionFacade;
 use ADP\Factory;
-use DateTime;
-use DateTimeZone;
 use Zippy_Booking\Src\Services\Zippy_Datetime_Helper;
 use Zippy_Booking\Src\Woocommerce\Admin\Zippy_Woo_Manual_Order;
 
@@ -52,7 +50,8 @@ class CartContext
         $this->orderRepository = new OrderRepository();
 
         /** @var WcCustomerSessionFacade $wcSessionFacade */
-        $this->secssionFacade = Factory::get("WC_WcCustomerSessionFacade", null);
+        $this->sessionFacade = Factory::get("WC_WcCustomerSessionFacade", null);
+
         $this->environment = array(
             'timestamp'           => $this->getBillingDate(),
             'prices_includes_tax' => $this->context->getIsPricesIncludeTax(),
@@ -140,6 +139,46 @@ class CartContext
     public function getCountOfRuleUsagesPerCustomer($ruleId, $customerId)
     {
         return $this->orderRepository->getCountOfRuleUsagesPerCustomer($ruleId, $customerId);
+    }
+
+    public function getCountOfRuleUsagesPerCustomerData($ruleId)
+    {
+        $data = array();
+        if (isset($_POST['post_data'])) {
+            parse_str(wp_unslash($_POST['post_data']), $postData);
+            $data['customer_email'] = $postData['billing_email'];
+            $data['customer_first_name'] = $postData['billing_first_name'];
+            $data['customer_last_name'] = $postData['billing_last_name'];
+            $data['customer_address_1'] = $postData['billing_address_1'];
+            $data['customer_address_2'] = $postData['billing_address_2'];
+            $data['customer_city'] = $postData['billing_city'];
+            $data['customer_state'] = $postData['billing_state'];
+            $data['customer_zip'] = $postData['billing_postcode'];
+        } elseif (WC()->cart) { // loaded when WC cart exists?
+            $wcCustomer = WC()->cart->get_customer();
+            $data['customer_email'] = $wcCustomer->get_billing_email();
+            $data['customer_first_name'] = $wcCustomer->get_billing_first_name();
+            $data['customer_last_name'] = $wcCustomer->get_billing_last_name();
+            $data['customer_address_1'] = $wcCustomer->get_billing_address_1();
+            $data['customer_address_2'] = $wcCustomer->get_billing_address_2();
+            $data['customer_city'] = $wcCustomer->get_billing_city();
+            $data['customer_state'] = $wcCustomer->get_billing_state();
+            $data['customer_zip'] = $wcCustomer->get_shipping_postcode();
+        }
+
+        if (
+            !empty($data['customer_email']) ||
+            ($data['customer_first_name'] &&
+                $data['customer_last_name'] &&
+                $data['customer_address_1'] &&
+                $data['customer_city'] &&
+                $data['customer_state'] &&
+                $data['customer_zip'])
+        ) {
+            return $this->orderRepository->getCountOfRuleUsagesPerCustomerData($ruleId, $data);
+        } else {
+            return 0;
+        }
     }
 
     public function isTaxEnabled()

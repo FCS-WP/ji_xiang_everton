@@ -29,4 +29,13 @@ interface ComparisonMethods
     const SPECIFIC_DATE = 'specific_date';
     const CONTAINS = 'contains';
     const NOT_CONTAINS = 'not_contains';
+
+    const BASIC_METHODS = [
+        self::LT,
+        self::LTE,
+        self::MTE,
+        self::MT,
+        self::EQ,
+        self::NEQ
+    ];
 }

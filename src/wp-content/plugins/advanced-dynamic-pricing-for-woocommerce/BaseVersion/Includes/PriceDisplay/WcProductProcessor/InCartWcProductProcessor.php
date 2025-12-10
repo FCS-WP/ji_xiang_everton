@@ -5,14 +5,14 @@ namespace ADP\BaseVersion\Includes\PriceDisplay\WcProductProcessor;
 use ADP\BaseVersion\Includes\Cache\CacheHelper;
 use ADP\BaseVersion\Includes\Context;
 use ADP\BaseVersion\Includes\Core\Cart\Cart;
-use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Basic\BasicCartItem;
-use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Container\ContainerCartItem;
 use ADP\BaseVersion\Includes\Debug\ProductCalculatorListener;
 use ADP\BaseVersion\Includes\PriceDisplay\ProcessedGroupedProduct;
 use ADP\BaseVersion\Includes\PriceDisplay\ProcessedProductContainer;
 use ADP\BaseVersion\Includes\PriceDisplay\ProcessedProductSimple;
 use ADP\BaseVersion\Includes\PriceDisplay\ProcessedVariableProduct;
+use ADP\BaseVersion\Includes\PriceDisplay\WcProductCalculationWrapper;
 use ADP\Factory;
+use Exception;
 use WC_Product;
 
 class InCartWcProductProcessor implements IWcProductProcessor
@@ -29,7 +29,7 @@ class InCartWcProductProcessor implements IWcProductProcessor
     protected $listener;
 
     /**
-     * @var Cart
+     * @var Cart|null
      */
     protected $cart;
 
@@ -68,22 +68,44 @@ class InCartWcProductProcessor implements IWcProductProcessor
         } elseif ($theProduct instanceof WC_Product) {
             $product = clone $theProduct;
         } else {
+            $this->context->handleError(new Exception("Product does not exists"));
+
             return null;
         }
+
+        return $this->calculateWithProductWrapper(
+            new WcProductCalculationWrapper($product, $cartItemData, []),
+            $qty
+        );
+    }
+
+    /**
+     * @param WcProductCalculationWrapper $wrapper
+     * @param float $qty
+     *
+     * @return ProcessedGroupedProduct|ProcessedProductSimple|ProcessedVariableProduct|null
+     */
+    public function calculateWithProductWrapper(WcProductCalculationWrapper $wrapper, float $qty = 1.0){
+        $product = $wrapper->getWcProduct();
+        $cartItemData = $wrapper->getCartItemData();
 
         if ($product instanceof \WC_Product_Grouped) {
             /** @var $processed ProcessedGroupedProduct */
             $processed = Factory::get("PriceDisplay_ProcessedGroupedProduct", $product, $qty);
             $children = array_filter(
-                array_map(
-                    'wc_get_product',
-                    $product->get_children()
-                ),
+                array_map('wc_get_product', $product->get_children()),
                 'wc_products_array_filter_visible_grouped'
             );
 
             foreach ($children as $childId) {
-                $processedChild = $this->calculateProduct($childId, $qty, $cartItemData);
+                $processedChild = $this->calculateSimpleProductWrapper(
+                    new WcProductCalculationWrapper(
+                        WcProductProcessorHelper::buildWcProductFromChildId($childId, $product),
+                        $cartItemData,
+                        []
+                    ),
+                    $qty
+                );
 
                 if (is_null($processedChild)) {
                     continue;
@@ -97,7 +119,14 @@ class InCartWcProductProcessor implements IWcProductProcessor
             $children = $product->get_visible_children();
 
             foreach ($children as $childId) {
-                $processedChild = $this->calculate($childId, $qty, $cartItemData, $product);
+                $processedChild = $this->calculateSimpleProductWrapper(
+                    new WcProductCalculationWrapper(
+                        WcProductProcessorHelper::buildWcProductFromChildId($childId, $product),
+                        $cartItemData,
+                        []
+                    ),
+                    $qty
+                );
 
                 if (is_null($processedChild)) {
                     continue;
@@ -107,7 +136,10 @@ class InCartWcProductProcessor implements IWcProductProcessor
             }
         } elseif ( WcProductProcessorHelper::isCalculatingPartOfContainerProduct($product) ) {
             $containerProduct = WcProductProcessorHelper::getBundleProductFromBundled($product);
-            $processedParent = $this->calculate($containerProduct, $qty, $cartItemData);
+            $processedParent = $this->calculateSimpleProductWrapper(
+                new WcProductCalculationWrapper($containerProduct, $cartItemData, []),
+                $qty
+            );
 
             $processed = null;
             if ($processedParent instanceof ProcessedProductContainer) {
@@ -118,46 +150,32 @@ class InCartWcProductProcessor implements IWcProductProcessor
                 }
             }
         } else {
-            $processed = $this->calculate($product, $qty, $cartItemData);
+            $processed = $this->calculateSimpleProductWrapper(
+                new WcProductCalculationWrapper($product, $cartItemData, []),
+                $qty
+            );
         }
 
         return $processed;
     }
 
     /**
-     * @param WC_Product|int $theProduct
+     * @param WcProductCalculationWrapper $wrapper
      * @param float $qty
-     * @param array $cartItemData
-     * @param WC_Product|null $theParentProduct
      *
      * @return ProcessedProductSimple|ProcessedProductContainer|null
      */
-    protected function calculate($theProduct, $qty = 1.0, $cartItemData = array(), $theParentProduct = null)
-    {
+    protected function calculateSimpleProductWrapper(
+        WcProductCalculationWrapper $wrapper,
+        float $qty = 1.0
+    ): ?ProcessedProductSimple {
         if (!$this->isCartExists()) {
             return null;
         }
 
-        if (is_numeric($theProduct)) {
-            $product = CacheHelper::getWcProduct($theProduct);
-        } elseif ($theProduct instanceof WC_Product) {
-            $product = clone $theProduct;
-        } else {
-            $product = null;
-        }
-
-        if ($product === null) {
-            return null;
-        }
-
-        if (is_numeric($theParentProduct)) {
-            $parent = CacheHelper::getWcProduct($theParentProduct);
-        } elseif ($theParentProduct instanceof WC_Product) {
-            $parent = clone $theParentProduct;
-        } else {
-            $parent = null;
-        }
-
+        $product = $wrapper->getWcProduct();
+        $cartItemData = $wrapper->getCartItemData();
+        $addons = $wrapper->getAddons();
 
         $tmpItems = [];
         $currentQty = 0.0;
@@ -191,10 +209,6 @@ class InCartWcProductProcessor implements IWcProductProcessor
 
             $condition = $loopItem->getWcItem()->getProduct()->get_id() === $product->get_id();
 
-            if ($parent !== null) {
-                $condition &= $loopItem->getWcItem()->getProduct()->get_parent_id() === $product->get_parent_id("edit");
-            }
-
             if ($product instanceof \WC_Product_Variation && $loopProduct instanceof \WC_Product_Variation) {
                 $loopProductVariationAttributes = $loopProduct->get_variation_attributes();
 
@@ -206,6 +220,20 @@ class InCartWcProductProcessor implements IWcProductProcessor
             // cart item data
             foreach ($loopItem->getWcItem()->getThirdPartyData() as $key => $value) {
                 $condition &= !isset($cartItemData[$key]) || $cartItemData[$key] !== $value;
+            }
+
+            // addons
+            $condition &= count($loopItem->getAddons()) == count($addons);
+            foreach ($loopItem->getAddons() as $loopAddon) {
+                $match = false;
+                foreach ($addons as $addon) {
+                    if ($loopAddon->getKey() == $addon->getKey()) {
+                        $match = true;
+                        $condition &= $loopAddon->getPrice() == $addon->getPrice();
+                        break;
+                    }
+                }
+                $condition &= $match;
             }
 
             if ($condition) {
@@ -230,9 +258,14 @@ class InCartWcProductProcessor implements IWcProductProcessor
             }
         }
 
-        $qtyAlreadyInCart = $qtyAlreadyInCart - array_sum(array_map(function ($item) {
-                return $item->getQty();
-            }, $tmpItems));
+        $qtyAlreadyInCart -= array_sum(
+            array_map(
+                function ($item) {
+                    return $item->getQty();
+                },
+                $tmpItems
+            )
+        );
 
         if (count($tmpItems) === 0) {
             return null;
@@ -249,7 +282,8 @@ class InCartWcProductProcessor implements IWcProductProcessor
         );
 
         $processedProduct->setQtyAlreadyInCart($qtyAlreadyInCart);
-        $this->listener->processedProduct($processedProduct);
+        if( $this->context->getOption("show_debug_bar") )
+            $this->listener->processedProduct($processedProduct);
 
         return $processedProduct;
     }
@@ -257,15 +291,15 @@ class InCartWcProductProcessor implements IWcProductProcessor
     /**
      * @return ProductCalculatorListener
      */
-    public function getListener()
+    public function getListener(): ProductCalculatorListener
     {
         return $this->listener;
     }
 
     /**
-     * @return Cart
+     * @return Cart|null
      */
-    public function getCart()
+    public function getCart(): ?Cart
     {
         return $this->cart;
     }

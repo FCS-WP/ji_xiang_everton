@@ -5,6 +5,7 @@ namespace ADP\BaseVersion\Includes;
 use ADP\BaseVersion\Includes\CartProcessor\CartProcessor;
 use ADP\BaseVersion\Includes\CartProcessor\FreeAutoAddItemsController;
 use ADP\BaseVersion\Includes\Compatibility\CTXFeedCmp;
+use ADP\BaseVersion\Includes\Compatibility\KlarnaCmp;
 use ADP\BaseVersion\Includes\Compatibility\SmartCouponsCmp;
 use ADP\BaseVersion\Includes\Compatibility\WcSubscriptionsCmp;
 use ADP\BaseVersion\Includes\Compatibility\WcQuoteCmp;
@@ -77,7 +78,7 @@ class Engine
             throw new \Exception("Missing process product strategy for value: " . $this->context->getOption("process_product_strategy"));
         }
 
-        $this->priceDisplay              = Factory::get('PriceDisplay_PriceDisplay', $this->productProcessor);
+        $this->priceDisplay              = Factory::get('PriceDisplay_PriceDisplay', $this->productProcessor, $this);
         $this->cartItemDisplayExtensions = Factory::get('WC_WcCartItemDisplayExtensions');
         $this->profiler                  = Factory::get(
             "Debug_CalculationProfiler",
@@ -163,7 +164,12 @@ class Engine
 
         $this->process(true);
 
-        $hookPriority = intval(apply_filters('wdp_calculate_totals_hook_priority', PHP_INT_MAX));
+        $klarnaCmp = new KlarnaCmp();
+        if($klarnaCmp->isActive()){
+            $hookPriority = intval(apply_filters('wdp_calculate_totals_hook_priority', 999998));
+        } else {
+            $hookPriority = intval(apply_filters('wdp_calculate_totals_hook_priority', PHP_INT_MAX));
+        }
         add_action('woocommerce_after_calculate_totals', array($this, 'afterCalculateTotals'), $hookPriority);
 
         /**
@@ -172,7 +178,7 @@ class Engine
         add_action('woocommerce_checkout_process', function () {
             $context = $this->context;
             $context->setProps(array($context::WC_CHECKOUT_PAGE => true));
-            $this->process();
+//            $this->process();
         }, PHP_INT_MAX);
 
         /**
@@ -185,6 +191,7 @@ class Engine
                 $context->setProps(array($context::WC_CHECKOUT_PAGE => true));
             }, PHP_INT_MAX);
         }
+
     }
 
     public function process($first = false)

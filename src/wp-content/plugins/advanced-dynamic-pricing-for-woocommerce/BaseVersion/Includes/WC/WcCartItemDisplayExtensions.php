@@ -132,7 +132,7 @@ class WcCartItemDisplayExtensions
             $priceHtml = $newPriceHtml;
         }
 
-        return $priceHtml;
+        return apply_filters("adp_cart_item_price_html",$priceHtml, $newPrice, $oldPrice);
     }
 
     /**
@@ -202,7 +202,7 @@ class WcCartItemDisplayExtensions
             $priceHtml = $newPriceHtml;
         }
 
-        return $priceHtml;
+        return apply_filters("adp_cart_item_subtotal_html",$priceHtml, $newPrice, $oldPrice);
     }
 
     protected function getOriginalPriceToDisplayForCartItem(WcCartItemFacade $facade, bool $inclTax): ?float

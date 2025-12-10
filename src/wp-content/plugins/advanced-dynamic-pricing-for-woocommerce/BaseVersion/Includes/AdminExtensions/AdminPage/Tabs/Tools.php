@@ -94,16 +94,16 @@ class Tools implements AdminTabInterface
 
     public function exportJsonSettings()
     {
-        $this->checkNonceOrDie();
-        header("Content-type: application/json");
-        header("Expires: 0");
-        header("Content-Disposition: attachment; filename=advanced-dynamic-json-{$export}.json");
-
         $export = $_REQUEST['export_select'] ?? false;
 
         if($export === false) {
             die();
         }
+
+        $this->checkNonceOrDie();
+        header("Content-type: application/json");
+        header("Expires: 0");
+        header("Content-Disposition: attachment; filename=advanced-dynamic-json-{$export}.json");
 
         $this->prepareExportGroups();
 
@@ -113,7 +113,7 @@ class Tools implements AdminTabInterface
                 $items[$key] = $item;
             }
         }
-        
+
         echo array_key_exists($export, $items) ? json_encode($items[$export]['data']) : '';
         die();
     }
@@ -154,6 +154,9 @@ class Tools implements AdminTabInterface
 
     public function handleSubmitAction()
     {
+        if(isset($_POST['wdp-import-data-optimize-import'])) {
+            add_filter("adp_import_merge_rules","__return_false");
+        }
         if (isset($_POST['wdp-import']) && ! empty($_POST['wdp-import-data']) && ! empty($_POST['wdp-import-type'])) {
             $this->checkNonceOrDie();
 
@@ -465,13 +468,13 @@ class Tools implements AdminTabInterface
                 ),
             ),
             'import_rule_csv' => array(
-                'title'       => __('Import Rules (CSV)', 'advanced-dynamic-pricing-for-woocommerce'),
+                'title'       => __('Import rules (CSV)', 'advanced-dynamic-pricing-for-woocommerce'),
                 'templates'   => array(
                     'import_rule_csv',
                 ),
             ),
             "manage_bulk_ranges"        => array(
-                'title'     => __("Manage bulk ranges", 'advanced-dynamic-pricing-for-woocommerce'),
+                'title'     => __("Update bulk ranges (CSV)", 'advanced-dynamic-pricing-for-woocommerce'),
                 'templates' => array(
                     "manage_bulk_ranges",
                 ),

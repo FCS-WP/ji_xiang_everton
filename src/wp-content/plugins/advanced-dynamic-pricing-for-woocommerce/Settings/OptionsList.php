@@ -44,13 +44,13 @@ class OptionsList
         return $this->list[$key];
     }
 
-    public function getOptionsArray()
+    public function getOptionsArray($default = false)
     {
         if (isset($this->list)) {
             $options = array();
 
             foreach ($this->list as $id => $option) {
-                $options[$id] = $option->get();
+                $options[$id] = $default ? $option->getDefault() : $option->get();
             }
 
             return $options;

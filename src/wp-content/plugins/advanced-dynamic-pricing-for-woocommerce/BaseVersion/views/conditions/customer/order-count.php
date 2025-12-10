@@ -8,7 +8,7 @@ defined('ABSPATH') or exit;
 ?>
 <div class="wdp-column wdp-condition-subfield wdp-condition-field-method">
     <select name="rule[conditions][{c}][options][<?php echo TimeRangeCondition::TIME_RANGE_KEY ?>]">
-        <optgroup label="All time">
+        <optgroup label="<?php _e('All time', 'advanced-dynamic-pricing-for-woocommerce') ?>">
             <option value="all_time"><?php _e('all time', 'advanced-dynamic-pricing-for-woocommerce') ?></option>
         </optgroup>
         <optgroup label="<?php _e('Current', 'advanced-dynamic-pricing-for-woocommerce') ?>">

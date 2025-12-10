@@ -17,7 +17,7 @@ class Products
     /**
      * @param $listener IWcProductProcessor
      */
-    public function __construct($listener)
+    final public function __construct($listener)
     {
         $this->processor = $listener;
     }

@@ -106,10 +106,10 @@ $pleaseEnableText = __("Please, enable coupons to use price replacements.", 'adv
                     <label>
                         <input type="checkbox"
                                name="rule[additional][is_replace]">
-                        <?php _e("Add products to cart at normal cost and show discount as coupon",
+                        <?php _e("Don't change product price and show discount as coupon",
                             'advanced-dynamic-pricing-for-woocommerce') ?>
                     </label>
-                    <input type="text" name="rule[additional][replace_name]"
+                    <input type="text" name="rule[additional][replace_name]" style="width: 110px"
                            placeholder="<?php _e("coupon_name", 'advanced-dynamic-pricing-for-woocommerce') ?>"
                     >
 
@@ -131,7 +131,7 @@ $pleaseEnableText = __("Please, enable coupons to use price replacements.", 'adv
                             .'<br><a href="%s">' .__('Read docs', 'advanced-dynamic-pricing-for-woocommerce') .'</a>',
                             array('br' => array(), 'a' => array('href' => array()))
                         ),
-                        esc_url('https://docs.algolplus.com/algol_pricing/product-filters-free/')
+                        esc_url('https://docs.algolplus.com/algol_pricing/rules/rules-sections/product-filters/')
                     );
                 ?>
                 </p>
@@ -152,7 +152,7 @@ $pleaseEnableText = __("Please, enable coupons to use price replacements.", 'adv
                                     .'<br><a href="%s">' .__('Read docs', 'advanced-dynamic-pricing-for-woocommerce') .'</a>',
                                 array('a' => array('href' => array()), 'br' => array())
                             ),
-                            esc_url('https://docs.algolplus.com/algol_pricing/product-discounts-free/')
+                            esc_url('https://docs.algolplus.com/algol_pricing/rules/rules-sections/product-discounts/')
                         );
                     ?>
                 </p>
@@ -243,7 +243,7 @@ $pleaseEnableText = __("Please, enable coupons to use price replacements.", 'adv
                                         .'<br><a href="%s">' .__('Read docs', 'advanced-dynamic-pricing-for-woocommerce') .'</a>',
                                     array('br' => array(), 'a' =>array('href' => array()), )
                                 ),
-                                esc_url('https://docs.algolplus.com/algol_pricing/overview-bulk-mode/')
+                                esc_url('https://docs.algolplus.com/algol_pricing/rules/rules-sections/bulk-discount/')
                             );
                             ?>
                         </p>
@@ -258,7 +258,7 @@ $pleaseEnableText = __("Please, enable coupons to use price replacements.", 'adv
                                                 'advanced-dynamic-pricing-for-woocommerce') .'</a>',
                                             array('a' => array('href' => array(), 'target' => array()), 'br' => array())
                                         ),
-                                        esc_url('https://docs.algolplus.com/algol_pricing/overview-bulk-mode/#bulk-tier')
+                                        esc_url('https://docs.algolplus.com/algol_pricing/rules/rules-sections/bulk-discount/#bulk-tier')
                                     );
                                 ?>
                             </span>
@@ -346,7 +346,7 @@ $pleaseEnableText = __("Please, enable coupons to use price replacements.", 'adv
 
         <div class="wdp-block wdp-get-products-block wdp-get-products-options wdp-row" style="display: none;">
             <div class="wdp-column wdp-column-help">
-                <label><?php Helpers::ruleFilterLabel('Free products.', 'advanced-dynamic-pricing-for-woocommerce'); ?></label>
+                <label><?php Helpers::ruleFilterLabel('Free products', 'advanced-dynamic-pricing-for-woocommerce'); ?></label>
                 <p class="wdp-rule-help">
                 <?php
                     echo sprintf(
@@ -355,7 +355,7 @@ $pleaseEnableText = __("Please, enable coupons to use price replacements.", 'adv
                                 .'<br><a href="%s">' .__('Read docs', 'advanced-dynamic-pricing-for-woocommerce') .'</a>',
                             array('br' => array(), 'a' => array('href' => array()), )
                         ),
-                        esc_url('https://docs.algolplus.com/algol_pricing/free-products-free/')
+                        esc_url('https://docs.algolplus.com/algol_pricing/rules/rules-sections/free-products/')
                     );
                     ?>
                 </p>
@@ -402,12 +402,12 @@ $pleaseEnableText = __("Please, enable coupons to use price replacements.", 'adv
                             <label>
                                 <input <?php echo $isCouponEnabled ? "" : "disabled"; ?> type="checkbox"
                                                                                         name="rule[additional][is_replace_free_products_with_discount]">
-                                <?php _e("Add free products to cart at normal cost, and add a coupon that will deduce that cost",
+                                <?php _e("Add free items at regular price and show discount as coupon",
                                     'advanced-dynamic-pricing-for-woocommerce') ?>
                             </label>
                             <input <?php echo $isCouponEnabled ? "" : "disabled"; ?> type="text"
                                                                                     name="rule[additional][free_products_replace_name]"
-                                                                                    style="width: 100px; display: inline-block;"
+                                                                                    style="width: 110px; display: inline-block;"
                                                                                     placeholder="<?php _e("coupon_name",
                                                                                         'advanced-dynamic-pricing-for-woocommerce') ?>"
                             >
@@ -513,33 +513,36 @@ $pleaseEnableText = __("Please, enable coupons to use price replacements.", 'adv
                                         <div class="wdp-product-exclude wdp-column wdp-column-subfields">
                                             <div style="width: 100px"></div>
                                             <div class="wdp-column" style="flex: 1">
-                                                <span class="wdp-product-exclude-title">
-                                                    <?php _e('Exclude products',
-                                                        'advanced-dynamic-pricing-for-woocommerce'); ?>
-                                                </span>
-                                                <select multiple
-                                                        data-list="products"
-                                                        data-field="autocomplete"
-                                                        data-placeholder="<?php _e("Select values",
-                                                            "advanced-dynamic-pricing-for-woocommerce") ?>"
-                                                        name="rule[{t}][{f}][product_exclude][values][]">
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="wdp-row">
+                                                <details>
+                                                    <summary class="wdp-link">
+                                                        <?php _e( 'Exclude products', 'advanced-dynamic-pricing-for-woocommerce' ); ?>
+                                                    </summary>
+                                                    <div style="display: flex">
+                                                        <div>
+                                                            <label>
+                                                                <span class="wdp-exclude-title">
+                                                                    <?php _e( 'Exclude products', 'advanced-dynamic-pricing-for-woocommerce' ); ?>
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                        <div style="margin-left: 5px" class="wdp-exclude-on-wc-sale-container">
+                                                            <label>
+                                                                <input type="checkbox" class="wdp-exclude-on-wc-sale" name="rule[{t}][{f}][product_exclude][on_wc_sale]" value="1" >
+                                                                <span class="wdp-exclude-on-wc-sale-title">
+                                                                    <?php _e( 'on sale products', 'advanced-dynamic-pricing-for-woocommerce' ); ?>
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
 
-                                        <div class="wdp-exclude-on-wc-sale-container wdp-column wdp-column-subfields">
-                                            <div style="width: 100px"></div>
-                                            <div class="wdp-column" style="flex: 1">
-                                                <label>
-                                                    <input type="checkbox" class="wdp-exclude-on-wc-sale"
-                                                           name="rule[{t}][{f}][product_exclude][on_wc_sale]" value="1">
-                                                    <span class="wdp-exclude-on-wc-sale-title">
-                                                                                                            <?php _e('Exclude on sale products',
-                                                                                                                'advanced-dynamic-pricing-for-woocommerce'); ?>
-                                                                                                    </span>
-                                                </label>
+                                                    <select multiple
+                                                            data-list="products"
+                                                            data-field="autocomplete"
+                                                            data-placeholder="<?php _e("Select values",
+                                                                "advanced-dynamic-pricing-for-woocommerce") ?>"
+                                                            name="rule[{t}][{f}][product_exclude][values][]">
+                                                    </select>
+                                                </details>
                                             </div>
                                         </div>
                                     </div>
@@ -555,8 +558,8 @@ $pleaseEnableText = __("Please, enable coupons to use price replacements.", 'adv
                 </div>
 
 
-                <div class="wdp-column wdp-btn-remove wdp_filter_remove">
-                    <div class="wdp-btn-remove-handle">
+                <div class="wdp-column wdp-btn-remove">
+                    <div class="wdp-btn-remove-handle wdp_filter_remove">
                         <span class="dashicons dashicons-no-alt"></span>
                     </div>
                 </div>
@@ -574,7 +577,7 @@ $pleaseEnableText = __("Please, enable coupons to use price replacements.", 'adv
                                 .'<br><a href="%s" target="_blank">' .__('Read docs', 'advanced-dynamic-pricing-for-woocommerce') .'</a>',
                             array('br' => array(), 'a' => array('href' =>array(), 'target' => array()))
                         ),
-                        esc_url('https://docs.algolplus.com/algol_pricing/cart-conditions-free/')
+                        esc_url('https://docs.algolplus.com/algol_pricing/rules/rules-sections/cart-conditions/')
                     );
                 ?>
                 </p>
@@ -620,8 +623,8 @@ $pleaseEnableText = __("Please, enable coupons to use price replacements.", 'adv
                         </ul>
                     </div>
                     <div class="wdp-description-cut">
-                        <span class="wdp-description-cut-more wdp-link">More</span>
-                        <span class="wdp-description-cut-less wdp-link">Less</span>
+                        <span class="wdp-description-cut-more wdp-link"><?php _e('More', 'advanced-dynamic-pricing-for-woocommerce')?></span>
+                        <span class="wdp-description-cut-less wdp-link"><?php _e('Less', 'advanced-dynamic-pricing-for-woocommerce')?></span>
                     </div>
                 </div>
                 <p class="wdp-rule-help">
@@ -632,21 +635,21 @@ $pleaseEnableText = __("Please, enable coupons to use price replacements.", 'adv
                                 .'<br><a href="%s" target="_blank">' .__('Program your own custom condition', 'advanced-dynamic-pricing-for-woocommerce') .'</a>',
                             array('br' => array(), 'a' => array('href' =>array(), 'target' => array()))
                         ),
-                        esc_url('https://docs.algolplus.com/algol_pricing/program-custom-condition/')
+                        esc_url('https://docs.algolplus.com/algol_pricing/developers-algol_pricing/custom-code-developers-algol_pricing/program-custom-condition/')
                     );
                     ?>
                 </p>
 
-                <a href="https://algolplus.com/plugins/downloads/advanced-dynamic-pricing-woocommerce-pro/"
+                <a href="https://algolplus.com/plugins/downloads/advanced-dynamic-pricing-woocommerce-pro/?currency=USD"
                    target=_blank><?php _e('Need more conditions?', 'advanced-dynamic-pricing-for-woocommerce') ?></a>
             </div>
             <div class="wdp-wrapper wdp-column">
                 <div class="wdp-conditions-relationship">
                     <label><?php _e('Conditions relationship', 'advanced-dynamic-pricing-for-woocommerce'); ?></label>
                     <label><input type="radio" name="rule[additional][conditions_relationship]" value="and"
-                                  checked><?php _e('AND', 'advanced-dynamic-pricing-for-woocommerce'); ?></label>
+                                  checked><?php _e('Match All', 'advanced-dynamic-pricing-for-woocommerce'); ?></label>
                     <label><input type="radio" name="rule[additional][conditions_relationship]"
-                                  value="or"><?php _e('OR', 'advanced-dynamic-pricing-for-woocommerce'); ?></label>
+                                  value="or"><?php _e('Match Any', 'advanced-dynamic-pricing-for-woocommerce'); ?></label>
                 </div>
                 <div class="wdp-conditions-container"></div>
                 <div class="add-condition">
@@ -667,7 +670,7 @@ $pleaseEnableText = __("Please, enable coupons to use price replacements.", 'adv
                                 .'<br><a href="%s">' .__('Read docs', 'advanced-dynamic-pricing-for-woocommerce') .'</a>',
                             array('br' => array(), 'a' => array('href' => array()))
                         ),
-                        esc_url('https://docs.algolplus.com/algol_pricing/limits-free/')
+                        esc_url('https://docs.algolplus.com/algol_pricing/rules/rules-sections/limits/')
                     );
                     ?>
                 </p>

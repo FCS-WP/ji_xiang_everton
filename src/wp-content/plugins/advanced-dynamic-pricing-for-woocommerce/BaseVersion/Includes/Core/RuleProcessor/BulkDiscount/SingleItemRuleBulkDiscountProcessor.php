@@ -7,6 +7,7 @@ use ADP\BaseVersion\Includes\Context;
 use ADP\BaseVersion\Includes\Core\Cart\Cart;
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Basic\BasicCartItem;
 use ADP\BaseVersion\Includes\Core\Rule\SingleItemRule;
+use ADP\BaseVersion\Includes\Core\Rule\Structures\DiscountForRange;
 use ADP\BaseVersion\Includes\Core\Rule\Structures\Filter;
 use ADP\BaseVersion\Includes\Core\RuleProcessor\PriceCalculator;
 use ADP\BaseVersion\Includes\Core\RuleProcessor\ProductFiltering;
@@ -51,12 +52,13 @@ class SingleItemRuleBulkDiscountProcessor
         } elseif ($handler::GROUP_BY_VARIATION === $handler->getGroupBy()) {
             foreach ($collection->get_items() as $item) {
                 $facade = $item->getWcItem();
+                $productId = $facade->getVariationId() ?: $facade->getProductId();
 
-                if (!isset($groupedItems[$facade->getVariationId()])) {
-                    $groupedItems[$facade->getVariationId()] = array();
+                if (!isset($groupedItems[$productId])) {
+                    $groupedItems[$productId] = array();
                 }
 
-                $groupedItems[$facade->getVariationId()][] = $item;
+                $groupedItems[$productId][] = $item;
             }
         } elseif ($handler::GROUP_BY_CART_POSITIONS === $handler->getGroupBy()) {
             foreach ($collection->get_items() as $item) {
@@ -158,6 +160,8 @@ class SingleItemRuleBulkDiscountProcessor
                 }
             }
         }
+
+        $calculationCallback = apply_filters('adp_custom_bulk_calculation_callback', $calculationCallback, $measurement, $rule);
 
         $value = floatval(0);
 
@@ -309,8 +313,12 @@ class SingleItemRuleBulkDiscountProcessor
                     $range->getData()
                 );
 
-                foreach ($itemsToApply as $item) {
-                    $priceCalculator->applyItemDiscount($item, $cart, $handler);
+                if ($range->getData() instanceof DiscountForRange) {
+                    $priceCalculator->calculatePriceForItemsSplitDiscountByCost($itemsToApply, $cart, $handler);
+                } else {
+                    foreach ($itemsToApply as $item) {
+                        $priceCalculator->applyItemDiscount($item, $cart, $handler);
+                    }
                 }
             }
         }

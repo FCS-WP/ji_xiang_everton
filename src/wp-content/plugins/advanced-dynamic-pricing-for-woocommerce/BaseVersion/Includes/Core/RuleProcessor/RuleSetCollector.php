@@ -140,8 +140,6 @@ class RuleSetCollector
          */
         $productFiltering = Factory::get("Core_RuleProcessor_ProductFiltering", $cart->getContext()->getGlobalContext());
         $productExcluding = Factory::get("Core_RuleProcessor_ProductFiltering", $cart->getContext()->getGlobalContext());
-
-        $productExcludingEnabled = $cart->getContext()->getOption('allow_to_exclude_products');
         $limitation              = $package->getLimitation();
 
 
@@ -154,7 +152,6 @@ class RuleSetCollector
             $wcCartItemFacade = $cartItem->getWcItem();
             $product          = $wcCartItemFacade->getProduct();
 
-//				if ( $productExcludingEnabled ) {
 //					$isExclude = false;
 //
 //					foreach ( $excludes as $exclude ) {
@@ -169,7 +166,6 @@ class RuleSetCollector
 //					if ( $isExclude ) {
 //						continue;
 //					}
-//				}
 
             /**
              * Item must match all filters
@@ -178,27 +174,25 @@ class RuleSetCollector
             foreach ($filters as $filter) {
                 $productFiltering->prepare($filter->getType(), $filter->getValue(), $filter->getMethod());
 
-                if ($productExcludingEnabled) {
-                    $productExcluding->prepare(
-                        $filter::TYPE_PRODUCT,
-                        $filter->getExcludeProductIds(),
-                        $filter::METHOD_IN_LIST
-                    );
+                $productExcluding->prepare(
+                    $filter::TYPE_PRODUCT,
+                    $filter->getExcludeProductIds(),
+                    $filter::METHOD_IN_LIST
+                );
 
-                    if ($productExcluding->checkProductSuitability($product, $wcCartItemFacade->getData())) {
-                        $match = false;
-                        break;
-                    }
+                if ($productExcluding->checkProductSuitability($product, $wcCartItemFacade->getData())) {
+                    $match = false;
+                    break;
+                }
 
-                    if ($filter->isExcludeWcOnSale() && $product->is_on_sale('')) {
-                        $match = false;
-                        break;
-                    }
+                if ($filter->isExcludeWcOnSale() && $product->is_on_sale('')) {
+                    $match = false;
+                    break;
+                }
 
-                    if ($filter->isExcludeAlreadyAffected() && $cartItem->areRuleApplied()) {
-                        $match = false;
-                        break;
-                    }
+                if ($filter->isExcludeAlreadyAffected() && $cartItem->areRuleApplied()) {
+                    $match = false;
+                    break;
                 }
 
                 if ( ! $productFiltering->checkProductSuitability($product, $wcCartItemFacade->getData())) {
@@ -414,7 +408,9 @@ class RuleSetCollector
                             foreach ($setItems as $tmpFilterSetItems) {
                                 foreach ($tmpFilterSetItems as $setItem) {
                                     if (
-                                        $setItem->getWcItem()->getVariationId() == $cartItem->getWcItem()->getVariationId()
+                                        ( apply_filters('adp_only_variation_parent', false) 
+                                            || $setItem->getWcItem()->getVariationId() == $cartItem->getWcItem()->getVariationId()
+                                        )
                                         && $setItem->getWcItem()->getProductId() == $cartItem->getWcItem()->getProductId()
                                     ) {
                                         $atLeastOneInTheSet = true;

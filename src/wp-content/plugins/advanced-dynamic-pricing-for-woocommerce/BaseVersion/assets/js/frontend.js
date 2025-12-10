@@ -122,4 +122,20 @@ jQuery(document).ready(function ($) {
 			init_events();
 		})
 	}, 0);
+
+  function watchForQuickView() {
+    let observer = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+        mutation.addedNodes.forEach(function (node) {
+          if ($(node).hasClass('product-lightbox-inner') || $(node).find('.product-lightbox-inner').length) {
+            init_events();
+          }
+        });
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+
+  watchForQuickView();
+
 });

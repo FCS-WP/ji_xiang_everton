@@ -156,6 +156,11 @@ class PackageRule extends BaseRule implements Rule
      */
     protected $maxAmountForGifts;
 
+    /**
+     * @var bool
+     */
+    protected $isGiftsBelowCheapestItem;
+
     const APPLY_FIRST_TO_EXPENSIVE = 'expensive';
     const APPLY_FIRST_TO_CHEAP = 'cheap';
     const APPLY_FIRST_AS_APPEAR = 'appeared';
@@ -182,6 +187,7 @@ class PackageRule extends BaseRule implements Rule
         $this->itemGiftSubtotalDivider = null;
         $this->roleDiscounts           = array();
         $this->maxAmountForGifts       = null;
+        $this->isGiftsBelowCheapestItem = false;
     }
 
     public function __clone()
@@ -725,5 +731,21 @@ class PackageRule extends BaseRule implements Rule
     public function getMaxAmountForGifts()
     {
         return $this->maxAmountForGifts;
+    }
+
+    /**
+     * @param bool $isGiftsBelowCheapestItem
+     */
+    public function setGiftsBelowCheapestItem($isGiftsBelowCheapestItem)
+    {
+        $this->isGiftsBelowCheapestItem = $isGiftsBelowCheapestItem;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isGiftsBelowCheapestItem()
+    {
+        return $this->isGiftsBelowCheapestItem;
     }
 }

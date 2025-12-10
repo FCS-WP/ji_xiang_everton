@@ -33,7 +33,7 @@ class DiscountAmountRepeatable extends AbstractCartAdjustment implements CouponC
 
     public static function getLabel()
     {
-        return __('Add fixed discount on each rule execution', 'advanced-dynamic-pricing-for-woocommerce');
+        return __('Add fixed discount on each rule execution *', 'advanced-dynamic-pricing-for-woocommerce');
     }
 
     public static function getTemplatePath()

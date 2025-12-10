@@ -462,14 +462,16 @@ class GiftStrategy
         $cart,
         $freeCartItemChoices,
         $giftedCount = 0.0,
-        &$maxAmountForGiftsLeft = null
+        &$maxAmountForGiftsLeft = null,
+        $maxAmountForGift = null
     ) {
         $readyList = $this->freeItemChoicesSuitability->getProductsSuitableToGift(
             $freeCartItemChoices,
             $this->ruleUsedStock,
             $giftedCount,
             $cart,
-            $maxAmountForGiftsLeft
+            $maxAmountForGiftsLeft,
+            $maxAmountForGift
         );
 
         if ( ! isset($freeCartItemsByHash[$hash])) {

@@ -17,6 +17,7 @@ use ADP\BaseVersion\Includes\PriceDisplay\ProcessedGroupedProduct;
 use ADP\BaseVersion\Includes\PriceDisplay\ProcessedProductSimple;
 use ADP\BaseVersion\Includes\PriceDisplay\ProcessedVariableProduct;
 use ADP\BaseVersion\Includes\PriceDisplay\Processor;
+use ADP\BaseVersion\Includes\PriceDisplay\WcProductCalculationWrapper;
 use ADP\BaseVersion\Includes\WC\WcCartItemFacade;
 use ADP\Factory;
 use Exception;
@@ -59,7 +60,7 @@ class Functions
     /**
      * @param Engine|null $engine
      */
-    public function __construct($engine = null)
+    final public function __construct($engine = null)
     {
         $this->context           = adp_context();
         $this->globalEngine      = $engine;
@@ -259,7 +260,7 @@ class Functions
             $adapter = new ToPricingCartItemAdapter();
             foreach ($listOfProductIds as $index => $prodId) {
                 if ($product = CacheHelper::getWcProduct($prodId)) {
-                    $item = $adapter->adaptWcProduct($product);
+                    $item = $adapter->adaptWcProduct(new WcProductCalculationWrapper($product));
                     $item->addAttr(CartItemAttributeEnum::TEMPORARY());
                     $items[] = $item;
                     $cart->addToCart($item);
@@ -447,4 +448,17 @@ class Functions
         return $this->productProcessor;
     }
 
+    public function getProductsWithSalePriceAdp() {
+        global $wpdb;
+
+        $query = "
+            SELECT post_id
+            FROM {$wpdb->postmeta}
+            WHERE meta_key = '_sale_price_adp'
+        ";
+
+        $ids = $wpdb->get_col($query);
+
+        return array_map('intval', $ids);
+    }
 }

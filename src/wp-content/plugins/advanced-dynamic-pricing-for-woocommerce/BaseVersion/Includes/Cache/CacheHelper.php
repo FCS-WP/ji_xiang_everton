@@ -14,7 +14,6 @@ use ADP\BaseVersion\Includes\Database\RuleStorage;
 use ADP\BaseVersion\Includes\PriceDisplay\ProcessedProductSimple;
 use ADP\BaseVersion\Includes\PriceDisplay\ProcessedVariableProduct;
 use ADP\BaseVersion\Includes\WC\WcCartItemFacade;
-use ADP\BaseVersion\Includes\WP\WpObjectCache;
 use ADP\BaseVersion\Includes\Enums\RuleTypeEnum;
 use ADP\Factory;
 use WC_Product;
@@ -32,36 +31,25 @@ class CacheHelper
 
     const GROUP_COLLECTIONS = 'adp_collections';
 
-    public static $objCache;
-
     /**
      * @return true
      */
     public static function flush()
     {
-        if ( ! isset(self::$objCache)) {
-            self::$objCache = new WpObjectCache();
-        }
-
-        return self::$objCache->flush();
+        return wp_cache_flush();
     }
 
     public static function cacheGet($key, $group = '', $force = false, &$found = null)
     {
-        if ( ! isset(self::$objCache)) {
-            self::$objCache = new WpObjectCache();
-        }
-
-        return self::$objCache->get($key, $group, $force, $found);
+        return wp_cache_get($key, $group, $force, $found);
     }
 
     public static function cacheSet($key, $data, $group = '', $expire = 0)
     {
-        if ( ! isset(self::$objCache)) {
-            self::$objCache = new WpObjectCache();
-        }
-
-        return self::$objCache->set($key, $data, $group, (int)$expire);
+        if( apply_filters("adp_cache_enabled",true) )
+            return wp_cache_set($key, $data, $group, (int)$expire);
+        else
+            return false;
     }
 
     /**
@@ -95,7 +83,7 @@ class CacheHelper
      *
      * @return array<int, Rule>
      */
-    public static function loadRules($ruleIds, Context $context = null)
+    public static function loadRules($ruleIds, ?Context $context = null)
     {
         $ruleIds = (array)$ruleIds;
         $ruleIds = array_map('intval', $ruleIds);
@@ -143,7 +131,7 @@ class CacheHelper
      *
      * @return array<int, Rule>
      */
-    public static function loadProductOnlyRules($ruleIds, Context $context = null)
+    public static function loadProductOnlyRules($ruleIds, ?Context $context = null)
     {
         $ruleIds = (array)$ruleIds;
         $ruleIds = array_map('intval', $ruleIds);
@@ -254,17 +242,10 @@ class CacheHelper
 
     public static function flushRulesCache()
     {
-        global $wp_object_cache;
-
-        if ($wp_object_cache instanceof WpObjectCache) {
-            // I have no idea how to delete cache group another way
-            $cache = $wp_object_cache->cache;
-            unset($cache[self::GROUP_RULES_CACHE]);
-            $wp_object_cache->cache = $cache;
-
-            $wp_object_cache->delete(self::KEY_ACTIVE_RULES_COLLECTION);
+        if ( wp_cache_supports( 'flush_group' ) ) {
+            wp_cache_flush_group( self::GROUP_RULES_CACHE );
         } else {
-            $wp_object_cache->flush();
+            wp_cache_flush();
         }
     }
 
@@ -370,8 +351,10 @@ class CacheHelper
      */
     public static function getWcProduct($theProduct)
     {
+        $clone_products = apply_filters("adp_cache_clone_products",true);
+
         if ($theProduct instanceof WC_Product) {
-            $product = clone $theProduct;
+            $product = $clone_products ? clone $theProduct : $theProduct;
 
             try {
                 $reflection = new \ReflectionClass($product);
@@ -390,7 +373,7 @@ class CacheHelper
             $product = self::cacheGet($productId, self::GROUP_WC_PRODUCT);
 
             if ($product === false && ! empty($productById = wc_get_product($productId))) {
-                $product = clone $productById;
+                $product = $clone_products ? clone $productById : $productById;
                 self::cacheSet($productId, $product, self::GROUP_WC_PRODUCT);
             }
 
@@ -401,7 +384,7 @@ class CacheHelper
             $product = self::cacheGet($productId, self::GROUP_WC_PRODUCT);
 
             if ($product === false && ! empty($productById = wc_get_product($productId))) {
-                $product = clone $productById;
+                $product = $clone_products ? clone $productById : $productById;
                 self::cacheSet($productId, $product, self::GROUP_WC_PRODUCT);
             }
         } else {

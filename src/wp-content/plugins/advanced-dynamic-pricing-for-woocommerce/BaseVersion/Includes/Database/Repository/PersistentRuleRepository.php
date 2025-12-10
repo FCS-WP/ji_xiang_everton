@@ -106,7 +106,7 @@ class PersistentRuleRepository implements PersistentRuleRepositoryInterface
 
         global $wpdb;
 
-        /** @var $sqlGenerator SqlGenerator */
+        /** @var $sqlGenerator SqlGeneratorPersistent */
         $sqlGenerator = Factory::get("Shortcodes_SqlGeneratorPersistent");
 
         /** @var RuleStorage $storage */
@@ -147,6 +147,8 @@ class PersistentRuleRepository implements PersistentRuleRepositoryInterface
             $persistentRuleCaches = $this->calculateCacheForProductWithRule($context, $productProcessor, $rule, $product);
             foreach ($persistentRuleCaches as $cache) {
                 $data[] = PersistentRuleCache::fromArray($cache);
+
+                $this->saveCacheInProductMetaData($product, $cache);
             }
         }
 
@@ -427,5 +429,22 @@ class PersistentRuleRepository implements PersistentRuleRepositoryInterface
         $qty = (string)(1.0);
 
         return $this->calculateDbHashWithProduct($product) . '_' . $qty;
+    }
+
+    /**
+     * @param \WC_Product $product
+     * @param array $cache
+     * @return void
+     */
+    protected function saveCacheInProductMetaData($product, $cache) {
+        // save calculated price in product meta
+        update_post_meta($product->get_id(), '_sale_price_adp', $cache['price']);
+        if($product instanceof \WC_Product_Variation) {
+            update_post_meta($product->get_parent_id('edit'), '_sale_price_adp', $cache['price']);
+        }
+    }
+
+    public function clearCacheInProductMetaData() {
+        delete_post_meta_by_key('_sale_price_adp');
     }
 }

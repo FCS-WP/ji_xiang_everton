@@ -27,6 +27,12 @@ class WcSubscriptionsCmp
     protected $isActive;
 
     /**
+     * @var string
+     */
+    static $calculation_type;
+
+
+    /**
      * @param null $deprecated
      */
     public function __construct($deprecated = null)
@@ -48,6 +54,11 @@ class WcSubscriptionsCmp
         }
 
         $this->isActive = class_exists("\WC_Subscriptions") && defined("WCS_INIT_TIMESTAMP");
+        if($this->isActive) {
+            add_action( 'woocommerce_subscription_cart_after_grouping', [$this,"setRecurringCalculationType"], 10 );
+            add_filter( 'woocommerce_subscriptions_calculated_total', [$this,"setNoneCalculationType"], 10 );
+        }
+
     }
 
     /**
@@ -94,12 +105,21 @@ class WcSubscriptionsCmp
             array('price' => $priceHtml, 'tax_calculation' => $this->context->getTaxDisplayCartMode()));
     }
 
+    public static function setRecurringCalculationType()
+    {
+        self::$calculation_type = 'recurring_total';
+    }
+    public static function setNoneCalculationType($amount)
+    {
+        self::$calculation_type = 'none';
+        return $amount;
+    }
+
     public static function isRecurringCartCalculation()
     {
-        if (method_exists('\WC_Subscriptions_Cart', 'get_calculation_type')) {
-            return \WC_Subscriptions_Cart::get_calculation_type() === 'recurring_total';
+        if (self::$calculation_type) {
+            return self::$calculation_type === 'recurring_total';
         }
-
         return false;
     }
 
@@ -129,16 +149,9 @@ class WcSubscriptionsCmp
     public function setHooksBeforeCalculateTotals()
     {
         \WC_Subscriptions_Synchroniser::maybe_set_free_trial();
-        //The commented lines represent the hooks at 'woocommerce_before_calculate_totals'.
-        //May be handy for the future usage
-//		\WC_Subscriptions_Coupon::remove_coupons( $wcCart );
         \WC_Subscriptions_Cart::add_calculation_price_filter();
-//		\WC_Subscriptions_Switcher::calculate_prorated_totals( $wcCart );
-//		\WC_Subscriptions_Switcher::maybe_set_free_trial();
-
-        if ( ! has_action('woocommerce_calculated_total')) {
-            add_filter('woocommerce_calculated_total', '\WC_Subscriptions_Cart::calculate_subscription_totals', 1000,
-                2);
+        if (!has_action('woocommerce_calculated_total')) {
+            add_filter('woocommerce_calculated_total', '\WC_Subscriptions_Cart::calculate_subscription_totals', 1000, 2);
         }
     }
 
@@ -146,4 +159,5 @@ class WcSubscriptionsCmp
     {
         \WC_Subscriptions_Cart::remove_calculation_price_filter();
     }
+
 }

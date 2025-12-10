@@ -19,6 +19,7 @@ use ADP\BaseVersion\Includes\Core\Rule\SingleItemRule;
 use ADP\BaseVersion\Includes\Core\Rule\Structures\AutoAdd;
 use ADP\BaseVersion\Includes\Core\Rule\Structures\AutoAddChoice;
 use ADP\BaseVersion\Includes\Core\Rule\Structures\Discount;
+use ADP\BaseVersion\Includes\Core\Rule\Structures\DiscountForRange;
 use ADP\BaseVersion\Includes\Core\Rule\Structures\Filter;
 use ADP\BaseVersion\Includes\Core\Rule\Structures\Gift;
 use ADP\BaseVersion\Includes\Core\Rule\Structures\GiftChoice;
@@ -728,16 +729,30 @@ class RuleStorage
             foreach ($bulkData['ranges'] as $range) {
                 if ($productAdjustment instanceof SingleItemRule\ProductsRangeAdjustments) {
                     $bulkData['discount_type'] = str_replace('set_', '', $bulkData['discount_type']);
-                    if ($bulkData['discount_type'] === 'price__fixed') {
-                        if ( $range['value'] === '' ) {
-                            $discount = new Discount($this->context, Discount::TYPE_PERCENTAGE, 0);
+                    if (strpos($bulkData['discount_type'], 'range') === false) {
+                        if ($bulkData['discount_type'] === 'price__fixed') {
+                            if ($range['value'] === '') {
+                                $discount = new Discount($this->context, Discount::TYPE_PERCENTAGE, 0);
+                            } else {
+                                $discount = new Discount($this->context, Discount::TYPE_FIXED_VALUE, $range['value']);
+                            }
+                        } elseif ($bulkData['discount_type'] === 'discount__amount') {
+                            $discount = new Discount($this->context, Discount::TYPE_AMOUNT, $range['value']);
                         } else {
-                            $discount = new Discount($this->context, Discount::TYPE_FIXED_VALUE, $range['value']);
+                            $discount = new Discount($this->context, Discount::TYPE_PERCENTAGE, $range['value']);
                         }
-                    } elseif ($bulkData['discount_type'] === 'discount__amount') {
-                        $discount = new Discount($this->context, Discount::TYPE_AMOUNT, $range['value']);
                     } else {
-                        $discount = new Discount($this->context, Discount::TYPE_PERCENTAGE, $range['value']);
+                        if ($bulkData['discount_type'] === 'range_price__fixed') {
+                            if ( $range['value'] === '' ) {
+                                $discount = new DiscountForRange($this->context, DiscountForRange::TYPE_PERCENTAGE, 0);
+                            } else {
+                                $discount = new DiscountForRange($this->context, DiscountForRange::TYPE_FIXED_VALUE, $range['value']);
+                            }
+                        } elseif ($bulkData['discount_type'] === 'range_discount__amount') {
+                            $discount = new DiscountForRange($this->context, DiscountForRange::TYPE_AMOUNT, $range['value']);
+                        } else {
+                            $discount = new DiscountForRange($this->context, DiscountForRange::TYPE_PERCENTAGE, $range['value']);
+                        }
                     }
                 } elseif ($productAdjustment instanceof PackageRule\PackageRangeAdjustments) {
                     if (strpos($bulkData['discount_type'], 'set') === false) {

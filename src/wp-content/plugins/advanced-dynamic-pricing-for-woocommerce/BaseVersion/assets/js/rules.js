@@ -981,7 +981,7 @@ jQuery(document).ready(function ($) {
         dateFormat: "yy-mm-dd",
         beforeShow: function () {
           let minDate = new Date(jqDateFrom.val());
-          minDate.setDate(minDate.getDate() + 1)
+          minDate.setDate(minDate.getDate());
 
           jqDateTo.datepicker("option", "minDate", minDate);
         },
@@ -1105,6 +1105,27 @@ jQuery(document).ready(function ($) {
       add_role_discount(new_rule.find('.wdp-btn-add-role-discount'));
     }
 
+    function show_buy_three_for_x(rule_type_selector, new_rule) {
+      let linkOnExample = $(rule_type_selector).parent().find('a');
+      linkOnExample.attr('href', 'https://docs.algolplus.com/algol_pricing/cart-discount-help/').show();
+
+      var filter_data = {
+        qty: 3,
+        type: "any",
+        limitation: "product"
+      };
+
+      var adjustment_data = {
+        type: 'total',
+        total: {
+          type: 'price__fixed',
+        }
+      };
+
+      add_product_filter(new_rule.find('.wdp-filter-block'), filter_data);
+      add_product_adjustment(new_rule.find('.wdp-product-adjustments'), adjustment_data);
+    }
+
     function show_cart_discount_type(rule_type_selector, new_rule){
       let linkOnExample = $(rule_type_selector).parent().find('a');
       linkOnExample.attr('href', 'https://docs.algolplus.com/algol_pricing/cart-discount-help/').show();
@@ -1173,6 +1194,9 @@ jQuery(document).ready(function ($) {
 				break;
 			  case 'cart_discount':
 				show_cart_discount_type(this, new_rule);
+        break;
+        case 'buy_three_for_x':
+        show_buy_three_for_x(this, new_rule);
 				break;
 
 			  case '':
@@ -1195,6 +1219,7 @@ jQuery(document).ready(function ($) {
 				}
 				break;
 			}
+      new_rule.find('.wdp-title').focus();
 			new_rule.find('.wdp-add-condition, .replace-adjustments').show();
 		});
 
@@ -1458,6 +1483,10 @@ jQuery(document).ready(function ($) {
       new_rule.find('input.max-amount-for-gifts').val(data.get_products.max_amount_for_gifts)
     }
 
+    if (data.get_products.is_gifts_below_cheapest) {
+      new_rule.find('input.is_gifts_below_cheapest:checkbox').prop('checked', true)
+    }
+
     let blocks = new RuleBlocks(new_rule)
     blocks.applyPreloadedData(data)
 
@@ -1717,21 +1746,13 @@ jQuery(document).ready(function ($) {
             }
 
             $container.find(".wdp-matched-previous-filters-container").first().hide();
-			$container.find('.wdp-filter-type option[value="same_previous_filter"]').first().hide();
+			      $container.find('.wdp-filter-type option[value="same_previous_filter"]').first().remove();
         });
 
-        if (!wdp_data.options.enable_product_exclude) {
-            $container.find(".wdp-product-exclude").hide();
-            $container.find(".wdp-exclude-title").hide();
-            $container.find(".wdp-exclude-on-wc-sale-container").hide();
-            $container.find(".wdp-exclude-already-affected-container").hide();
-            $container.find(".wdp-exclude-backorder-container").hide();
-            $container.find(".wdp-matched-previous-filters-container").hide();
-        }
 
         if ( product_filter_index === 0 ) {
           $container.find(".wdp-matched-previous-filters-container").hide();
-		  $container.find('.wdp-filter-type option[value="same_previous_filter"]').hide();
+		      $container.find('.wdp-filter-type option[value="same_previous_filter"]').remove();
         }
 
         // render controls for selected filter type
@@ -1843,11 +1864,14 @@ jQuery(document).ready(function ($) {
         container.find('.wdp-filter-field-method select').val(data.method);
       }
 
+
       if (data.value) {
         var html = '';
         $.each(data.value, function (i, id) {
+          pr_excl_type = data.type.replace('_all', '');
+          link = wdp_data.links && wdp_data.links[pr_excl_type] && wdp_data.links[pr_excl_type][id] ? wdp_data.links[pr_excl_type][id] : '';
           var title = wdp_data.titles[type] && wdp_data.titles[type][id] ? wdp_data.titles[type][id] : id;
-          html += '<option selected value="' + id + '">' + title + '</option>';
+          html += '<option selected data-link="' + link + '" value="' + id + '">' + title + '</option>';
         });
         container.find('.wdp-condition-field-value select').append(html);
       }
@@ -1884,6 +1908,7 @@ jQuery(document).ready(function ($) {
             if (data.value) {
                 var html = '';
                 $.each(data.value, function (i, id) {
+                  id = id.replace(/"/g, '&quot;');
                     var title = wdp_data.titles[data.type] && wdp_data.titles[data.type][id] ? wdp_data.titles[data.type][id] : id;
 					var link = wdp_data.links && wdp_data.links[data.type] && wdp_data.links[data.type][id] ? wdp_data.links[data.type][id] : '';
                     html += '<option selected data-link="' + link + '" value="' + id + '">' + title + '</option>';
@@ -1918,6 +1943,7 @@ jQuery(document).ready(function ($) {
               if (data.product_exclude.matched_previous_filters) {
                 $container.find('.wdp-matched-previous-filters-container input').prop('checked', true);
               }
+              $container.find('.wdp-product-exclude details').prop('open', true);
             }
 
             if (data.limitation) {
@@ -2114,7 +2140,9 @@ jQuery(document).ready(function ($) {
 
                     $.each(data.options[key], function (i, val) {
                       // value_field.find('[value="' + val + '"]').prop('selected', 'selected');
-                      value_field.append('<option selected value="' + val + '">' + get_title(val) + '</option>');
+                      pr_excl_type = data.type.replace('_all', '');
+                      link = wdp_data.links && wdp_data.links[pr_excl_type] && wdp_data.links[pr_excl_type][val] ? wdp_data.links[pr_excl_type][val] : '';
+                      value_field.append('<option selected data-link="' + link + '" value="' + val + '" >' + get_title(val) + '</option>');
                     });
                     return;
                   }
@@ -3809,14 +3837,14 @@ jQuery(document).ready(function ($) {
   function updateBulkAdjustmentInputPlaceholders(rule) {
     var $measurement_type = rule.find('.bulk-measurement-type').val();
     if ( $measurement_type === 'qty' ) {
-      rule.find('.adjustment-from').attr('placeholder', 'qty from');
-      rule.find('.adjustment-to').attr('placeholder', 'qty to');
+      rule.find('.adjustment-from').attr('placeholder', wdp_data.labels.qty_from);
+      rule.find('.adjustment-to').attr('placeholder', wdp_data.labels.qty_to);
     } else if ( $measurement_type === 'sum' ) {
-      rule.find('.adjustment-from').attr('placeholder', 'sum from');
-      rule.find('.adjustment-to').attr('placeholder', 'sum to');
+      rule.find('.adjustment-from').attr('placeholder', wdp_data.labels.sum_from);
+      rule.find('.adjustment-to').attr('placeholder', wdp_data.labels.sum_to);
     } else if ( $measurement_type === 'weight' ) {
-      rule.find('.adjustment-from').attr('placeholder', 'weight from');
-      rule.find('.adjustment-to').attr('placeholder', 'weight to');
+      rule.find('.adjustment-from').attr('placeholder', wdp_data.labels.weight_from);
+      rule.find('.adjustment-to').attr('placeholder', wdp_data.labels.weight_to);
     }
   }
 });

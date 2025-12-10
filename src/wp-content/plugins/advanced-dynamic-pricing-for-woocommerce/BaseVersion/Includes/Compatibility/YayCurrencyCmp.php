@@ -56,7 +56,12 @@ class YayCurrencyCmp
         }
 
         $this->convertedCurrency = YayCurrencyHelper::converted_currency();
-        $this->applyCurrency     = YayCurrencyHelper::get_apply_currency($this->convertedCurrency);
+        
+        if(method_exists('\Yay_Currency\Helpers\YayCurrencyHelper', 'detect_current_currency')) {
+            $this->applyCurrency     = YayCurrencyHelper::detect_current_currency();
+        } else if(method_exists('\Yay_Currency\Helpers\YayCurrencyHelper', 'get_apply_currency')) {
+            $this->applyCurrency = YayCurrencyHelper::get_apply_currency($this->convertedCurrency);
+        }
     }
 
     public function isActive()
@@ -74,7 +79,11 @@ class YayCurrencyCmp
 
     public function getCurrencyData($currencyCode)
     {
-        $applyCurrency = YayCurrencyHelper::filtered_by_currency_code($currencyCode, $this->convertedCurrency);
+        if(method_exists('\Yay_Currency\Helpers\YayCurrencyHelper', 'filtered_by_currency_code')) {
+            $applyCurrency = YayCurrencyHelper::filtered_by_currency_code($currencyCode, $this->convertedCurrency);
+        } else if(method_exists('\Yay_Currency\Helpers\YayCurrencyHelper', 'get_currency_by_currency_code')) {
+            $applyCurrency = YayCurrencyHelper::get_currency_by_currency_code($currencyCode, $this->convertedCurrency);
+        }
         return $applyCurrency;
     }
 

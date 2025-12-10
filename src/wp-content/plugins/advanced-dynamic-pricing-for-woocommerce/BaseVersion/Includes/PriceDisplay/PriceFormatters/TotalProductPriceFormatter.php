@@ -67,12 +67,14 @@ class TotalProductPriceFormatter
         if ($currencySwitcher->isCurrencyChanged()) {
             $price = $currencySwitcher->getCurrentCurrencyProductPrice($product);
             $regularPrice = $currencySwitcher->getCurrentCurrencyProductRegularPrice($product);
+            if(!$regularPrice)
+                $regularPrice = $price;
         } else {
             $price = $product->get_price('edit');
             $regularPrice = $product->get_regular_price('edit');
         }
 
-        if ( $regularPrice === "" ) {
+        if ( is_null($regularPrice) OR $regularPrice === "" OR $regularPrice === "0" ) {
             return "";
         }
 

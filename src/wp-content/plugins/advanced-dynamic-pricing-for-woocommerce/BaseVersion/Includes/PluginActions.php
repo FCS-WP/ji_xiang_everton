@@ -31,21 +31,53 @@ class PluginActions
         if ($this->pluginFileFullPath && file_exists($this->pluginFileFullPath)) {
             register_activation_hook($this->pluginFileFullPath, array($this, 'install'));
             register_deactivation_hook($this->pluginFileFullPath, array($this, 'deactivate'));
+
             add_filter(
                 'plugin_action_links_' . plugin_basename(WC_ADP_PLUGIN_PATH . WC_ADP_PLUGIN_FILE),
-                array($this, 'settingsLink')
+                array($this, 'pluginActionLinks')
             );
         }
     }
 
-    public function settingsLink($actions)
+    public function pluginActionLinks($actions)
     {
-        $settingsLink = sprintf(
-            '<a href=%s>%s</a>',
-            admin_url('admin.php?page=' . AdminPage::SLUG),
-            __('Settings', 'advanced-dynamic-pricing-for-woocommerce')
-        );
-        array_unshift($actions, $settingsLink);
+        $actionsList = [
+            [
+                'https://algolplus.freshdesk.com/support/tickets/new',
+                __("Contact support", 'advanced-dynamic-pricing-for-woocommerce'),
+                __('Support', 'advanced-dynamic-pricing-for-woocommerce')
+            ],
+            [
+                'https://docs.algolplus.com/category/algol_pricingnew/',
+                __('Plugin documentation', 'advanced-dynamic-pricing-for-woocommerce'),
+                __('Docs', 'advanced-dynamic-pricing-for-woocommerce')
+            ],
+            [
+                admin_url('admin.php?page=' . AdminPage::SLUG),
+                __('Change the plugin settings', 'advanced-dynamic-pricing-for-woocommerce'),
+                __('Settings', 'advanced-dynamic-pricing-for-woocommerce')
+            ],
+        ];
+
+        foreach ($actionsList as $action) {
+            array_unshift($actions,
+                sprintf(
+                    '<a target="_blank" href=%s title="%s">%s</a>',
+                    $action[0], $action[1], $action[2]
+                )
+            );
+        }
+
+        if (!defined('WC_ADP_PRO_VERSION_PATH')) {
+            $goToProLink = sprintf(
+                '<a target="_blank" style="font-weight: bold" href=%s title="%s">%s</a>',
+                'https://algolplus.com/plugins/downloads/advanced-dynamic-pricing-woocommerce-pro/',
+                __('Upgrade to Advanced Dynamic Pricing Pro', 'advanced-dynamic-pricing-for-woocommerce'),
+                __('Go to Pro', 'advanced-dynamic-pricing-for-woocommerce')
+            );
+
+            $actions[] = $goToProLink;
+        }
 
         return $actions;
     }
