@@ -68,12 +68,10 @@ class OrderAppliedDiscountRules
                 <tr>
                     <td>
                         <?php
-                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                         echo $rule ? sprintf('<a href="%s">%s</a>', self::ruleUrl($rule), $rule->title) : "";
                         ?>
                     </td>
                     <td><?php
-                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                         echo empty($amount) ? '-' : wc_price($amount);
                         ?>
                     </td>

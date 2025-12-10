@@ -22,13 +22,11 @@ class PointsAndRewardsForWoocommerceCmp
 
     public function isPointsAndRewardsCoupon($code, $coupon)
     {
-        //phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
         return $code === __('Cart Discount', 'points-and-rewards-for-woocommerce');
     }
 
     public function getPointsAndRewardsCoupon($code, $coupon)
     {
-        //phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
         return __('Cart Discount', 'points-and-rewards-for-woocommerce');
     }
 }

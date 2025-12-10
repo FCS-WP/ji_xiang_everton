@@ -66,7 +66,7 @@ class ImporterCSV {
             }
 
             if ($rulesCol->getRules()) {
-                $ruleObjects[] = $rulesCol->getFirst();
+                $ruleObjects[] = $rulesCol->getRules()[0];
             }
         }
 
@@ -74,7 +74,6 @@ class ImporterCSV {
             return;
         }
         self::$warnings[] = sprintf(
-            /* translators: Message about the imported rule*/
             _n(
                 '%s rule were imported',
                 '%s  rules were imported',
@@ -123,26 +122,22 @@ class ImporterCSV {
     }
 
     public static function prepareCSV($file){
-        $separator = apply_filters("adp_import_rules_separator", ",");
-        $enclosure = apply_filters("adp_import_rules_enclosure", "\"");
-        $escape = apply_filters("adp_import_rules_escape", "\\");
-
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+        $separator = apply_filters("adp_import_rules_separator",",");
         if (($handle = fopen($file, "r")) !== false) {
             $filterType = '';
-            if (($data = fgetcsv($handle, null, $separator, $enclosure, $escape)) !== false && is_array($data)) {
+            if (($data = fgetcsv($handle, null, $separator)) !== false && is_array($data)) {
                 if (str_contains(strtolower($data[0]), 'type')) {
                     $filterType = self::convertSupportedValueToType($data[1]);
                 }
             }
             $discountType = '';
-            if (($data = fgetcsv($handle, null, $separator, $enclosure, $escape)) !== false && is_array($data)) {
+            if (($data = fgetcsv($handle, null, $separator)) !== false && is_array($data)) {
                 if (str_contains(strtolower($data[0]), 'type')) {
                     $discountType = self::convertSupportedValueToType($data[1]);
                 }
             }
             $ruleBlocksSet = array();
-            while (($data = fgetcsv($handle, null, $separator, $enclosure, $escape)) !== false) {
+            while (($data = fgetcsv($handle, null, $separator)) !== false) {
                 $data = array_map('strtolower', $data);
                 if (in_array($data[0], array('filter', 'discountedprice', 'fromqty', 'toqty', 'role'))) {
                     foreach ($data as $name) {
@@ -166,7 +161,7 @@ class ImporterCSV {
             $ruleBlocksSetLength = count($ruleBlocksSet);
             $rules               = array();
             $newRule             = array();
-            while (($data = fgetcsv($handle, null, $separator, $enclosure, $escape)) !== false) {
+            while (($data = fgetcsv($handle, null, $separator)) !== false) {
                 if (empty($data[0])) {
                     for ($setIter = 1; $setIter < $ruleBlocksSetLength; $setIter++) {
                         if (empty($data[$setIter])) {
@@ -196,7 +191,6 @@ class ImporterCSV {
                 }
             }
             $rules[] = $newRule;
-            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
             fclose($handle);
 
             return $rules;

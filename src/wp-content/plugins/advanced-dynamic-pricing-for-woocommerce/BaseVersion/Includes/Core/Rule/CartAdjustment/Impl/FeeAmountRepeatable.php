@@ -169,7 +169,6 @@ class FeeAmountRepeatable extends AbstractCartAdjustment implements FeeCartAdj, 
 
     public function translate()
     {
-        //phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
         $this->feeName = _x($this->feeName, "Repeatable fee name from rule", 'advanced-dynamic-pricing-for-woocommerce');
     }
 }

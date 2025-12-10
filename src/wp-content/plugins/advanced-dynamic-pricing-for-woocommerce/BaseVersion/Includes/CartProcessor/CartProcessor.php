@@ -12,7 +12,6 @@ use ADP\BaseVersion\Includes\Compatibility\ShoptimizerCmp;
 use ADP\BaseVersion\Includes\Compatibility\Addons\TmExtraOptionsCmp;
 use ADP\BaseVersion\Includes\Compatibility\WcDepositsCmp;
 use ADP\BaseVersion\Includes\Compatibility\WcChainedProductsCmp;
-use ADP\BaseVersion\Includes\Compatibility\WcPaymentPlanSuiteCmp;
 use ADP\BaseVersion\Includes\Compatibility\WcsAttCmp;
 use ADP\BaseVersion\Includes\Compatibility\WcSubscriptionsCmp;
 use ADP\BaseVersion\Includes\Compatibility\YoastSEOCmp;
@@ -133,11 +132,6 @@ class CartProcessor
     protected $wcDepositsCmp;
 
     /**
-     * @var WcPaymentPlanSuiteCmp
-     */
-    protected $wcPaymentPlanSuiteCmp;
-
-    /**
      * @var GiftCardsSomewhereWarmCmp
      */
     protected $giftCart;
@@ -223,7 +217,6 @@ class CartProcessor
         $this->wcsAttCmp             = new WcsAttCmp();
         $this->vouchers              = new PDFProductVouchersCmp();
         $this->wcDepositsCmp         = new WcDepositsCmp();
-        $this->wcPaymentPlanSuiteCmp = new WcPaymentPlanSuiteCmp();
         $this->yithGiftCardsCmp      = new YithGiftCardsCmp();
         $this->giftCart              = new GiftCardsSomewhereWarmCmp();
         $this->yoastSEOCmp              = new YoastSEOCmp();
@@ -245,9 +238,6 @@ class CartProcessor
         if ($this->shoptimizerCmp->isActive()) {
             $this->shoptimizerCmp->applyCompatibility();
         }
-        if ($this->wcPaymentPlanSuiteCmp->isActive()) {
-            $this->wcPaymentPlanSuiteCmp->applyCompatibility();
-        }
         if ($this->avataxCmp->isActive()) {
             $this->avataxCmp->applyCompatibility();
         }
@@ -262,14 +252,7 @@ class CartProcessor
             $this->wcchainprCmp->applyCompatibility();
         }
 
-        $this->context->getContainerCompatibilityManager()->addFilters();
-
         $this->cartItemConverter = new CartItemConverter();
-    }
-
-    public function withCart($wcCart)
-    {
-        $this->wcCart = $wcCart;
     }
 
     public function withContext(Context $context)
@@ -282,16 +265,14 @@ class CartProcessor
         $this->wcsAttCmp->withContext($context);
         $this->vouchers->withContext($context);
         $this->wcDepositsCmp->withContext($context);
-        $this->wcPaymentPlanSuiteCmp->withContext($context);
         $this->giftCart->withContext($context);
         $this->facebookCommerce->withContext($context);
         $this->wcchainprCmp->withContext($context);
     }
 
-    public function installActionFirstProcess($skip_cartCouponsProcessor=false)
+    public function installActionFirstProcess()
     {
-        if($skip_cartCouponsProcessor)
-            $this->cartCouponsProcessor->installActions();
+        $this->cartCouponsProcessor->installActions();
         $this->cartFeeProcessor->setFilterToCalculateFees();
         $this->shippingProcessor->setFilterToEditPackageRates();
         $this->shippingProcessor->setFilterToEditShippingMethodLabel();
@@ -537,7 +518,6 @@ class CartProcessor
         }
 
         $flags = array();
-        $flags[] = $wcNoFilterWorker::FLAG_DISALLOW_CALCULATION_HOOKS;
         if ($this->wcSubsCmp->isActive() && $this->wcsAttCmp->isActive()) {
             $flags[] = $wcNoFilterWorker::FLAG_ALLOW_PRICE_HOOKS;
         }
@@ -585,7 +565,7 @@ class CartProcessor
 
             $freeProductsMapping = $this->calculateFreeProductsMapping($cart, $clonedWcCart);
 
-            $flags = array($wcNoFilterWorker::FLAG_ALLOW_PRICE_HOOKS, $wcNoFilterWorker::FLAG_DISALLOW_CALCULATION_HOOKS);
+            $flags = array($wcNoFilterWorker::FLAG_ALLOW_PRICE_HOOKS);
             if ($this->context->getOption("disable_shipping_calc_during_process", false)) {
                 $flags[] = $wcNoFilterWorker::FLAG_DISALLOW_SHIPPING_CALCULATION;
             }
@@ -597,7 +577,6 @@ class CartProcessor
                 $wcNoFilterWorker->calculateTotals($clonedWcCart);
             } else {
                 $flags[] = $wcNoFilterWorker::FLAG_ALLOW_PRICE_HOOKS;
-                $flags[] = $wcNoFilterWorker::FLAG_DISALLOW_SHIPPING_CALCULATION;
                 $wcNoFilterWorker->calculateTotals($clonedWcCart, ...$flags);
             }
             $initialTotals = $clonedWcCart->get_totals();
@@ -605,7 +584,7 @@ class CartProcessor
 
             $this->addFreeItems($freeProductsMapping, $clonedWcCart, $cart, $wcCart, $flags);
 
-            $flags = array($wcNoFilterWorker::FLAG_DISALLOW_CALCULATION_HOOKS);
+            $flags = array();
             if ($this->context->getOption("disable_shipping_calc_during_process", false)) {
                 $flags[] = $wcNoFilterWorker::FLAG_DISALLOW_SHIPPING_CALCULATION;
             }
@@ -647,7 +626,6 @@ class CartProcessor
                 $flags[] = $wcNoFilterWorker::FLAG_ALLOW_PRICE_HOOKS;
             }
 
-            $flags = apply_filters( 'adp_flags_for_final_calculate_totals', $flags);
             $wcNoFilterWorker->calculateTotals($wcCart, ...$flags);
 
             $this->normalizeCart($wcCart);
@@ -703,7 +681,6 @@ class CartProcessor
             }
             // required to process bundles
             $this->addCommonItems($cart, $wcCart);
-            do_action('adp_after_add_common_items');
             $wcNoFilterWorker->calculateTotals($wcCart, ...$flags);
 
             $this->normalizeCart($wcCart);
@@ -737,7 +714,6 @@ class CartProcessor
 
     protected function replaceCouponSuccessNotices($initialCoupons) {
         $newNotices = [];
-        //phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
         $appliedSuccessfullyText = __('Coupon code applied successfully.', 'woocommerce');
         foreach (wc_get_notices() as $type => $notices) {
             if ($type === "success") {
@@ -760,8 +736,6 @@ class CartProcessor
         foreach ( $initialCoupons as $initialCoupon ) {
             wc_add_notice(
                 sprintf(
-                    /* translators: invalid coupon message*/
-                    //phpcs:ignore WordPress.WP.I18n.TextDomainMismatch, WordPress.WP.I18n.MissingTranslatorsComment
                     __( 'Sorry, it seems the coupon "%s" is invalid - it has now been removed from your order.', 'woocommerce' ),
                     esc_html( $initialCoupon )
                 ),
@@ -1062,8 +1036,8 @@ class CartProcessor
     protected function addNoticeAddedFreeProduct($product, $qty)
     {
         $template = $this->context->getOption('message_template_after_add_free_product');
-        //phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
-        $template = _x( $template,
+        $template = _x(
+            $template,
             "Show message after adding free product|Output template",
             "advanced-dynamic-pricing-for-woocommerce"
         );
@@ -1285,22 +1259,13 @@ class CartProcessor
     protected function insertRegularTotals($wcCart, $cart, $flags)
     {
         $clonedWcCartForRegular = clone $wcCart;
-
-        $tmpflags = array_merge(
-            $flags,
-            [
-                $this->wcNoFilterWorker::FLAG_DISALLOW_CALCULATION_HOOKS,
-                $this->wcNoFilterWorker::FLAG_DISALLOW_SHIPPING_CALCULATION
-            ]
-        );
-
         foreach ($clonedWcCartForRegular->cart_contents as $cartItemKey => $wcCartItem) {
             $facade = new WcCartItemFacade($wcCartItem, $cartItemKey);
             $facade->getProduct()->set_price($facade->getProduct()->get_regular_price('edit'));
             $clonedWcCartForRegular->cart_contents[$cartItemKey] = $facade->getData();
         }
 
-        $this->wcNoFilterWorker->calculateTotals($clonedWcCartForRegular, ...$tmpflags);
+        $this->wcNoFilterWorker->calculateTotals($clonedWcCartForRegular, ...$flags);
 
         foreach ($clonedWcCartForRegular->cart_contents as $cartItemKey => $wcCartItem) {
             if ( ! isset($wcCart->cart_contents[$cartItemKey])) {
@@ -1589,7 +1554,7 @@ class CartProcessor
          * Add flag 'FLAG_ALLOW_PRICE_HOOKS'
          * because some plugins set price using 'get_price' hooks instead of modify WC_Product property.
          */
-        $flags = array($wcNoFilterWorker::FLAG_ALLOW_PRICE_HOOKS, $wcNoFilterWorker::FLAG_DISALLOW_CALCULATION_HOOKS);
+        $flags = array($wcNoFilterWorker::FLAG_ALLOW_PRICE_HOOKS);
         if ($this->context->getOption("disable_shipping_calc_during_process", false) && !did_action( "wpo_before_update_cart" )) {
             //BUG: shipping cost ignored if rules are NOT applied to the cart
             //$flags[] = $wcNoFilterWorker::FLAG_DISALLOW_SHIPPING_CALCULATION;

@@ -56,9 +56,9 @@ class CartItemConverter
         $facade->setHistory($cartItem->getHistory());
         $facade->setDiscounts($cartItem->getDiscounts());
         $facade->setPriceAdjustments($cartItem->getPriceAdjustments());
-        $qty = $facade->getQty();
-        $facade->setOriginalPriceWithoutTax( $qty > 0 ? $facade->getSubtotal() / $facade->getQty() : 0 );
-        $facade->setOriginalPriceTax($qty > 0 ? $facade->getExactSubtotalTax() / $facade->getQty() : 0 );
+
+        $facade->setOriginalPriceWithoutTax($facade->getSubtotal() / $facade->getQty());
+        $facade->setOriginalPriceTax($facade->getExactSubtotalTax() / $facade->getQty());
         $facade->setQty($cartItem->getQty());
 
         return $facade;

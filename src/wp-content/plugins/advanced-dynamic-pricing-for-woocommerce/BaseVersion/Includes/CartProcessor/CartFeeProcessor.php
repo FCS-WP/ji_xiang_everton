@@ -88,8 +88,8 @@ class CartFeeProcessor
 
             if ($context->isCombineMultipleFees()) {
                 $fee->setName(
-                    //phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
-                    _x( $context->getOption('default_fee_name'),
+                    _x(
+                        $context->getOption('default_fee_name'),
                         "Default fee name",
                         "advanced-dynamic-pricing-for-woocommerce"
                     )

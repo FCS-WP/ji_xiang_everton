@@ -304,7 +304,7 @@ class CartCouponsProcessorMerge implements ICartCouponsProcessor
                 foreach ($this->mergedCoupons as $couponCode => $coupons) {
                     foreach ($coupons as $coupon) {
                         if ($coupon instanceof CouponCart) {
-                            $mergedCoupons[$couponCode] = array_merge($mergedCoupons[$couponCode] ?? [], [$coupon]);
+                            $mergedCoupons[$couponCode] = array_merge($mergedCoupons[$couponCode] ?? [], [$coupon]); 
                         }
                     }
                 }
@@ -525,14 +525,14 @@ class CartCouponsProcessorMerge implements ICartCouponsProcessor
                 || count($currentCoupons) === 1 && $currentCoupons[0] instanceof WcCouponExternal
             ) {
                 throw new \Exception(
-                    esc_html__('Sorry, this coupon is not applicable to cart.', 'advanced-dynamic-pricing-for-woocommerce')
+                    __('Sorry, this coupon is not applicable to cart.', 'advanced-dynamic-pricing-for-woocommerce')
                 );
             }
         }
 
         if (in_array($wcCoupon->get_code(), $this->disabledWcCoupons, true)) {
             throw new \Exception(
-                esc_html__('Sorry, this coupon is not applicable to cart.', 'advanced-dynamic-pricing-for-woocommerce')
+                __('Sorry, this coupon is not applicable to cart.', 'advanced-dynamic-pricing-for-woocommerce')
             );
         }
 
@@ -565,7 +565,6 @@ class CartCouponsProcessorMerge implements ICartCouponsProcessor
     {
         WcUtils::replaceWcNotice(
             array(
-                //phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
                 'text' => __('Coupon code applied successfully.', 'woocommerce'),
                 'type' => 'success',
             ),

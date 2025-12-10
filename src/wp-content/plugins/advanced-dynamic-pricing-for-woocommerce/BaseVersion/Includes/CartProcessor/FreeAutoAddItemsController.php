@@ -72,11 +72,11 @@ class FreeAutoAddItemsController
         if ( ! $this->cart) {
             return;
         }
-        //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
         if ( ! isset($_REQUEST[self::RESTORE_DELETED_FREE_ITEMS_BY_HASH_REQUEST_KEY])) {
             return;
         }
-        //phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
+
         $hash = $_REQUEST[self::RESTORE_DELETED_FREE_ITEMS_BY_HASH_REQUEST_KEY];
 
         /** @var CartCustomer $customer */
@@ -90,8 +90,8 @@ class FreeAutoAddItemsController
             $wcSessionFacade->push();
         }
 
-        wp_safe_redirect(wc_get_page_permalink('cart'));
-        exit();
+        wp_redirect(wc_get_page_permalink('cart'));
+        die();
     }
 
 
@@ -117,14 +117,13 @@ class FreeAutoAddItemsController
 
             $cartUrl = add_query_arg(array(self::RESTORE_DELETED_FREE_ITEMS_BY_HASH_REQUEST_KEY => $hash),
                 wc_get_page_permalink('cart'));
-            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+
             echo TemplateLoader::wdpGetTemplate("removed-free-cart-item-stub.php", array(
                 'hash'    => $hash,
                 'cartUrl' => $cartUrl,
                 'qty'     => $qty,
                 'options' => $this->context->getSettings()->getOptions(),
             ));
-            // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
             ?>
 
             <?php
@@ -278,14 +277,12 @@ class FreeAutoAddItemsController
             $cartUrl = add_query_arg(array(self::RESTORE_DELETED_FREE_ITEMS_BY_HASH_REQUEST_KEY => $hash),
                 wc_get_page_permalink('cart'));
 
-            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
             echo \ADP\BaseVersion\Includes\TemplateLoader::wdpGetTemplate("removed-free-mini-cart-item-stub.php", array(
                 'hash'    => $hash,
                 'cartUrl' => $cartUrl,
                 'qty'     => $qty,
                 'options' => $this->context->getSettings()->getOptions(),
             ));
-            // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
             ?>
 
             <?php

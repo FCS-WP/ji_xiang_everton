@@ -141,10 +141,10 @@ class CartTotals
                 }
             }
 
-            $itemsSubtotals += wc_round_tax_total($subtotal);
+            $itemsSubtotals += $subtotal;
 
             if ($inclTax) {
-                $itemsSubtotals += wc_round_tax_total($subtotal_tax);
+                $itemsSubtotals += $subtotal_tax;
             }
         }
 
@@ -244,10 +244,10 @@ class CartTotals
                 }
             }
 
-            $itemsSubtotals += wc_round_tax_total($subtotal);
+            $itemsSubtotals += $subtotal;
 
             if ($inclTax) {
-                $itemsSubtotals += wc_round_tax_total($subtotal_tax);
+                $itemsSubtotals += $subtotal_tax;
             }
         }
 
@@ -257,7 +257,7 @@ class CartTotals
     protected static function roundLineTax($value, $in_cents = true)
     {
         if ( ! self::roundAtSubtotal()) {
-            $value = wc_round_tax_total($value, $in_cents ? null : 0);
+            $value = wc_round_tax_total($value, $in_cents ? 0 : null);
         }
 
         return $value;

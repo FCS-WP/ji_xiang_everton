@@ -50,19 +50,15 @@ class WpmlCmp
             $locale = $this->sitepress->get_locale($this->sitepress->get_this_lang());
             $context->setLanguage(new Context\Language($locale));
 
-            $this->setCurrency($context);
+            if (isset($this->wcWpml->multi_currency)) {
+                $context->currencyController = new CurrencyController(
+                    $context,
+                    $this->getDefaultCurrency()
+                );
+                $context->currencyController->setCurrentCurrency($this->getCurrentCurrency());
+            }
         }
 
-    }
-
-    public function setCurrency(Context $context) {
-        if (isset($this->wcWpml->multi_currency)) {
-            $context->currencyController = new CurrencyController(
-                $context,
-                $this->getDefaultCurrency()
-            );
-            $context->currencyController->setCurrentCurrency($this->getCurrentCurrency());
-        }
     }
 
     public function addFilterPreloadedListLanguages()
@@ -100,9 +96,8 @@ class WpmlCmp
     public function loadRequirements()
     {
         if (!did_action('plugins_loaded')) {
-            /* translators: Message about the load order*/
-            _doing_it_wrong(__FUNCTION__, sprintf(esc_html__('%1$s should not be called earlier the %2$s action.',
-                'advanced-dynamic-pricing-for-woocommerce'), 'load_requirements', 'plugins_loaded'), esc_html(WC_ADP_VERSION));
+            _doing_it_wrong(__FUNCTION__, sprintf(__('%1$s should not be called earlier the %2$s action.',
+                'advanced-dynamic-pricing-for-woocommerce'), 'load_requirements', 'plugins_loaded'), WC_ADP_VERSION);
         }
 
         $this->sitepress = isset($GLOBALS['sitepress']) ? $GLOBALS['sitepress'] : null;

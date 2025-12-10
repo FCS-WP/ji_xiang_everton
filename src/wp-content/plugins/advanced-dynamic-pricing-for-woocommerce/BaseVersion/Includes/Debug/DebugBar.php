@@ -60,7 +60,7 @@ class DebugBar
 
         $baseVersionUrl = WC_ADP_PLUGIN_URL . "/BaseVersion/";
         wp_enqueue_script('wdp_user_report', $baseVersionUrl . 'assets/js/user-report.js', array('jquery'),
-            WC_ADP_VERSION, true);
+            WC_ADP_VERSION);
         $userReportData = array(
             'ajaxurl'    => admin_url('admin-ajax.php'),
             'i'          => array(

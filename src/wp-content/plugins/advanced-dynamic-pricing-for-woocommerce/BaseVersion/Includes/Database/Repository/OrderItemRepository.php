@@ -23,7 +23,7 @@ class OrderItemRepository implements OrderItemRepositoryInterface {
             'gifted_qty'    => 0,
             'date'          => current_time('mysql'),
         ), $data);
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
         $wpdb->replace($table, $data);
     }
 }

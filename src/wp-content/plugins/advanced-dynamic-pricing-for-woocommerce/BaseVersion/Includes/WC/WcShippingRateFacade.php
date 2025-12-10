@@ -105,7 +105,7 @@ class WcShippingRateFacade
             return;
         }
 
-        $cost = floatval($this->rate->get_cost());
+        $cost = $this->rate->get_cost();
 
         // recalculate taxes
         if ($cost > 0) {

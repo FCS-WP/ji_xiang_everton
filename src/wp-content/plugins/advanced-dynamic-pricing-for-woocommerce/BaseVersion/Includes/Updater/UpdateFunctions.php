@@ -32,7 +32,6 @@ class UpdateFunctions
 
         $table = $wpdb->prefix . Rule::TABLE_NAME;
         $sql   = "SELECT id, conditions FROM $table";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $rows  = $wpdb->get_results($sql);
 
         $rows = array_map(function ($item) {
@@ -54,7 +53,6 @@ class UpdateFunctions
             }
             if ($prev_row != $row) {
                 $row['conditions'] = serialize($row['conditions']);
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery
                 $result            = $wpdb->update($table, array('conditions' => $row['conditions']),
                     array('id' => $row['id']));
             }
@@ -67,7 +65,6 @@ class UpdateFunctions
 
         $table = $wpdb->prefix . Rule::TABLE_NAME;
         $sql   = "SELECT id, conditions, limits, cart_adjustments FROM $table";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $rows  = $wpdb->get_results($sql);
 
         $rows = array_map(function ($item) {
@@ -96,7 +93,6 @@ class UpdateFunctions
                 $row['conditions']       = serialize($row['conditions']);
                 $row['cart_adjustments'] = serialize($row['cart_adjustments']);
                 $row['limits']           = serialize($row['limits']);
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery
                 $result                  = $wpdb->update($table, array(
                     'conditions'       => $row['conditions'],
                     'cart_adjustments' => $row['cart_adjustments'],
@@ -134,7 +130,6 @@ class UpdateFunctions
 
         $table = $wpdb->prefix . Rule::TABLE_NAME;
         $sql   = "SELECT id, get_products FROM $table";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $rows  = $wpdb->get_results($sql);
 
         $rows = array_filter(array_map(function ($item) {
@@ -163,7 +158,7 @@ class UpdateFunctions
                 unset($value['use_product_from_filter']);
             }
             $row['get_products']['value'] = $values;
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
             $result = $wpdb->update($table, array('get_products' => serialize($row['get_products'])),
                 array('id' => $row['id']));
         }
@@ -217,7 +212,6 @@ class UpdateFunctions
 
         $table = $wpdb->prefix . Rule::TABLE_NAME;
         $sql   = "SELECT id, get_products FROM $table";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $rows  = $wpdb->get_results($sql);
 
         $rows = array_filter(array_map(function ($item) {
@@ -244,7 +238,7 @@ class UpdateFunctions
                 $value['gift_mode'] = $giftMode;
             }
             $row['get_products']['value'] = $values;
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
             $result = $wpdb->update($table, array('get_products' => serialize($row['get_products'])),
                 array('id' => $row['id']));
         }
@@ -255,7 +249,6 @@ class UpdateFunctions
 
         $table = $wpdb->prefix . Rule::TABLE_NAME;
         $sql   = "SELECT id, conditions FROM $table";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $rows  = $wpdb->get_results($sql);
 
         $rows = array_filter(array_map(function ($item) {
@@ -282,7 +275,6 @@ class UpdateFunctions
             }
             if ($prev_row != $row) {
                 $row['conditions']       = serialize($row['conditions']);
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery
                 $wpdb->update($table, array(
                     'conditions'       => $row['conditions'],
                 ), array('id' => $row['id']));
@@ -295,12 +287,10 @@ class UpdateFunctions
 
         $table = $wpdb->prefix . Rule::TABLE_NAME;
         $sql   = "SELECT id, exclusive FROM $table";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $rows  = $wpdb->get_results($sql, ARRAY_A);
 
         foreach ($rows as $row) {
             $rule_type = $row['exclusive'] ? RuleTypeEnum::EXCLUSIVE()->getValue() : RuleTypeEnum::COMMON()->getValue();
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
             $wpdb->update($table, array(
                 'rule_type'       => $rule_type,
             ), array('id' => $row['id']));
@@ -336,7 +326,6 @@ class UpdateFunctions
 
         $table = $wpdb->prefix . Rule::TABLE_NAME;
         $sql = "SELECT id, product_adjustments, bulk_adjustments FROM $table";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $rows = $wpdb->get_results($sql);
 
         $rows = array_filter(array_map(function ($item) {
@@ -391,7 +380,6 @@ class UpdateFunctions
             }
 
             if (!empty($changes)) {
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery
                 $wpdb->update($table, $changes, array('id' => $row['id']));
             }
         }
@@ -411,7 +399,6 @@ class UpdateFunctions
 
         $table = $wpdb->prefix . Rule::TABLE_NAME;
         $sql   = "SELECT id, conditions FROM $table";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $rows  = $wpdb->get_results($sql);
 
         $rows = array_filter(array_map(function ($item) {
@@ -464,7 +451,6 @@ class UpdateFunctions
             }
             if ($prev_row != $row) {
                 $row['conditions']       = serialize($row['conditions']);
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery
                 $wpdb->update($table, array(
                     'conditions'       => $row['conditions'],
                 ), array('id' => $row['id']));
@@ -478,7 +464,6 @@ class UpdateFunctions
 
         $table = $wpdb->prefix . Rule::TABLE_NAME;
         $sql = "SELECT id, advertising FROM $table";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $rows = $wpdb->get_results($sql);
 
         $rows = array_map(function ($item) {
@@ -492,7 +477,6 @@ class UpdateFunctions
 
         foreach ($rows as &$row) {
             $row['advertising']['discount_message_cart_item'] = $row['advertising']['discount_message'] ?? "";
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
             $result = $wpdb->update(
                 $table,
                 array( 'advertising' => serialize($row['advertising'])),
@@ -552,7 +536,6 @@ class UpdateFunctions
 
         $table = $wpdb->prefix . Rule::TABLE_NAME;
         $sql   = "SELECT id, conditions FROM $table";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $rows  = $wpdb->get_results($sql);
 
         $rows = array_filter(array_map(function ($item) {
@@ -583,7 +566,7 @@ class UpdateFunctions
             }
             if($hasTypeCustomerPostcode) {
                 $row['conditions']       = serialize($row['conditions']);
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
                 $wpdb->update($table, array(
                     'conditions'       => $row['conditions'],
                 ), array('id' => $row['id']));
@@ -597,7 +580,6 @@ class UpdateFunctions
 
         $table = $wpdb->prefix . Rule::TABLE_NAME;
         $sql   = "SELECT id, conditions FROM $table";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $rows  = $wpdb->get_results($sql);
 
         $rows = array_filter(array_map(function ($item) {
@@ -632,55 +614,10 @@ class UpdateFunctions
             }
 
             $row['conditions'] = serialize($row['conditions']);
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
             $wpdb->update($table, array(
                 'conditions'       => $row['conditions'],
             ), array('id' => $row['id']));
-        }
-    }
-
-    public static function migrateSummaryTo_4_10_4()
-    {
-        global $wpdb;
-
-        if(!class_exists('\ADP\ProVersion\Includes\Database\Models\Collection')) {
-            return;
-        }
-
-        $table = $wpdb->prefix . \ADP\ProVersion\Includes\Database\Models\Collection::TABLE_NAME;
-
-        //phpcs:disable WordPress.DB.DirectDatabaseQuery
-        $column_exists = $wpdb->get_results(
-            //phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            $wpdb->prepare("SHOW COLUMNS FROM {$table} LIKE %s", 'conditions_relationship')
-        );
-
-        if (empty($column_exists)) {
-            //phpcs:disable WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery
-            $wpdb->query("ALTER TABLE {$table} ADD COLUMN conditions_relationship BOOLEAN DEFAULT TRUE");
-            //phpcs:disable WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery
-            $wpdb->query("UPDATE {$table} SET conditions_relationship = TRUE");
-        }
-
-        //phpcs:disable WordPress.DB.DirectDatabaseQuery
-        $column_exists = $wpdb->get_results(
-            //phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            $wpdb->prepare("SHOW COLUMNS FROM {$table} LIKE %s", 'summary')
-        );
-
-        if (empty($column_exists)) {
-            //phpcs:disable WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery
-            $wpdb->query("ALTER TABLE {$table} ADD COLUMN summary TEXT DEFAULT NULL");
-        }
-
-        if (!class_exists("\ADP\ProVersion\Includes\Database\Repository\CollectionRepository")) {
-            return;
-        }
-
-        $productCollections = \ADP\ProVersion\Includes\Database\Repository\CollectionRepository::getProductCollections();
-
-        foreach ($productCollections as $collection) {
-            \ADP\ProVersion\Includes\Database\Repository\CollectionRepository::storeProductCollection($collection);
         }
     }
 }

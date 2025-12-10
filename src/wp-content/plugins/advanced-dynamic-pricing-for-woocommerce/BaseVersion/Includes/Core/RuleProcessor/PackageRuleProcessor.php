@@ -275,16 +275,6 @@ class PackageRuleProcessor implements RuleProcessor
             return false;
         }
 
-        if(
-            $this->rule->getRoleDiscounts()
-            && !$this->roleDiscountStrategy->findMatchedRoleDiscounts($cart->getContext()->getCustomer())
-            && !$this->rule->getProductRangeAdjustmentHandler()
-        ) {
-            $this->status = $this::STATUS_CONDITIONS_NOT_PASSED;
-
-            return false;
-        }
-
         return true;
     }
 

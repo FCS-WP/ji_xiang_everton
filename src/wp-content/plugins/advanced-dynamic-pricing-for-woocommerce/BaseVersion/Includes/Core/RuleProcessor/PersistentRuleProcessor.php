@@ -104,11 +104,6 @@ class PersistentRuleProcessor implements RuleProcessor
     protected $exclusivityStrategy;
 
     /**
-     * @var RoleDiscountStrategy
-     */
-    protected $roleDiscountStrategy;
-
-    /**
      * @param Context|PersistentRule $contextOrRule
      * @param PersistentRule|null $deprecated
      *
@@ -133,7 +128,6 @@ class PersistentRuleProcessor implements RuleProcessor
         $this->autoAddStrategy           = Factory::get('Core_RuleProcessor_AutoAddStrategy', $rule, $this->ruleUsedStock);
         $this->activationTriggerStrategy = new ActivationTriggerStrategy($rule);
         $this->exclusivityStrategy       = new ExclusivityAllStrategy($rule);
-        $this->roleDiscountStrategy      = new RoleDiscountStrategy($rule);
     }
 
     public function withContext(Context $context)
@@ -271,8 +265,7 @@ class PersistentRuleProcessor implements RuleProcessor
             $isReplaceWithCoupon = $handler->isReplaceWithCartAdjustment();
             $replaceCouponName = $handler->getReplaceCartAdjustmentCode();
         } else {
-            $isReplaceWithCoupon = false;
-            $replaceCouponName = '';
+            return;
         }
 
         $globalContext = $cart->getContext()->getGlobalContext();
@@ -390,15 +383,7 @@ class PersistentRuleProcessor implements RuleProcessor
             }
         }
 
-        // $this->applyRangeDiscounts($cart, $collection);
-
-        if ( ! $this->rule->getRoleDiscounts() && ! $this->rule->getProductRangeAdjustmentHandler()) {
-            return;
-        } elseif ( ! $this->rule->getRoleDiscounts()) {
-            $this->applyRangeDiscounts($cart, $collection);
-        } elseif ( ! $this->rule->getProductRangeAdjustmentHandler()) {
-            $this->roleDiscountStrategy->processItems($cart, $collection);
-        }
+        $this->applyRangeDiscounts($cart, $collection);
     }
 
     /**
@@ -584,12 +569,6 @@ class PersistentRuleProcessor implements RuleProcessor
         }
 
         if ( ! $this->checkConditions($cart)) {
-            $this->status = $this::STATUS_CONDITIONS_NOT_PASSED;
-
-            return false;
-        }
-
-        if( $this->rule->getRoleDiscounts() && !$this->roleDiscountStrategy->findMatchedRoleDiscounts($cart->getContext()->getCustomer())) {
             $this->status = $this::STATUS_CONDITIONS_NOT_PASSED;
 
             return false;

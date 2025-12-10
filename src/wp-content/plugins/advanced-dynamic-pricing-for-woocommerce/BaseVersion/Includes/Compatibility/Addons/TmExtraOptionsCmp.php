@@ -58,22 +58,7 @@ class TmExtraOptionsCmp
         foreach ($addonsData as $addonData) {
             $key   = $addonData['name'] ?? null;
             $value = $addonData['value'] ?? null;
-
-            if(isset($thirdPartyData["epo_price_override"]) && $thirdPartyData["epo_price_override"] === 1) {
-                $prices_sum = array_sum(array_column ($addonsData, 'price'));
-                $original_price = (float)$thirdPartyData["tm_epo_product_original_price"];
-                if($original_price > $prices_sum) {
-                    $diff = $original_price - $prices_sum;
-                    $price = $diff / count($addonsData) * -1 ?? null;
-                } else if ($original_price < $prices_sum){
-                    $diff =  $prices_sum - $original_price;
-                    $price = $diff / count($addonsData) ?? null;
-                } else {
-                    $price = 0;
-                }
-            } else {
-                $price = $addonData['price'] ?? null;
-            }
+            $price = $addonData['price'] ?? null;
 
             if ($key === null || $value === null || $price === null) {
                 continue;

@@ -24,7 +24,7 @@ class OrderRepository implements OrderRepositoryInterface {
             'gifted_qty'       => 0,
             'date'             => current_time('mysql'),
         ), $data);
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
         $wpdb->replace($table, $data);
     }
 
@@ -38,9 +38,14 @@ class OrderRepository implements OrderRepositoryInterface {
         global $wpdb;
 
         $table_order_rules = $wpdb->prefix . Order::TABLE_NAME;
-        //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $sql = $wpdb->prepare("SELECT $table_order_rules.* FROM $table_order_rules WHERE order_id = %d ORDER BY amount DESC", $orderId);
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+
+        $sql = $wpdb->prepare("
+            SELECT $table_order_rules.*
+            FROM $table_order_rules
+            WHERE order_id = %d
+            ORDER BY amount DESC
+        ", $orderId);
+
         $rows = $wpdb->get_results($sql, ARRAY_A);
 
         if ( count($rows) === 0 ) {
@@ -76,9 +81,13 @@ class OrderRepository implements OrderRepositoryInterface {
         global $wpdb;
 
         $tableOrderRules = $wpdb->prefix . Order::TABLE_NAME;
-        //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $sql = $wpdb->prepare("SELECT COUNT(*) FROM {$tableOrderRules} WHERE rule_id = %d", $ruleId);
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+
+        $sql = $wpdb->prepare("
+            SELECT COUNT(*)
+            FROM {$tableOrderRules}
+            WHERE rule_id = %d
+        ", $ruleId);
+
         $value = $wpdb->get_var($sql);
 
         return (integer)$value;
@@ -100,8 +109,9 @@ class OrderRepository implements OrderRepositoryInterface {
         if (empty($customerOrdersIds)) {
             return 0;
         }
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $value = $wpdb->get_var("SELECT COUNT(*) FROM {$tableOrderRules} WHERE rule_id = $ruleId  AND order_id IN (" . implode(',', $customerOrdersIds) . ")");
+
+        $value = $wpdb->get_var("SELECT COUNT(*) FROM {$tableOrderRules}
+		            WHERE rule_id = $ruleId  AND order_id IN (" . implode(',', $customerOrdersIds) . ")");
 
         return (integer)$value;
     }
@@ -159,8 +169,9 @@ class OrderRepository implements OrderRepositoryInterface {
         if (empty($customerOrdersIds)) {
             return 0;
         }
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $value = $wpdb->get_var("SELECT COUNT(*) FROM {$tableOrderRules} WHERE rule_id = $ruleId  AND order_id IN (" . implode(',', $customerOrdersIds) . ")");
+
+        $value = $wpdb->get_var("SELECT COUNT(*) FROM {$tableOrderRules}
+		            WHERE rule_id = $ruleId  AND order_id IN (" . implode(',', $customerOrdersIds) . ")");
 
         return (integer)$value;
     }

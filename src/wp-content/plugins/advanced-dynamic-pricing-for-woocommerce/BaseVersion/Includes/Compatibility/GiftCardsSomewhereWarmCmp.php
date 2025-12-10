@@ -38,9 +38,8 @@ class GiftCardsSomewhereWarmCmp
     public function loadRequirements()
     {
         if ( ! did_action('plugins_loaded')) {
-            /* translators: Message about the load order*/
-            _doing_it_wrong(__FUNCTION__, sprintf(esc_html__('%1$s should not be called earlier the %2$s action.',
-                'advanced-dynamic-pricing-for-woocommerce'), 'load_requirements', 'plugins_loaded'), esc_html(WC_ADP_VERSION));
+            _doing_it_wrong(__FUNCTION__, sprintf(__('%1$s should not be called earlier the %2$s action.',
+                'advanced-dynamic-pricing-for-woocommerce'), 'load_requirements', 'plugins_loaded'), WC_ADP_VERSION);
         }
 
         $this->loadGift();

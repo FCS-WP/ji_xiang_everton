@@ -526,13 +526,13 @@ class CartCouponsProcessor implements ICartCouponsProcessor
 
         if ($this->disableAllWcCoupons === true && ! in_array($coupon->get_code(), $customAdpCoupons, true)) {
             throw new \Exception(
-                esc_html__('Sorry, this coupon is not applicable to cart.', 'advanced-dynamic-pricing-for-woocommerce')
+                __('Sorry, this coupon is not applicable to cart.', 'advanced-dynamic-pricing-for-woocommerce')
             );
         }
 
         if (in_array($coupon->get_code(), $this->disabledWcCoupons, true)) {
             throw new \Exception(
-                esc_html__('Sorry, this coupon is not applicable to cart.', 'advanced-dynamic-pricing-for-woocommerce')
+                __('Sorry, this coupon is not applicable to cart.', 'advanced-dynamic-pricing-for-woocommerce')
             );
         }
 
@@ -683,7 +683,6 @@ class CartCouponsProcessor implements ICartCouponsProcessor
         ) {
             $this->replaceWcNotice(
                 array(
-                    //phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
                     'text' => __('Coupon code applied successfully.', 'woocommerce'),
                     'type' => 'success',
                 ),
@@ -855,7 +854,6 @@ class CartCouponsProcessor implements ICartCouponsProcessor
                     'type' => 'error',
                 ),
                 array(
-                    //phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
                     'text' => __('Coupon code applied successfully.', 'woocommerce'),
                     'type' => 'success',
                 )

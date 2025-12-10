@@ -6,7 +6,7 @@ use ADP\BaseVersion\Includes\Core\Rule\CartCondition\Interfaces\ListComparisonCo
 use ADP\BaseVersion\Includes\Database\Models\Rule;
 use ADP\BaseVersion\Includes\Helpers\Helpers;
 use ADP\ProVersion\Includes\Core\Rule\CartCondition\Impl\ShippingState;
-use ADP\BaseVersion\Includes\Cache\CacheHelper;
+
 class RuleRepository implements RuleRepositoryInterface {
 
     /**
@@ -18,7 +18,6 @@ class RuleRepository implements RuleRepositoryInterface {
         $table = $wpdb->prefix . Rule::TABLE_NAME;
 
         $sql = "SELECT COUNT(*) FROM $table WHERE `advertising` NOT LIKE \"a:0:{}\" AND NOT deleted AND enabled  LIMIT 1";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $count = $wpdb->get_var($sql);
         return $count>0;
     }
@@ -32,7 +31,6 @@ class RuleRepository implements RuleRepositoryInterface {
         $table = $wpdb->prefix . Rule::TABLE_NAME;
 
         $sql = "SELECT COUNT(*) FROM $table WHERE `conditions` LIKE \"%shipping%\" AND NOT deleted AND enabled  LIMIT 1";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $count = $wpdb->get_var($sql);
         return $count>0;
     }
@@ -46,7 +44,6 @@ class RuleRepository implements RuleRepositoryInterface {
         $table = $wpdb->prefix . Rule::TABLE_NAME;
 
         $sql = "SELECT COUNT(*) FROM $table WHERE `limits` NOT LIKE \"a:0:{}\" AND NOT deleted AND enabled  LIMIT 1";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $count = $wpdb->get_var($sql);
         return $count>0;
     }
@@ -60,7 +57,6 @@ class RuleRepository implements RuleRepositoryInterface {
         $table = $wpdb->prefix . Rule::TABLE_NAME;
 
         $sql = "SELECT COUNT(*) FROM $table WHERE (`cart_adjustments` LIKE \"%discount_repeatable%\" OR `cart_adjustments` LIKE \"%fee_repeatable%\") AND NOT deleted AND enabled LIMIT 1";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $count = $wpdb->get_var($sql);
         return $count>0;
     }
@@ -75,7 +71,7 @@ class RuleRepository implements RuleRepositoryInterface {
         $table = $wpdb->prefix . Rule::TABLE_NAME;
 
         $sql = "SELECT * FROM $table WHERE bulk_adjustments LIKE '%ranges%' AND NOT deleted";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+
         $rows = $wpdb->get_results($sql);
 
         $rows = array_map(function ($item) {
@@ -113,30 +109,28 @@ class RuleRepository implements RuleRepositoryInterface {
         $countryStates = WC()->countries->get_states();
 
         // fix collections in conditions
-        if(class_exists('ShippingState')) {
-            foreach ($rows as &$row) {
-                foreach ($row['conditions'] as &$condition) {
-                    $type    = $condition['type'];
-                    if ($type === 'shipping_state' && isset($condition['options'][ShippingState::COMPARISON_LIST_KEY])) {
-                        $comparison_value = $condition['options'][ShippingState::COMPARISON_LIST_KEY];
+        foreach ($rows as &$row) {
+            foreach ($row['conditions'] as &$condition) {
+                $type    = $condition['type'];
+                if ($type === 'shipping_state' && isset($condition['options'][ShippingState::COMPARISON_LIST_KEY])) {
+                    $comparison_value = $condition['options'][ShippingState::COMPARISON_LIST_KEY];
 
-                        $newComparisonValue = array();
-                        $changed            = false;
+                    $newComparisonValue = array();
+                    $changed            = false;
 
-                        foreach ($comparison_value as $value) {
-                            if (strpos($value, ':') === false) {
-                                foreach ($countryStates as $country_code => $states) {
-                                    if (isset($states[$value])) {
-                                        $newComparisonValue[] = $country_code . ":" . $value;
-                                        $changed              = true;
-                                    }
+                    foreach ($comparison_value as $value) {
+                        if (strpos($value, ':') === false) {
+                            foreach ($countryStates as $country_code => $states) {
+                                if (isset($states[$value])) {
+                                    $newComparisonValue[] = $country_code . ":" . $value;
+                                    $changed              = true;
                                 }
                             }
                         }
+                    }
 
-                        if ($changed) {
-                            $condition['options'][ShippingState::COMPARISON_LIST_KEY] = $newComparisonValue;
-                        }
+                    if ($changed) {
+                        $condition['options'][ShippingState::COMPARISON_LIST_KEY] = $newComparisonValue;
                     }
                 }
             }
@@ -173,7 +167,6 @@ class RuleRepository implements RuleRepositoryInterface {
             $types        = (array)$args['types'];
             $placeholders = array_fill(0, count($types), '%s');
             $placeholders = implode(', ', $placeholders);
-            //phpcs:ignore WordPress.DB
             $sql          = $wpdb->prepare("$sql AND type IN($placeholders)", $types);
         }
 
@@ -181,7 +174,6 @@ class RuleRepository implements RuleRepositoryInterface {
             $types        = (array)$args['rule_types'];
             $placeholders = array_fill(0, count($types), '%s');
             $placeholders = implode(', ', $placeholders);
-            //phpcs:ignore WordPress.DB
             $sql          = $wpdb->prepare("$sql AND (rule_type IN($placeholders) OR rule_type is NULL)", $types);
         }
 
@@ -199,10 +191,6 @@ class RuleRepository implements RuleRepositoryInterface {
             $sql .= ' AND deleted = 0';
         }
 
-        if(adp_context()->isBaseVersion()) {
-            $args['exclusive'] = 0;
-        }
-
         if (isset($args['exclusive'])) {
             $showExclusive = $args['exclusive'] ? 1 : 0;
             $sql           = "$sql AND exclusive = $showExclusive";
@@ -212,7 +200,6 @@ class RuleRepository implements RuleRepositoryInterface {
             $ids          = (array)$args['id'];
             $placeholders = array_fill(0, count($ids), '%d');
             $placeholders = implode(', ', $placeholders);
-            //phpcs:ignore WordPress.DB
             $sql          = $wpdb->prepare("$sql AND id IN($placeholders)", $ids);
         }
 
@@ -220,20 +207,13 @@ class RuleRepository implements RuleRepositoryInterface {
             $types        = (array)$args['filter_types'];
 
             foreach ( $types as $type ) {
-                //phpcs:ignore WordPress.DB
                 $wpdb->prepare("$sql AND (filters LIKE '%s')", "%$type%");
             }
         }
 
         if (isset($args['q'])) {
             $q = $args['q'];
-
-            if (preg_replace("/\s+/", "", strtolower($q)) === 'noname') {
-                $sql .= " AND (title = '' OR summary LIKE '%no name%')";
-            } else {
-                //phpcs:ignore WordPress.DB
-                $sql = $wpdb->prepare("$sql AND (summary LIKE %s)", "%$q%");
-            }
+            $sql = $wpdb->prepare("$sql AND (summary LIKE '%s')", "%$q%");
         }
 
         $sql .= " ORDER BY rule_type DESC, exclusive DESC, priority";
@@ -267,10 +247,6 @@ class RuleRepository implements RuleRepositoryInterface {
 
             $sql .= " " . $sql_limit;
         }
-
-        $sql = apply_filters("adp_get_rule_sql", $sql, $args);
-
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $rows = $wpdb->get_results($sql);
 
         $rows = array_map(function ($item) {
@@ -399,30 +375,28 @@ class RuleRepository implements RuleRepositoryInterface {
         $countryStates = WC()->countries->get_states();
 
         // fix collections in conditions
-        if(class_exists('ShippingState')) {
-            foreach ($rows as &$row) {
-                foreach ($row['conditions'] as &$condition) {
-                    $type    = $condition['type'];
-                    if ($type === 'shipping_state' && isset($condition['options'][ShippingState::COMPARISON_LIST_KEY])) {
-                        $comparison_value = $condition['options'][ShippingState::COMPARISON_LIST_KEY];
+        foreach ($rows as &$row) {
+            foreach ($row['conditions'] as &$condition) {
+                $type    = $condition['type'];
+                if ($type === 'shipping_state' && isset($condition['options'][ShippingState::COMPARISON_LIST_KEY])) {
+                    $comparison_value = $condition['options'][ShippingState::COMPARISON_LIST_KEY];
 
-                        $newComparisonValue = array();
-                        $changed            = false;
+                    $newComparisonValue = array();
+                    $changed            = false;
 
-                        foreach ($comparison_value as $value) {
-                            if (strpos($value, ':') === false) {
-                                foreach ($countryStates as $country_code => $states) {
-                                    if (isset($states[$value])) {
-                                        $newComparisonValue[] = $country_code . ":" . $value;
-                                        $changed              = true;
-                                    }
+                    foreach ($comparison_value as $value) {
+                        if (strpos($value, ':') === false) {
+                            foreach ($countryStates as $country_code => $states) {
+                                if (isset($states[$value])) {
+                                    $newComparisonValue[] = $country_code . ":" . $value;
+                                    $changed              = true;
                                 }
                             }
                         }
+                    }
 
-                        if ($changed) {
-                            $condition['options'][ShippingState::COMPARISON_LIST_KEY] = $newComparisonValue;
-                        }
+                    if ($changed) {
+                        $condition['options'][ShippingState::COMPARISON_LIST_KEY] = $newComparisonValue;
                     }
                 }
             }
@@ -462,7 +436,6 @@ class RuleRepository implements RuleRepositoryInterface {
             $types        = (array)$args['types'];
             $placeholders = array_fill(0, count($types), '%s');
             $placeholders = implode(', ', $placeholders);
-            //phpcs:ignore WordPress.DB
             $sql          = $wpdb->prepare("$sql AND type IN($placeholders)", $types);
         }
 
@@ -489,16 +462,14 @@ class RuleRepository implements RuleRepositoryInterface {
             $ids          = (array)$args['id'];
             $placeholders = array_fill(0, count($ids), '%d');
             $placeholders = implode(', ', $placeholders);
-            //phpcs:ignore WordPress.DB
             $sql          = $wpdb->prepare("$sql AND id IN($placeholders)", $ids);
         }
 
         if (isset($args['q'])) {
             $q = $args['q'];
-            //phpcs:ignore WordPress.DB
             $sql = $wpdb->prepare("$sql AND (summary LIKE '%s')", "%$q%");
         }
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+
         return (integer)$wpdb->get_var($sql);
     }
 
@@ -578,61 +549,49 @@ class RuleRepository implements RuleRepositoryInterface {
     public function deleteAllRules()
     {
         global $wpdb;
-        CacheHelper::flushRulesCache();
         $table = $wpdb->prefix . Rule::TABLE_NAME;
         $sql   = "DELETE FROM $table";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $wpdb->query($sql);
     }
 
     public function markRulesAsDeleted($type)
     {
         global $wpdb;
-        CacheHelper::flushRulesCache();
         $table = $wpdb->prefix . Rule::TABLE_NAME;
 
         $sql = "UPDATE $table SET deleted = 1 WHERE type ";
         if (is_array($type)) {
             $format = implode(', ', array_fill(0, count($type), '%s'));
-            //phpcs:ignore WordPress.DB
             $sql    = $wpdb->prepare("$sql IN ($format)", $type);
         } else {
-            //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $sql = $wpdb->prepare("$sql = %s", $type);
         }
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+
         $wpdb->query($sql);
     }
 
     public function markRuleAsDeleted($rule_id)
     {
         global $wpdb;
-        CacheHelper::flushRulesCache();
         $table = $wpdb->prefix . Rule::TABLE_NAME;
 
         $data  = array('deleted' => 1);
         $where = array('id' => $rule_id);
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $wpdb->update($table, $data, $where);
     }
 
     public function storeRule($rule)
     {
         global $wpdb;
-
-        CacheHelper::flushRulesCache();
-
         $table = $wpdb->prefix . Rule::TABLE_NAME;
         $data = $rule->getDataForDB();
 
         if ($id = $rule->id) {
             $where  = array('id' => $id);
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
             $wpdb->update($table, $data, $where);
 
             return $id;
         } else {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
             $wpdb->insert($table, $data);
 
             return $wpdb->insert_id;
@@ -647,7 +606,6 @@ class RuleRepository implements RuleRepositoryInterface {
         $result = 0;
 
         if ($ruleId) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
             $result = $wpdb->update($table, array('priority' => $priority), array('id' => $ruleId));
         }
 
@@ -657,18 +615,21 @@ class RuleRepository implements RuleRepositoryInterface {
     public function markAsDisabledByPlugin($ruleId)
     {
         global $wpdb;
-        CacheHelper::flushRulesCache();
+
         $tableRules = $wpdb->prefix . Rule::TABLE_NAME;
-        //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $sql = $wpdb->prepare("SELECT {$tableRules}.additional FROM {$tableRules} WHERE id = %d", $ruleId);
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+
+        $sql = $wpdb->prepare("
+            SELECT {$tableRules}.additional
+            FROM {$tableRules}
+            WHERE id = %d
+        ", $ruleId);
+
         $additional                       = $wpdb->get_var($sql);
         $additional                       = unserialize($additional);
         $additional['disabled_by_plugin'] = 1;
 
         $data  = array('enabled' => 0, 'additional' => serialize($additional));
         $where = array('id' => $ruleId);
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $wpdb->update($tableRules, $data, $where);
     }
 
@@ -730,24 +691,20 @@ class RuleRepository implements RuleRepositoryInterface {
     public function disableRule($ruleId)
     {
         global $wpdb;
-        CacheHelper::flushRulesCache();
         $table = $wpdb->prefix . Rule::TABLE_NAME;
 
         $data  = array('enabled' => 0);
         $where = array('id' => $ruleId);
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $wpdb->update($table, $data, $where);
     }
 
     public function enableRule($ruleId)
     {
         global $wpdb;
-        CacheHelper::flushRulesCache();
         $table = $wpdb->prefix . Rule::TABLE_NAME;
 
         $data  = array('enabled' => 1);
         $where = array('id' => $ruleId);
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $wpdb->update($table, $data, $where);
     }
 
@@ -756,9 +713,8 @@ class RuleRepository implements RuleRepositoryInterface {
         global $wpdb;
         $tableRules = $wpdb->prefix . Rule::TABLE_NAME;
 
-        $sql = $wpdb->prepare(
-            //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            "UPDATE {$tableRules}
+        $sql = $wpdb->prepare("
+            UPDATE {$tableRules}
             SET `rule_type` = 'persistent'
             WHERE
                   `deleted` = 0
@@ -785,7 +741,7 @@ class RuleRepository implements RuleRepositoryInterface {
             'a:1:{s:13:"table_message";s:0:"";}', //TODO: prevent rules to save bulk like this
             'a:0:{}' //for pre-4.0.0 imported rules with no bulk
         );
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+
         return (int)($wpdb->query($sql));
     }
 
@@ -794,9 +750,8 @@ class RuleRepository implements RuleRepositoryInterface {
         global $wpdb;
         $tableRules = $wpdb->prefix . Rule::TABLE_NAME;
 
-        $sql = $wpdb->prepare(
-            //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            "UPDATE {$tableRules}
+        $sql = $wpdb->prepare("
+            UPDATE {$tableRules}
             SET `rule_type` = 'common'
             WHERE
                   `deleted` = 0
@@ -805,7 +760,7 @@ class RuleRepository implements RuleRepositoryInterface {
         ",
             'persistent'
         );
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+
         return (int)($wpdb->query($sql));
     }
 }

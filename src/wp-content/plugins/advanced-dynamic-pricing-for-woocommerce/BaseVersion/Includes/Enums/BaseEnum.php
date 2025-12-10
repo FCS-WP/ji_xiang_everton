@@ -48,7 +48,6 @@ abstract class BaseEnum
         }
 
         if ( ! $this->isValid($value)) {
-            //phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             throw new UnexpectedValueException("Value '$value' is not part of the enum " . static::class);
         }
 
@@ -201,7 +200,7 @@ abstract class BaseEnum
         if (isset($array[$name]) || array_key_exists($name, $array)) {
             return new static($array[$name]);
         }
-        //phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+
         throw new BadMethodCallException("No static method or enum constant '$name' in class " . static::class);
     }
 

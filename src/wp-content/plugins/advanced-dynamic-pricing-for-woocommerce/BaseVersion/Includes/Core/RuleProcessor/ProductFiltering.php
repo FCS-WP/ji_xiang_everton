@@ -158,12 +158,13 @@ class ProductFiltering
     {
         $result         = false;
         $product_parent = $this->getMainProduct($product);
-        $values = is_array($this->values) ? $this->values : [];
 
         if ('in_list' === $this->method) {
-            $result = (in_array($product->get_id(), $values) || in_array($product_parent->get_id(), $values));
+            $result = (in_array($product->get_id(), $this->values) or in_array($product_parent->get_id(),
+                    $this->values));
         } elseif ('not_in_list' === $this->method) {
-            $result = !(in_array($product->get_id(), $values) || in_array($product_parent->get_id(), $values));
+            $result = ! (in_array($product->get_id(), $this->values) or in_array($product_parent->get_id(),
+                    $this->values));
         } elseif ('any' === $this->method) {
             $result = true;
         }
@@ -575,10 +576,6 @@ class ProductFiltering
             }
 
             $meta               = array_merge_recursive($this->getProductPostMeta($parentProduct), $meta);
-            if ($product instanceof \WC_Product_Variation) {
-                $variationMeta = $this->getProductPostMeta($product);
-                $meta = array_merge($meta, $variationMeta);
-            }
             $customFields       = $this->prepareMeta($meta);
             $isProductHasFields = count(array_intersect($customFields, $values)) > 0;
         }

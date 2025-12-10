@@ -427,14 +427,6 @@
 	font-size: small;
 }
 
-.wdp-list-container .wdp-row .wdp-filter-content-bottom .wdp-collection-exclude .wdp-column.wdp-add-exclude-products {
-  flex: 3;
-}
-
-.wdp-list-container .wdp-row .wdp-filter-content-bottom .wdp-collection-exclude .wdp-column .wdp-product-exclude-title {
-  font-size: small;
-}
-
 .wdp-list-container .buffer {
 	flex: 1;
 }
@@ -454,7 +446,7 @@
 	max-width: 350px;
 }
 
-.wdp-list-container .wdp-row .wdp-filter-content-bottom .wdp-product-exclude .wdp-collection-exclude .wdp-product-exclude-title {
+.wdp-list-container .wdp-row .wdp-filter-content-bottom .wdp-product-exclude .wdp-product-exclude-title {
 	vertical-align: text-top;
 }
 
@@ -625,12 +617,6 @@ button.wdp-btn-rule-action-controls {
     text-decoration: line-through;
 	color: #777;
     font-weight: normal;
-}
-
-.wdp-ruleitem-disabled-title {
-  text-decoration: line-through;
-  color: #777;
-  font-weight: normal;
 }
 
 .wdp-ruleitem-row {
@@ -909,31 +895,9 @@ div.wdp-row.wdp-options select {
 }
 
 .wdp-filter-title {
-  display: inline-block;
-  font-weight: 700;
-  text-align: start;
-  line-height: 18px;
-  margin-top: 0.4rem;
+	display: inline;
+	font-weight: 700;
 	vertical-align: middle;
-}
-.wdp-title-icon {
-  display: flex;
-}
-@media (max-width: 1460px) {
-  .wdp-filter-title {
-    margin-top: 0;
-  }
-}
-
-@media (max-width: 760px) {
-  .wdp-title-icon {
-    display: block;
-  }
-
-  .wdp-filter-title {
-    display: inline;
-    vertical-align: middle;
-  }
 }
 
 /* .wdp-filter-img-wrapper {
@@ -1239,62 +1203,6 @@ div.wdp-row.wdp-options select {
 	display: none;
 }
 
-.wdp-collection-exclude details[open] summary {
-  display: none;
-}
-
 .wdp-setting-changed {
 	border-color: #3917ab !important;
 }
-
-.wdp-help-tip {
-  display: inline-block;
-  font-family: Dashicons;
-  font-size: 16px;
-  line-height: 1;
-  vertical-align: middle;
-  width: 16px;
-  height: 16px;
-  cursor: help;
-  color: #666;
-  position: relative;
-}
-
-.wdp-help-tip:before {
-  content: "\f223";
-  font-family: "Dashicons";
-  font-weight: normal;
-  font-style: normal;
-  speak: none;
-  display: inline-block;
-  text-decoration: inherit;
-  text-align: center;
-}
-
-.wdp-tooltip-box {
-  position: absolute;
-  background: #333;
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 13px;
-  white-space: normal;
-  max-width: 200px;
-  z-index: 9999;
-  display: none;
-  text-align: center;
-  word-wrap: break-word;
-}
-
-.wdp-tooltip-box:after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 6px;
-  border-style: solid;
-  border-color: #333 transparent transparent transparent;
-}
-
-

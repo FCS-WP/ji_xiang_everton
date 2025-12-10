@@ -27,12 +27,12 @@ class WcProductCustomAttributesCache
      */
     public function findCustomAttributes($query) {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
         $atLeastOneExists = $wpdb->get_var("SELECT meta_value FROM {$wpdb->postmeta} WHERE meta_key LIKE 'adp_custom_product_attribute_%'");
         if ( $atLeastOneExists === null ) {
             $this->updateAllProductsCustomAttributes();
         }
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
         return $wpdb->get_col("SELECT DISTINCT meta_value FROM {$wpdb->postmeta} WHERE meta_key LIKE 'adp_custom_product_attribute_%' AND meta_value LIKE '%$query%'");
     }
 

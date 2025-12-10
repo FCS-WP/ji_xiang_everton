@@ -89,6 +89,10 @@ class WpcCompositeCmp extends AbstractContainerCompatibility
     {
         $thirdPartyData = $facade->getThirdPartyData();
 
+        if ($thirdPartyData['wooco_price'] != "") {
+            return floatval($thirdPartyData['wooco_price']);
+        }
+
         return $this->calculateContainerBasePrice($facade, $children);
     }
 

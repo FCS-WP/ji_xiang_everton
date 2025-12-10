@@ -9,21 +9,12 @@ jQuery(document).ready(function ($) {
         var init_events = function ($container, $rule, blocks) {
             $rule.find('.wdp_bulk_adjustment_remove').click(function () {
                 destroy($container, $rule, blocks);
-              if($rule.find('.wdp-role-discounts').css('display') === 'none' &&
-                 $rule.find('.wdp-product-adjustments').css('display') === 'none') {
-                $rule.find('.replace-adjustments').hide();
-                $rule.find('.replace-adjustments').find('input[type="checkbox"]').prop('checked', false);
-                $rule.find('.replace-adjustments').find('input[type="text"]').val('');
-              }
             });
             $container.find('.bulk-adjustment-type').on('change', function () {
                 update_selectors($container, $rule);
             });
-            $container.find('.bulk-discount-type').on('change', function () {
-                update_selectors_discount_type($container);
-            });
             $container.find('.bulk-qty_based-type').on('change', function () {
-              update_selectors($container, $rule);
+                update_selectors($container, $rule);
             });
             $container.find('.bulk-measurement-type').on('change', function () {
               update_selectors($container, $rule);
@@ -67,9 +58,6 @@ jQuery(document).ready(function ($) {
                 $qty_based = Object.keys(get_available_qty_based_types($adj_type))[0];
               }
             }
-
-            $container.find('.wdp-help-tip').hide();
-            $container.find(`.wdp-help-tip[data-qty-based="${$qty_based}"]`).show();
             $container.find('.bulk-qty_based-type').html("");
             $.each($available_qty_based, function ($key, $item) {
                 $container.find('.bulk-qty_based-type').append(make_option($key, $item.label))
@@ -273,25 +261,7 @@ jQuery(document).ready(function ($) {
 
     });
 
-    function update_selectors_discount_type ($container) {
-      var $select = $container.find('.bulk-discount-type');
-      var selectedValue = $select.val();
-      var $rangeInputs = $container.find('.wdp-adjustment-ranges input.adjustment-value');
 
-      if(selectedValue === "discount__expression_price") {
-        $rangeInputs.each(function () {
-          if ($(this).attr('type') === 'number') {
-            $(this).attr('type', 'text');
-          }
-        });
-      } else {
-        $rangeInputs.each(function () {
-          if ($(this).attr('type') === 'text') {
-            $(this).attr('type', 'number');
-          }
-        });
-      }
-    };
 
     // make rule blocks collapsable and sortable
     wpc_postboxes.add_postbox_toggles( $('#rules-container') );
@@ -368,38 +338,7 @@ jQuery(document).ready(function ($) {
     new_rule.find('.rule-date-from-to input[name="rule[additional][date_to]"]').datepicker( "option", "disabled", true ).css("background-color", "#f0f0f1");
 	};
 
-  function initWdpTooltips() {
-    $('.wdp-help-tip').off('hover');
-
-    $('.wdp-help-tip').hover(
-      function() {
-        var tipText = $(this).data('tip');
-        if (!tipText) return;
-
-        var $tooltip = $('<div class="wdp-tooltip-box"></div>').text(tipText).appendTo('body');
-
-        var offset = $(this).offset();
-        var tooltipWidth = $tooltip.outerWidth();
-        var tooltipHeight = $tooltip.outerHeight();
-        var windowWidth = $(window).width();
-
-        var left = offset.left + $(this).outerWidth() / 2 - tooltipWidth / 2;
-        if (left < 5) left = 5;
-        if (left + tooltipWidth > windowWidth - 5) left = windowWidth - tooltipWidth - 5;
-
-        $tooltip.css({
-          top: offset.top - tooltipHeight - 12,
-          left: left,
-          display: 'none'
-        }).fadeIn(200);
-      },
-      function() {
-        $('.wdp-tooltip-box').remove();
-      }
-    );
-  }
-
-  // create new rule when click 'Add rule' button
+	// create new rule when click 'Add rule' button
 	$('.add-rule').click(function (e) {
 		e.preventDefault();
 		// $('.wdp-count-all-rules').text(Number($('.wdp-count-all-rules').text()) + 1);
@@ -423,7 +362,6 @@ jQuery(document).ready(function ($) {
 	    wdp_data.rules.forEach( function ( data ) {
 		    promises.push( add_rule( data ) );
 	    } );
-      initWdpTooltips();
 	    Promise.all( promises ).then( function ( responses ) {
 		    $( "#rules-container" ).removeClass( "loading" );
 		    $( '#no-rules' ).removeClass( "loading" );
@@ -504,7 +442,7 @@ jQuery(document).ready(function ($) {
           new_rule.closest('.postbox').find('.rule-type select').val('common');
         }
         set_type_label_color(new_rule);
-        initWdpTooltips();
+
         return new_rule;
     }
 
@@ -1167,67 +1105,6 @@ jQuery(document).ready(function ($) {
       add_role_discount(new_rule.find('.wdp-btn-add-role-discount'));
     }
 
-    function show_pro_threebytwo_discount_type(rule_type_selector, new_rule){
-      let linkOnExample = $(rule_type_selector).parent().find('a');
-      linkOnExample.attr('href', 'https://docs.algolplus.com/algol_pricing/cart-discount-help/').show();
-
-      if(!wdp_data.options.filter_priority) {
-        let params = {
-          action: 'wdp_ajax',
-          method: 'check_filter_priority',
-        };
-        params[wdp_data.security_query_arg] = wdp_data.security;
-        $.post(
-          ajaxurl,
-          params,
-          function (response) {
-            if (!response.success) {
-              console.error(response.data);
-              return;
-            } else {
-              new_rule.find('.wdp-select-filter-priority-temp')
-                .removeClass('wdp-select-filter-priority-temp')
-                .addClass('wdp-select-filter-priority')
-                .show();
-            }
-          },
-          'json'
-        );
-      }
-
-      var filter_data_1 = {
-        qty: 2,
-        type: "products",
-        limitation: "none",
-        select_priority: "expensive",
-      };
-
-      var filter_data_2 = {
-        qty: 1,
-        type: "products",
-        limitation: "none",
-        select_priority: "cheap",
-      };
-
-      var adjustment_data = {
-        type: 'split',
-        split: [
-          {
-            type: 'discount__amount',
-          },
-          {
-            type: 'discount__percentage',
-            value: 100
-          }
-        ]
-      };
-
-      add_product_filter(new_rule.find('.wdp-filter-block'), filter_data_1);
-      add_product_filter(new_rule.find('.wdp-filter-block'), filter_data_2);
-
-      add_product_adjustment(new_rule.find('.wdp-product-adjustments'), adjustment_data);
-    }
-
     function show_buy_three_for_x(rule_type_selector, new_rule) {
       let linkOnExample = $(rule_type_selector).parent().find('a');
       linkOnExample.attr('href', 'https://docs.algolplus.com/algol_pricing/cart-discount-help/').show();
@@ -1246,71 +1123,6 @@ jQuery(document).ready(function ($) {
       };
 
       add_product_filter(new_rule.find('.wdp-filter-block'), filter_data);
-      add_product_adjustment(new_rule.find('.wdp-product-adjustments'), adjustment_data);
-    }
-
-    function show_disc_cheapest_fifty_perc(rule_type_selector, new_rule){
-      let linkOnExample = $(rule_type_selector).parent().find('a');
-      linkOnExample.attr('href', 'https://docs.algolplus.com/algol_pricing/cart-discount-help/').show();
-
-      if(!wdp_data.options.filter_priority) {
-        let params = {
-          action: 'wdp_ajax',
-          method: 'check_filter_priority',
-        };
-        params[wdp_data.security_query_arg] = wdp_data.security;
-        $.post(
-          ajaxurl,
-          params,
-          function (response) {
-            if (!response.success) {
-              console.error(response.data);
-              return;
-            } else {
-              new_rule.find('.wdp-select-filter-priority-temp')
-                .removeClass('wdp-select-filter-priority-temp')
-                .addClass('wdp-select-filter-priority')
-                .show();
-            }
-          },
-          'json'
-        );
-      }
-
-      var filter_data_1 = {
-        qty: 1,
-        type: "products",
-        limitation: "product",
-        select_priority: "expensive",
-      };
-
-      var filter_data_2 = {
-        qty: 1,
-        type: "products",
-        limitation: "product",
-        select_priority: "cheap",
-      };
-
-      var adjustment_data = {
-        type: 'split',
-        total: {
-          type: 'discount__percentage',
-          value: 50
-        },
-        split: [
-          {
-            type: 'discount__amount',
-          },
-          {
-            type: 'discount__percentage',
-            value: 50
-          }
-        ]
-      };
-
-      add_product_filter(new_rule.find('.wdp-filter-block'), filter_data_1);
-      add_product_filter(new_rule.find('.wdp-filter-block'), filter_data_2);
-
       add_product_adjustment(new_rule.find('.wdp-product-adjustments'), adjustment_data);
     }
 
@@ -1368,9 +1180,6 @@ jQuery(document).ready(function ($) {
 			  case 'pro_bogo_discount':
 				show_pro_bogo_discount_type(this, new_rule);
 				break;
-        case 'pro_threebytwo_discount':
-          show_pro_threebytwo_discount_type(this, new_rule);
-        break;
 			  case 'bogo_discount':
 				show_bogo_discount_type(this, new_rule);
 				break;
@@ -1389,9 +1198,6 @@ jQuery(document).ready(function ($) {
         case 'buy_three_for_x':
         show_buy_three_for_x(this, new_rule);
 				break;
-        case 'disc_cheapest_fifty_perc':
-          show_disc_cheapest_fifty_perc(this, new_rule);
-        break;
 
 			  case '':
 				var skip = new_rule.find('[name="discount_type_skip"]:checked').val();
@@ -1414,7 +1220,7 @@ jQuery(document).ready(function ($) {
 				break;
 			}
       new_rule.find('.wdp-title').focus();
-			new_rule.find('.wdp-add-condition').show();
+			new_rule.find('.wdp-add-condition, .replace-adjustments').show();
 		});
 
         // Add discount message
@@ -1497,7 +1303,6 @@ jQuery(document).ready(function ($) {
 			    }
                 new_rule.find(".sortable-apply-mode-block").show();
 		    }
-        new_rule.find('.replace-adjustments').show();
 	    });
 
       // Add product filter for 'Get products' block
@@ -1794,14 +1599,6 @@ jQuery(document).ready(function ($) {
     if (blocks.isConditionMessageOpen()) {
       add_condition_message(new_rule.find('.wdp-condition-message'), data.condition_message, blocks)
     }
-
-    if(new_rule.find('.wdp-role-discounts').css('display') === 'none' &&
-      new_rule.find('.wdp-bulk-adjustments').css('display') === 'none' &&
-      new_rule.find('.wdp-product-adjustments').css('display') === 'none') {
-      new_rule.find('.replace-adjustments').hide();
-      new_rule.find('.replace-adjustments').find('input[type="checkbox"]').prop('checked', false);
-      new_rule.find('.replace-adjustments').find('input[type="text"]').val('');
-    }
   }
 
     function fill_options($container, data) {
@@ -2088,7 +1885,7 @@ jQuery(document).ready(function ($) {
         var $container = $el.closest('.wdp-filter-item');
         var type = $el.val();
 
-		    $container.toggleClass('wdp-filter-item_same_previous_filter', type == 'same_previous_filter');
+		$container.toggleClass('wdp-filter-item_same_previous_filter', type == 'same_previous_filter');
 
         // prepare template for filter type
         var template = get_template('filter_' + type, {
@@ -2098,9 +1895,9 @@ jQuery(document).ready(function ($) {
         });
 
         $container.find('.wdp-condition-field-sub').html(template);
-        if ( $container.closest('.postbox').find(".rule-type select").val() === "persistent" ) {
-          $container.find('.wdp-condition-field-sub .wdp-filter-field-method select').remove();
-        }
+      if ( $container.closest('.postbox').find(".rule-type select").val() === "persistent" ) {
+        $container.find('.wdp-condition-field-sub .wdp-filter-field-method select').remove();
+      }
 
         // load data for existing filter
         if (data) {
@@ -2112,8 +1909,8 @@ jQuery(document).ready(function ($) {
                 var html = '';
                 $.each(data.value, function (i, id) {
                   id = id.replace(/"/g, '&quot;');
-                  var title = wdp_data.titles[data.type] && wdp_data.titles[data.type][id] ? wdp_data.titles[data.type][id] : id;
-					        var link = wdp_data.links && wdp_data.links[data.type] && wdp_data.links[data.type][id] ? wdp_data.links[data.type][id] : '';
+                    var title = wdp_data.titles[data.type] && wdp_data.titles[data.type][id] ? wdp_data.titles[data.type][id] : id;
+					var link = wdp_data.links && wdp_data.links[data.type] && wdp_data.links[data.type][id] ? wdp_data.links[data.type][id] : '';
                     html += '<option selected data-link="' + link + '" value="' + id + '">' + title + '</option>';
                 });
                 $container.find('.wdp-condition-field-value select').append(html);
@@ -2126,7 +1923,7 @@ jQuery(document).ready(function ($) {
                     $.each(data.product_exclude.values, function (i, id) {
                         var title = wdp_data.titles[pr_excl_type] && wdp_data.titles[pr_excl_type][id] ? wdp_data.titles[pr_excl_type][id] : id;
                         var link = wdp_data.links && wdp_data.links[pr_excl_type] && wdp_data.links[pr_excl_type][id] ? wdp_data.links[pr_excl_type][id] : '';
-						            product_exclude_html += '<option selected data-link="' + link + '" value="' + id + '">' + title + '</option>';
+						product_exclude_html += '<option selected data-link="' + link + '" value="' + id + '">' + title + '</option>';
                     });
                     $container.find('.wdp-product-exclude select').append(product_exclude_html);
                 }
@@ -2139,30 +1936,15 @@ jQuery(document).ready(function ($) {
                     $container.find('.wdp-exclude-already-affected-container input').prop('checked', true);
                 }
 
-				        if (data.product_exclude.backorder) {
-					        $container.find('.wdp-exclude-backorder-container input').prop('checked', true);
-				        }
+				if (data.product_exclude.backorder) {
+					$container.find('.wdp-exclude-backorder-container input').prop('checked', true);
+				}
 
-                if (data.product_exclude.matched_previous_filters) {
-                  $container.find('.wdp-matched-previous-filters-container input').prop('checked', true);
-                }
-                $container.find('.wdp-product-exclude details').prop('open', true);
+              if (data.product_exclude.matched_previous_filters) {
+                $container.find('.wdp-matched-previous-filters-container input').prop('checked', true);
+              }
+              $container.find('.wdp-product-exclude details').prop('open', true);
             }
-
-            if ( data.collections_exclude ) {
-              if ( data.collections_exclude.values ) {
-                var collections_exclude_html = '';
-                var cl_excl_type = 'product_collections';
-                $.each(data.collections_exclude.values, function (i, id) {
-                  var title = wdp_data.titles[cl_excl_type] && wdp_data.titles[cl_excl_type][id] ? wdp_data.titles[cl_excl_type][id] : id;
-                  var link = wdp_data.links && wdp_data.links[cl_excl_type] && wdp_data.links[cl_excl_type][id] ? wdp_data.links[cl_excl_type][id] : '';
-                  collections_exclude_html += '<option selected data-link="' + link + '" value="' + id + '">' + title + '</option>';
-                });
-                $container.find('.wdp-collection-exclude select').append(collections_exclude_html);
-            }
-
-            $container.find('.wdp-collection-exclude details').prop('open', true);
-          }
 
             if (data.limitation) {
                 $container.find('.wdp-limitation select').val(data.limitation);
@@ -2170,7 +1952,6 @@ jQuery(document).ready(function ($) {
 
             /** pro version functionality */
             if ( data.select_priority ) {
-                $container.find('.wdp-select-filter-priority-temp select').val(data.select_priority);
                 $container.find('.wdp-select-filter-priority select').val(data.select_priority);
             }
         }
@@ -2650,8 +2431,7 @@ jQuery(document).ready(function ($) {
             $range.find('.adjustment-to').focus();
         } else {
             $range.find('.adjustment-from').focus();
-        }
-        update_selectors_discount_type($postbox);
+		}
 
         if (data) {
             $range.find('.adjustment-from').val(data.from);
@@ -2668,7 +2448,6 @@ jQuery(document).ready(function ($) {
                 $postbox.find('.wdp-ranges-empty').show();
             }
         });
-
     }
 
     function fill_get_products_options($container, data) {
@@ -2910,12 +2689,6 @@ jQuery(document).ready(function ($) {
 
         $rule.find('.wdp_product_adjustment_remove').click(function () {
             $rule.find('.wdp-btn-add-product-adjustment').show();
-            if($rule.find('.wdp-role-discounts').css('display') === 'none' &&
-              $rule.find('.wdp-bulk-adjustments').css('display') === 'none') {
-              $rule.find('.replace-adjustments').hide();
-              $rule.find('.replace-adjustments').find('input[type="checkbox"]').prop('checked', false);
-              $rule.find('.replace-adjustments').find('input[type="text"]').val('');
-            }
             blocks.setProductDiscountsOpen(false)
             blocks.updateView()
             flushInputs($container);
@@ -2928,9 +2701,6 @@ jQuery(document).ready(function ($) {
 
             if (data.total) {
                 $container.find('.adjustment-total-type').val(data.total.type);
-                if(data.total.type === 'discount__expression_price') {
-                  $container.find('.adjustment-total-value').attr('type', 'text');
-                }
                 $container.find('.adjustment-total-value').val(data.total.value);
             }
 
@@ -2968,23 +2738,6 @@ jQuery(document).ready(function ($) {
         updateElementsVisibilityDiscountSplit($(this).find('.wdp-product-adjustments'), $(this));
       })
       updateElementsVisibilityDiscountSplit($container, $rule);
-      $rule.find('.replace-adjustments').show();
-
-      $container.find('.adjustment-total-type').on('change', function () {
-        update_selector_discount_type_product_adj($container);
-      });
-    }
-
-    function update_selector_discount_type_product_adj($container) {
-      var select = $container.find('.adjustment-total-type');
-      var input = $container.find('.adjustment-total-value');
-
-      if (select.val() === "discount__expression_price") {
-        input.attr('type', 'text').attr('placeholder', '0.00');
-        input.val('{price}');
-      } else {
-        input.attr('type', 'number').attr('placeholder', '0.00');
-      }
     }
 
     function add_product_adjustment_split($container, adj_index, data) {
@@ -3031,8 +2784,6 @@ jQuery(document).ready(function ($) {
 
     function add_bulk_adjustment($container, data, blocks) {
         bulk_adjustment().add($container, data, blocks);
-        var $rule = $container.closest('.postbox');
-        $rule.find('.replace-adjustments').show();
     }
 
     function add_cart_adjustment($el, data, blocks) {
@@ -3148,7 +2899,6 @@ jQuery(document).ready(function ($) {
 		$el.closest( '.postbox' ).find( '.wdp-role-discounts-container' ).append( $role_discount );
 
 		if ( data ) {
-      $checkExpres = false;
 			$role_discount.find( 'input.wdp-role-discount-value, select.wdp-role-discount-value' ).each(
 				function ( index, el ) {
 					var field_name = $( el ).data( 'field-name' );
@@ -3161,8 +2911,6 @@ jQuery(document).ready(function ($) {
 							} );
 							$( this ).append( html );
 						} else {
-              if(field_value !== 'discount__expression_price' && $checkExpres) $( this ).attr('type', 'text');
-              if(field_value === 'discount__expression_price') $checkExpres = true;
 							$( this ).val( field_value );
 						}
 					}
@@ -3175,13 +2923,6 @@ jQuery(document).ready(function ($) {
 			var $rule = $( this ).closest( '.postbox' );
 			$( this ).closest( '.wdp-role-discount' ).remove();
 
-      if($rule.find('.wdp-product-adjustments').css('display') === 'none' &&
-         $rule.find('.wdp-bulk-adjustments').css('display') === 'none') {
-        $rule.find('.replace-adjustments').hide();
-        $rule.find('.replace-adjustments').find('input[type="checkbox"]').prop('checked', false);
-        $rule.find('.replace-adjustments').find('input[type="text"]').val('');
-      }
-
 			var role_discounts_count = $rule.find( '.wdp-role-discounts .wdp-role-discount' ).length;
 			if ( role_discounts_count === 0 ) {
         blocks.setRoleDiscountsOpen(false)
@@ -3189,27 +2930,12 @@ jQuery(document).ready(function ($) {
 				$el.closest( '.postbox' ).find( '.wdp-btn-add-role-discount' ).show();
 
 				// Unconditionally hide all sortable handlers
-        $rule.find(".wdp-drag-handle").hide();
-        $rule.find(".sortable-apply-mode-block").hide();
-      }
-    });
+                $rule.find(".wdp-drag-handle").hide();
+                $rule.find(".sortable-apply-mode-block").hide();
+            }
+        } );
 
-    $role_discount.find('.role-discount-type').on('change', function () {
-      update_selector_discount_type_role_discount($role_discount);
-    });
 	}
-
-  function update_selector_discount_type_role_discount($role_discount) {
-    var select = $role_discount.find('.role-discount-type');
-    var input = $role_discount.find('.role-discount-value');
-
-    if (select.val() === "discount__expression_price") {
-      input.attr('type', 'text').attr('placeholder', '0.00');
-      input.val('{price}');
-    } else {
-      input.attr('type', 'number').attr('placeholder', '0.00');
-    }
-  }
 
     function update_cart_adjustment_fields($el, data) {
         var $container = $el.closest('.wdp-cart-adjustment');
@@ -3857,7 +3583,7 @@ jQuery(document).ready(function ($) {
 		remove_get_parameter('disable_all_rules_coupon_applied');
 		remove_get_parameter('paged');
 
-    window.location.href += `&disable_all_rules_coupon_applied=${result}&${wdp_data.security_query_arg}=${wdp_data.security}`;
+		window.location.href += '&disable_all_rules_coupon_applied=' + result;
 	});
 
     function remove_get_parameter(parameterName) {

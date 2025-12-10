@@ -28,10 +28,8 @@ class Paginator
     public static function getPageNum()
     {
         $page = 1;
-        //phpcs:ignore WordPress.Security.NonceVerification.Recommended
         if ( ! empty($_GET['paged'])) {
-            //phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            $page = absint(stripslashes_deep($_GET['paged']));
+            $page = (int)stripslashes_deep($_GET['paged']);
         }
 
         return $page;
@@ -42,13 +40,13 @@ class Paginator
         $which      = 'top';
         $totalItems = $this->totalItems;
         $totalPages = $this->totalPages;
-        /* translators: total items count*/
-        $output = '<span class="displaying-num">' . sprintf(_n('%s item', '%s items', $totalItems, 'advanced-dynamic-pricing-for-woocommerce'),
+
+        $output = '<span class="displaying-num">' . sprintf(_n('%s item', '%s items', $totalItems),
                 number_format_i18n($totalItems)) . '</span>';
 
         $current            = self::getPageNum();
         $removableQueryArgs = wp_removable_query_args();
-        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+
         $currentUrl = set_url_scheme('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 
         $currentUrl = remove_query_arg($removableQueryArgs, $currentUrl);
@@ -81,7 +79,7 @@ class Paginator
             $pageLinks[] = sprintf(
                 "<a class='first-page button' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
                 esc_url(remove_query_arg('paged', $currentUrl)),
-                __('First page', 'advanced-dynamic-pricing-for-woocommerce'),
+                __('First page'),
                 '&laquo;'
             );
         }
@@ -92,25 +90,24 @@ class Paginator
             $pageLinks[] = sprintf(
                 "<a class='prev-page button' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
                 esc_url(add_query_arg('paged', max(1, $current - 1), $currentUrl)),
-                __('Previous page', 'advanced-dynamic-pricing-for-woocommerce'),
+                __('Previous page'),
                 '&lsaquo;'
             );
         }
 
         if ('bottom' === $which) {
             $htmlCurrentPage  = $current;
-            $totalPagesBefore = '<span class="screen-reader-text">' . __('Current Page', 'advanced-dynamic-pricing-for-woocommerce') . '</span><span id="table-paging" class="paging-input"><span class="tablenav-paging-text">';
+            $totalPagesBefore = '<span class="screen-reader-text">' . __('Current Page') . '</span><span id="table-paging" class="paging-input"><span class="tablenav-paging-text">';
         } else {
             $htmlCurrentPage = sprintf(
                 "%s<input class='current-page' id='current-page-selector' type='text' name='paged' value='%s' size='%d' aria-describedby='table-paging' /><span class='tablenav-paging-text'>",
-                '<label for="current-page-selector" class="screen-reader-text">' . __('Current Page', 'advanced-dynamic-pricing-for-woocommerce') . '</label>',
+                '<label for="current-page-selector" class="screen-reader-text">' . __('Current Page') . '</label>',
                 $current,
                 strlen($totalPages)
             );
         }
         $htmlTotalPages = sprintf("<span class='total-pages'>%s</span>", number_format_i18n($totalPages));
-        /* translators: Links to previous and next pages*/
-        $pageLinks[]    = $totalPagesBefore . sprintf(_x('%1$s of %2$s', 'paging', 'advanced-dynamic-pricing-for-woocommerce'), $htmlCurrentPage,
+        $pageLinks[]    = $totalPagesBefore . sprintf(_x('%1$s of %2$s', 'paging'), $htmlCurrentPage,
                 $htmlTotalPages) . $totalPagesAfter;
 
         if ($disableNext) {
@@ -119,7 +116,7 @@ class Paginator
             $pageLinks[] = sprintf(
                 "<a class='next-page button' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
                 esc_url(add_query_arg('paged', min($totalPages, $current + 1), $currentUrl)),
-                __('Next page', 'advanced-dynamic-pricing-for-woocommerce'),
+                __('Next page'),
                 '&rsaquo;'
             );
         }
@@ -130,7 +127,7 @@ class Paginator
             $pageLinks[] = sprintf(
                 "<a class='last-page button' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
                 esc_url(add_query_arg('paged', $totalPages, $currentUrl)),
-                __('Last page', 'advanced-dynamic-pricing-for-woocommerce'),
+                __('Last page'),
                 '&raquo;'
             );
         }

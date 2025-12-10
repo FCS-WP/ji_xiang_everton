@@ -70,10 +70,7 @@ abstract class Products extends WC_Shortcode_Products
      * @return array
      */
     protected function parse_attributes( $attributes ) {
-        $this->type = 'products'; //required
         $parsed_attributes = parent::parse_attributes( $attributes );
-        $this->type = static::NAME;
-
         //parse own attrubutes
         $parsed_attributes['show_wc_onsale_products'] = false;
         if ( isset($attributes['show_wc_onsale_products']) ) {
@@ -93,23 +90,19 @@ abstract class Products extends WC_Shortcode_Products
 	 * @return array
 	 */
     protected function parse_query_args() {
+        $queryArgs = parent::parse_query_args();
+
         if ($this->attributes['rule_id'] !== false) {
             $productIds = static::getCachedProductsIdsByRule($this->attributes['rule_id']);
         } else {
             $productIds = static::getCachedProductsIdsByRule(); //get all
         }
-        if ($this->attributes["show_wc_onsale_products"]) {
-            $post__in = array_unique(array_merge(array(0), $productIds, wc_get_product_ids_on_sale()));
-        } else {
-            $post__in = array_merge(array(0), $productIds);
-        }
 
-        add_filter( 'woocommerce_shortcode_products_query', function($query_args, $attributes, $type ) use ($post__in){
-                $query_args['post__in'] = $post__in;
-                return $query_args;
-        },0,4);
-        $queryArgs = parent::parse_query_args();
-        $queryArgs['post__in'] = $post__in;//force own ids only
+        if ($this->attributes["show_wc_onsale_products"]) {
+            $queryArgs['post__in'] = array_unique(array_merge(array(0), $productIds, wc_get_product_ids_on_sale()));
+        } else {
+            $queryArgs['post__in'] = array_merge(array(0), $productIds);
+        }
 
         return $queryArgs;
     }

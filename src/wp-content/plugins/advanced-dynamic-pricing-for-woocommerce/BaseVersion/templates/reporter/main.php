@@ -17,13 +17,13 @@ defined('ABSPATH') or exit;
 
         <div id="wdp-report-main-tab-selector" class="tab-links-list">
 
-            <div class="tab-link selected" data-tab-id="cart"><?php echo esc_html__('Cart',
+            <div class="tab-link selected" data-tab-id="cart"><?php echo __('Cart',
                     'advanced-dynamic-pricing-for-woocommerce'); ?></div>
-            <div class="tab-link" data-tab-id="products"><?php echo esc_html__('Products',
+            <div class="tab-link" data-tab-id="products"><?php echo __('Products',
                     'advanced-dynamic-pricing-for-woocommerce'); ?></div>
-            <div class="tab-link" data-tab-id="rules"><?php echo esc_html__('Rules',
+            <div class="tab-link" data-tab-id="rules"><?php echo __('Rules',
                     'advanced-dynamic-pricing-for-woocommerce'); ?></div>
-            <div class="tab-link" data-tab-id="reports"><?php echo esc_html__('Get system report',
+            <div class="tab-link" data-tab-id="reports"><?php echo __('Get system report',
                     'advanced-dynamic-pricing-for-woocommerce'); ?></div>
 
             <div id="wdp-report-resizer"></div>
@@ -35,7 +35,7 @@ defined('ABSPATH') or exit;
 
         <div id="wdp-report-goto-debug-settings" class="tab-link">
             <?php
-            echo esc_html__('Only admins see this panel. ', 'advanced-dynamic-pricing-for-woocommerce');
+            echo __('Only admins see this panel. ', 'advanced-dynamic-pricing-for-woocommerce');
             echo sprintf(
                 wp_kses(
                         '<a href="%s" target="_blank">' .__('How to hide it.', 'advanced-dynamic-pricing-for-woocommerce') .'</a>',
@@ -53,7 +53,7 @@ defined('ABSPATH') or exit;
 
         <div id="wdp-report-window-refresh">
             <button>
-                <?php echo esc_html__('Refresh', 'advanced-dynamic-pricing-for-woocommerce'); ?>
+                <?php echo __('Refresh', 'advanced-dynamic-pricing-for-woocommerce'); ?>
             </button>
         </div>
 

@@ -34,13 +34,13 @@ class Importer
             }
 
             if ( $rawRule[KeyKeeperDB::RULE_TYPE] === RuleTypeEnum::PERSISTENT()->getValue() ) {
-                $rulesCol    = $ruleStorage->buildPersistentRules(array(Factory::callStaticMethod('Database_Models_Rule', 'fromArray', $rawRule)));
+                $rulesCol    = $ruleStorage->buildPersistentRules(array(Rule::fromArray($rawRule)));
             } else {
-                $rulesCol    = $ruleStorage->buildRules(array(Factory::callStaticMethod('Database_Models_Rule', 'fromArray', $rawRule)));
+                $rulesCol    = $ruleStorage->buildRules(array(Rule::fromArray($rawRule)));
             }
 
             if ( $rulesCol->getRules() ) {
-                $ruleObjects[] = $rulesCol->getFirst();
+                $ruleObjects[] = $rulesCol->getRules()[0];
             }
         }
 
@@ -96,7 +96,7 @@ class Importer
                 unset($item);
             }
 
-            $ruleObj = Factory::callStaticMethod('Database_Models_Rule', 'fromArray', $rule);
+            $ruleObj = Rule::fromArray($rule);
 
             $id         = $ruleRepository->storeRule($ruleObj);
             $imported[] = $id;
@@ -121,13 +121,13 @@ class Importer
 
         foreach ( $items as $rawRule ) {
             if ( $rawRule[KeyKeeperDB::RULE_TYPE] === RuleTypeEnum::PERSISTENT()->getValue() ) {
-                $rulesCol    = $ruleStorage->buildPersistentRules(array(Factory::callStaticMethod('Database_Models_Rule', 'fromArray', $rawRule)));
+                $rulesCol    = $ruleStorage->buildPersistentRules(array(Rule::fromArray($rawRule)));
             } else {
-                $rulesCol    = $ruleStorage->buildRules(array(Factory::callStaticMethod('Database_Models_Rule', 'fromArray', $rawRule)));
+                $rulesCol    = $ruleStorage->buildRules(array(Rule::fromArray($rawRule)));
             }
 
             if ( $rulesCol->getRules() ) {
-                $ruleObjects[] = $rulesCol->getFirst();
+                $ruleObjects[] = $rulesCol->getRules()[0];
             }
         }
 
@@ -167,7 +167,7 @@ class Importer
 //                unset($item);
 //            }
 
-            $ruleObj = Factory::callStaticMethod('Database_Models_Rule', 'fromArray', $rule);
+            $ruleObj    = Rule::fromArray($rule);
             $id         = $ruleRepository->storeRule($ruleObj);
             $imported[] = $id;
 

@@ -59,14 +59,4 @@ class StyleColumnsMenu
      * @var string
      */
     public $headerBackgroundColor;
-
-    /**
-     * @var string
-     */
-    public $higlightBackgroundColor;
-
-    /**
-     * @var string
-     */
-    public $higlightTextColor;
 }

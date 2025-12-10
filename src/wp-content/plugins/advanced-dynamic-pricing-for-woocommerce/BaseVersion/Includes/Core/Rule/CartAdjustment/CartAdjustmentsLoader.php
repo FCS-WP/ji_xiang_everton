@@ -2,7 +2,6 @@
 
 namespace ADP\BaseVersion\Includes\Core\Rule\CartAdjustment;
 
-use ADP\BaseVersion\Includes\Core\Rule\CartAdjustment\Impl\DiscountPercentage;
 use ADP\BaseVersion\Includes\Core\Rule\CartAdjustment\Interfaces;
 use ADP\Factory;
 use Exception;
@@ -97,11 +96,6 @@ class CartAdjustmentsLoader
         }
         if ($adj instanceof Interfaces\ShippingMethodCartAdj) {
             $adj->setShippingCartAdjMethod($data['options'][$adj::SHIPPING_CARTADJ_METHOD]);
-        }
-        if ($adj instanceof DiscountPercentage) {
-            if (isset($data['options'][$adj::COUPON_MAX_DISCOUNT])) {
-                $adj->setCouponMaxDiscount($data['options'][$adj::COUPON_MAX_DISCOUNT]);
-            }
         }
     }
 

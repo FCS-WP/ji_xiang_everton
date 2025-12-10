@@ -47,6 +47,7 @@ class RestApi implements LoadStrategy
                 $coupon_types[WcCouponFacade::TYPE_ADP_RULE_TRIGGER] = __('ADP Coupon  (rule trigger)', 'advanced-dynamic-pricing-for-woocommerce');
             return $coupon_types;
         });
+
         if (!apply_filters("adp_wp_rest_api_strategy_load",
             $this->context->getOption('update_prices_while_doing_rest_api') OR $this->context->isWCStoreAPIRequest() )) {
 
@@ -66,7 +67,7 @@ class RestApi implements LoadStrategy
          * @var Engine $engine
          */
         $engine = Factory::get("Engine", WC()->cart);
-        $engine->getCartProcessor()->installActionFirstProcess_Blocks(); //installs only cartCouponsProcessor
+        $engine->getCartProcessor()->installActionFirstProcess_Blocks();
 
         // Should we install all price display hooks?
         $engine->installProductProcessorWithEmptyCart();
@@ -74,14 +75,7 @@ class RestApi implements LoadStrategy
         $wcCartStatsCollector = new WcCartStatsCollector();
         $wcCartStatsCollector->setActionCheckoutOrderProcessedDuringRestApi();
 
-        add_action('woocommerce_before_calculate_totals', function($wcCart) use ($engine){
-            if(did_action('adp_rest_api_engine_reinitialized'))
-                return ;// only once!
-            $engine->getCartProcessor()->withCart($wcCart);
-            $engine->getCartProcessor()->installActionFirstProcess($skip_cartCouponsProcessor=true);
-            $engine->firstTimeProcessCart();
-            do_action('adp_rest_api_engine_reinitialized');
-        });
+        add_action('woocommerce_before_calculate_totals', array($this, 'initProcessActionIfCartWasLoaded'), 10, 1);
 
         /** @see Functions::install() */
         Factory::callStaticMethod("Functions", 'install');
@@ -89,6 +83,15 @@ class RestApi implements LoadStrategy
         /** @var WcProductCustomAttributesCache $productAttributesCache */
         $productAttributesCache  = Factory::get("WC_WcProductCustomAttributesCache");
         $productAttributesCache->installHooks();
+    }
 
+    public function initProcessActionIfCartWasLoaded($wcCart)
+    {
+        /** @var Engine $engine */
+        $engine = Factory::get("Engine", $wcCart);
+        $engine->getCartProcessor()->installActionFirstProcess();
+        $engine->firstTimeProcessCart();
+
+        remove_action('woocommerce_before_calculate_totals', array($this, 'initProcessActionIfCartWasLoaded'), 10);
     }
 }

@@ -23,7 +23,6 @@ use ADP\BaseVersion\Includes\Core\Rule\Structures\SetDiscount;
 use ADP\BaseVersion\Includes\Core\RuleProcessor\Structures\CartItemsCollection;
 use ADP\BaseVersion\Includes\Core\RuleProcessor\Structures\CartSet;
 use ADP\BaseVersion\Includes\SpecialStrategies\CompareStrategy;
-use Exception;
 
 defined('ABSPATH') or exit;
 
@@ -77,7 +76,7 @@ class PriceCalculator
             $price = $item->getPrice();
         }
 
-        $newPrice = $this->calculateSinglePrice($price, $item);
+        $newPrice = $this->calculateSinglePrice($price);
 
         if ($item->getAddonsAmount() > 0) {
             if ($discount::TYPE_FIXED_VALUE === $discount->getType()) {
@@ -124,9 +123,9 @@ class PriceCalculator
         $dontApplyDiscountToAddons = $compatibilitySettings->getOption('dont_apply_discount_to_addons');
 
         if ( $dontApplyDiscountToAddons ) {
-            $newPrice = $this->calculateSinglePrice($price - $item->getAddonsAmount(), $item) + $item->getAddonsAmount();
+            $newPrice = $this->calculateSinglePrice($price - $item->getAddonsAmount()) + $item->getAddonsAmount();
         } else {
-            $newPrice = $this->calculateSinglePrice($price, $item);
+            $newPrice = $this->calculateSinglePrice($price);
         }
 
         if ($item->getAddonsAmount() > 0) {
@@ -319,11 +318,10 @@ class PriceCalculator
 
     /**
      * @param float $price
-     * @param ICartItem $item
      *
      * @return float
      */
-    public function calculateSinglePrice($price, $item = null)
+    public function calculateSinglePrice($price)
     {
         $old_price = floatval($price);
 
@@ -342,8 +340,6 @@ class PriceCalculator
             $new_price = $this->makeDiscountPercentage($old_price, $operationValue);
         } elseif (Discount::TYPE_FIXED_VALUE === $operationType) {
             $new_price = $this->makePriceFixed($old_price, $operationValue);
-        } elseif (Discount::TYPE_EXPRESSION_PRICE === $operationType) {
-            $new_price = $this->makePriceExpression($old_price, $operationValue, $item);
         } else {
             $new_price = $old_price;
         }
@@ -768,116 +764,6 @@ class PriceCalculator
         }
 
         return $this->checkDiscount($price, $value);
-    }
-
-    /**
-     * @param float $price
-     * @param string $expression
-     * @param ICartItem $item
-     * @return float
-     */
-    protected function makePriceExpression($price, $expression, $item)
-    {
-        $product = null;
-        if ($item && method_exists($item, 'getWcItem')) {
-            $wcItem = $item->getWcItem();
-            if ($wcItem && method_exists($wcItem, 'getProduct')) {
-                $product = $wcItem->getProduct();
-            }
-        }
-
-        $variables = [
-            'price' => (float) $price,
-        ];
-
-        if ($product && method_exists($product, 'get_meta')) {
-            preg_match_all('/\{([a-zA-Z0-9_]+)\}/', $expression, $matches);
-            foreach ($matches[1] as $var) {
-                if (!isset($variables[$var])) {
-                    $metaValue = $product->get_meta($var, true);
-                    if(empty($metaValue)) return $price;
-                    $variables[$var] = is_numeric($metaValue) ? (float)$metaValue : 1;
-                }
-            }
-        }
-
-        $preparedExpr = preg_replace_callback('/\{([a-zA-Z0-9_]+)\}/', function ($m) use ($variables) {
-            return isset($variables[$m[1]]) ? $variables[$m[1]] : 0;
-        }, $expression);
-
-        $preparedExpr = str_replace(' ', '', $preparedExpr);
-
-        try {
-            $rpn = $this->toRpn($preparedExpr);
-            $result = $this->evalRpn($rpn);
-        } catch (Exception $e) {
-            return $price;
-        }
-
-        return $result;
-    }
-
-    protected function toRpn(string $expr): array
-    {
-        $output = [];
-        $stack = [];
-        $tokens = preg_split('/([+\-*\/\(\)])/u', $expr, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
-        $precedence = ['+' => 1, '-' => 1, '*' => 2, '/' => 2];
-
-        foreach ($tokens as $token) {
-            if (is_numeric($token)) {
-                $output[] = $token;
-            } elseif (isset($precedence[$token])) {
-                while (!empty($stack) && end($stack) != '(' &&
-                    $precedence[end($stack)] >= $precedence[$token]) {
-                    $output[] = array_pop($stack);
-                }
-                $stack[] = $token;
-            } elseif ($token === '(') {
-                $stack[] = $token;
-            } elseif ($token === ')') {
-                while (!empty($stack) && end($stack) !== '(') {
-                    $output[] = array_pop($stack);
-                }
-                array_pop($stack);
-            }
-        }
-
-        while (!empty($stack)) {
-            $output[] = array_pop($stack);
-        }
-
-        return $output;
-    }
-
-    protected function evalRpn(array $tokens): float
-    {
-        $stack = [];
-
-        foreach ($tokens as $token) {
-            if (is_numeric($token)) {
-                $stack[] = (float)$token;
-            } else {
-                $b = array_pop($stack);
-                $a = array_pop($stack);
-
-                switch ($token) {
-                    case '+': $stack[] = $a + $b; break;
-                    case '-': $stack[] = $a - $b; break;
-                    case '*': $stack[] = $a * $b; break;
-                    case '/':
-                        if ($b == 0) {
-                            throw new Exception("Division by zero");
-                        }
-                        $stack[] = $a / $b;
-                        break;
-                    default: throw new Exception("Unknown operator ". esc_html($token) );
-                }
-            }
-        }
-
-        return array_pop($stack);
     }
 
     /**

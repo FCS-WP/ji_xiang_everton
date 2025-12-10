@@ -41,19 +41,18 @@ class PersistentRuleRepository implements PersistentRuleRepositoryInterface
     /**
      * @param ICartItem $item
      * @param float|null $qty
-     * @param array|null $roles
      *
      * @return array<int, PersistentRuleCacheObject>
      * @throws \Exception
      */
-    public function getCache($item, $qty = null, $roles = null)
+    public function getCache($item, $qty = null)
     {
-        $cacheKey = $this->calculateCacheHash($item, $qty, $roles);
+        $cacheKey = $this->calculateCacheHash($item, $qty);
 
         $objects = CacheHelper::cacheGet($cacheKey, CacheHelper::GROUP_RULES_CACHE);
 
         if ( ! is_array($objects) ) {
-            $objects = $this->calculate($item, $qty, $roles);
+            $objects = $this->calculate($item, $qty);
             CacheHelper::cacheSet($cacheKey, $objects, CacheHelper::GROUP_RULES_CACHE);
         }
 
@@ -85,12 +84,10 @@ class PersistentRuleRepository implements PersistentRuleRepositoryInterface
 
         global $wpdb;
         $table = $wpdb->prefix . PersistentRuleModel::TABLE_NAME;
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $wpdb->query('START TRANSACTION');
 
         if ( ! empty($ruleId)) {
             $where  = array('rule_id' => $ruleId);
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
             $result = $wpdb->delete($table, $where);
         }
 
@@ -98,15 +95,15 @@ class PersistentRuleRepository implements PersistentRuleRepositoryInterface
          * @var PersistentRuleCache $cache
          */
         foreach ($rows as $cache) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
             $result = $wpdb->insert($table, $cache->getData());
         }
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
         $wpdb->query('COMMIT');
     }
 
     public function getAddRuleData($ruleId, Context $context)
     {
+
         global $wpdb;
 
         /** @var $sqlGenerator SqlGeneratorPersistent */
@@ -165,7 +162,6 @@ class PersistentRuleRepository implements PersistentRuleRepositoryInterface
         $table = $wpdb->prefix .  PersistentRuleModel::TABLE_NAME;
 
         $where = array('rule_id' => $ruleId);
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $wpdb->delete($table, $where);
     }
 
@@ -180,7 +176,6 @@ class PersistentRuleRepository implements PersistentRuleRepositoryInterface
 
         global $wpdb;
         $tableCache = $wpdb->prefix . PersistentRuleModel::TABLE_NAME;
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $wpdb->query('START TRANSACTION');
 
         foreach ( $objects as $object ) {
@@ -191,7 +186,6 @@ class PersistentRuleRepository implements PersistentRuleRepositoryInterface
             $rule = $object->rule;
             $hash = $this->calculateDbHashWithProduct($product);
             $where  = array('rule_id' => $rule->getId(), 'product' => $hash);
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
             $result = $wpdb->delete($tableCache, $where);
 
             $cartCalculator   = new CartCalculatorPersistent($context, $rule);
@@ -200,11 +194,10 @@ class PersistentRuleRepository implements PersistentRuleRepositoryInterface
             $cart             = $cartBuilder->create(WC()->customer, WC()->session);
             $productProcessor->withCart($cart);
             foreach ($this->calculateCacheForProductWithRule($context, $productProcessor, $rule, $product, $cartItemData) as $data) {
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery
                 $result = $wpdb->insert($tableCache, $data);
             }
         }
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
         $wpdb->query('COMMIT');
     }
 
@@ -245,7 +238,6 @@ class PersistentRuleRepository implements PersistentRuleRepositoryInterface
     public function truncate() {
         global $wpdb;
         $tableCache = $wpdb->prefix . PersistentRuleModel::TABLE_NAME;
-        //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $wpdb->query("TRUNCATE TABLE $tableCache");
     }
 
@@ -266,44 +258,7 @@ class PersistentRuleRepository implements PersistentRuleRepositoryInterface
         $data = array();
         $hash = $this->calculateDbHashWithProduct($product, $cartItemData);
 
-        if($rolesDiscounts = $rule->getRoleDiscounts()) {
-            $customer = $productProcessor->getCart()->getContext()->getCustomer();
-            $initialRoles = $customer->getRoles();
-
-            foreach ($rolesDiscounts as $rolesDiscount) {
-                foreach ($rolesDiscount->getRoles() as $role) {
-                    $customer->setRoles([$role]);
-
-                    $customHash = function($key) use($role) {
-                        $key[] = "C{$role}";
-                        return $key;
-                    };
-                    add_filter("adp_calculate_persistent_rule_product_hash", $customHash);
-
-                    $hash = $this->calculateDbHashWithProduct($product, $cartItemData);
-
-                    $processedProduct = $productProcessor->calculateProduct($product, 1.0, $cartItemData);
-                    
-                    remove_filter("adp_calculate_persistent_rule_product_hash", $customHash);
-                    $customer->setRoles($initialRoles);
-
-                    if ($processedProduct === null || $processedProduct instanceof ProcessedVariableProduct || $processedProduct instanceof ProcessedGroupedProduct) {
-                        continue;
-                    }
-
-                    $row = [
-                        'product'        => $hash,
-                        'rule_id'        => $rule->getId(),
-                        'qty_start'      => 1.0,
-                        'qty_finish'     => null,
-                        'original_price' => $processedProduct->getOriginalPrice(),
-                        'price'          => $processedProduct->getCalculatedPrice(),
-                    ];
-
-                    $data[] = $row;
-                }
-            }
-        } else if ($rule->hasProductRangeAdjustment()) {
+        if ($rule->hasProductRangeAdjustment()) {
             $handler = $rule->getProductRangeAdjustmentHandler();
             $ranges  = $handler->getRanges();
 
@@ -359,25 +314,6 @@ class PersistentRuleRepository implements PersistentRuleRepositoryInterface
         return $data;
     }
 
-    protected function calculateDbHashWithRoles($item, $roles)
-    {
-        $hash = [];
-        if(!$roles) {
-            return $hash;
-        }
-        foreach ($roles as $role) {
-            $customHash = function($key) use($role) {
-                $key[] = "C{$role}";
-                return $key;
-            };
-            add_filter("adp_calculate_persistent_rule_product_hash", $customHash);
-
-            $hash[] = $this->calculateDbHash($item);
-
-            remove_filter("adp_calculate_persistent_rule_product_hash", $customHash);
-        }
-        return $hash;
-    }
 
     /**
      * @param ICartItem|\WC_Product $item
@@ -386,36 +322,31 @@ class PersistentRuleRepository implements PersistentRuleRepositoryInterface
      * @return array<int, PersistentRuleCacheObject>
      * @throws \Exception
      */
-    protected function calculate($item, $qty = null, $roles=null)
+    protected function calculate($item, $qty = null)
     {
         $context = $this->context;
 
         if ($item instanceof ICartItem) {
-            $hash[] = $this->calculateDbHash($item);
-            $hash = \array_merge($hash, $this->calculateDbHashWithRoles($item, $roles));
+            $hash = $this->calculateDbHash($item);
             $qty  = ($qty !== null ? (float)$qty : $item->getQty());
         } elseif ($item instanceof \WC_Product) {
-            $hash[] = $this->calculateDbHashWithProduct($item);
-            $hash = \array_merge($hash, $this->calculateDbHashWithRoles($item, $roles));
+            $hash = $this->calculateDbHashWithProduct($item);
             $qty  = ($qty !== null ? (float)$qty : 1.0);
         } else {
             return array();
         }
 
-        $hash = implode(',', array_map(function($v) {
-            return "'" . esc_sql($v) . "'";
-        }, $hash));
-        
         global $wpdb;
 
         $tableCache = $wpdb->prefix . PersistentRuleModel::TABLE_NAME;
-        //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $query = $wpdb->prepare("SELECT persistent_rules_cache.rule_id, persistent_rules_cache.price FROM {$tableCache} AS persistent_rules_cache WHERE persistent_rules_cache.product IN ({$hash})
+
+        $query = $wpdb->prepare("SELECT persistent_rules_cache.rule_id, persistent_rules_cache.price
+            FROM {$tableCache} AS persistent_rules_cache
+            WHERE persistent_rules_cache.product = %s
             AND persistent_rules_cache.qty_start <= %s
             AND (persistent_rules_cache.qty_finish IS NULL OR persistent_rules_cache.qty_finish >= %s)",
-            array($qty, $qty)
+            array($hash, $qty, $qty)
         );
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $rows  = $wpdb->get_results($query, ARRAY_A);
 
         if (count($rows) === 0) {
@@ -484,15 +415,10 @@ class PersistentRuleRepository implements PersistentRuleRepositoryInterface
     /**
      * @param ICartItem $item
      * @param float|null $qty
-     * @param array|null $roles
      */
-    protected function calculateCacheHash($item, $qty = null, $roles = null)
+    protected function calculateCacheHash($item, $qty = null)
     {
-        return join('_', array_filter([
-            $this->calculateDbHash($item),
-            $qty !== null ? (float) $qty : $item->getQty(),
-            $roles !== null ? join(',', $roles) : ''
-        ]));
+        return $this->calculateDbHash($item) . '_' . ($qty !== null ? (float) $qty : $item->getQty());
     }
 
     /**

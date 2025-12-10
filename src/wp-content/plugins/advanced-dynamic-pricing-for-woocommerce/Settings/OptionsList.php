@@ -38,7 +38,6 @@ class OptionsList
     public function getByKey(string $key)
     {
         if ( ! isset($this->list[$key])) {
-            //phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             throw new KeyNotFound($key);
         }
 

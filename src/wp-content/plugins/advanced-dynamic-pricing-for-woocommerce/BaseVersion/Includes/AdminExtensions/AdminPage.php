@@ -110,10 +110,10 @@ class AdminPage
 
         // Enqueue script for handling the meta boxes
         wp_enqueue_script('wdp_postbox', $baseVersionUrl . 'assets/js/postbox.js',
-            array('jquery', 'jquery-ui-sortable'), WC_ADP_VERSION, true);
+            array('jquery', 'jquery-ui-sortable'), WC_ADP_VERSION);
 
         wp_enqueue_script('wdp_admin-notice', $baseVersionUrl . 'assets/js/admin-notice.js',
-            array('jquery'), WC_ADP_VERSION, true);
+            array('jquery'), WC_ADP_VERSION);
 
         // jQuery UI Datepicker
         wp_enqueue_script('jquery-ui-datepicker');
@@ -123,18 +123,18 @@ class AdminPage
 
         // Enqueue Select2 related scripts and styles
         wp_enqueue_script('wdp_select2', $baseVersionUrl . 'assets/js/select2/select2.full.min.js', array('jquery'),
-            '4.0.3', true);
+            '4.0.3');
         wp_enqueue_style('wdp_select2', $baseVersionUrl . 'assets/css/select2/select2.css', array(), '4.0.3');
 
         if ($currentTab::getKey() !== Options::getKey()) {
             // Enqueue jquery mobile related scripts and styles (for flip switch)
             // styles below are replacing option sections styles
             wp_enqueue_script('jquery-mobile-scripts',
-                $baseVersionUrl . 'assets/jquery.mobile/jquery.mobile.custom.min.js', array('jquery'), WC_ADP_VERSION, true);
+                $baseVersionUrl . 'assets/jquery.mobile/jquery.mobile.custom.min.js', array('jquery'));
             wp_enqueue_style('jquery-mobile-styles',
-                $baseVersionUrl . 'assets/jquery.mobile/jquery.mobile.custom.structure.min.css', array(), WC_ADP_VERSION);
+                $baseVersionUrl . 'assets/jquery.mobile/jquery.mobile.custom.structure.min.css');
             wp_enqueue_style('jquery-mobile-theme-styles',
-                $baseVersionUrl . 'assets/jquery.mobile/jquery.mobile.custom.theme.css', array(), WC_ADP_VERSION);
+                $baseVersionUrl . 'assets/jquery.mobile/jquery.mobile.custom.theme.css');
         }
 
         // Backend styles
@@ -142,11 +142,11 @@ class AdminPage
 
         // DateTime Picker
         wp_enqueue_script('wdp_datetimepicker-scripts',
-            $baseVersionUrl . 'assets/datetimepicker/jquery.datetimepicker.full.min.js', array('jquery'), WC_ADP_VERSION, true);
+            $baseVersionUrl . 'assets/datetimepicker/jquery.datetimepicker.full.min.js', array('jquery'));
         wp_enqueue_style('wdp_datetimepicker-styles',
-            $baseVersionUrl . 'assets/datetimepicker/jquery.datetimepicker.min.css', array(), WC_ADP_VERSION);
+            $baseVersionUrl . 'assets/datetimepicker/jquery.datetimepicker.min.css', array());
 
-        wp_enqueue_script('wdp_cache_recalculation', $baseVersionUrl . 'assets/js/cache-recalculation.js', array('jquery'), WC_ADP_VERSION, true);
+        wp_enqueue_script('wdp_cache_recalculation', $baseVersionUrl . 'assets/js/cache-recalculation.js', array('jquery'), WC_ADP_VERSION);
 
 
         $wdp_data = array(
@@ -155,7 +155,7 @@ class AdminPage
         );
         wp_localize_script('wdp_cache_recalculation', 'wdp_cache_recalculation_data', $wdp_data);
 
-        wp_enqueue_script('wdp_admin-footer-text-rated', $baseVersionUrl . 'assets/js/admin-footer-text-rated.js', array('jquery'), WC_ADP_VERSION, true);
+        wp_enqueue_script('wdp_admin-footer-text-rated', $baseVersionUrl . 'assets/js/admin-footer-text-rated.js', array('jquery'), WC_ADP_VERSION);
         wp_localize_script('wdp_admin-footer-text-rated', 'wdp_admin_footer_text_rated_data', $wdp_data);
 
         $this->currentTab->enqueueScripts();
@@ -164,9 +164,8 @@ class AdminPage
     protected function detectCurrentTab()
     {
         $currentTabKey = null;
-        //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
         if (isset($_REQUEST[self::TAB_REQUEST_KEY])) {
-            //phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
             $currentTabKey = $_REQUEST[self::TAB_REQUEST_KEY];
         }
 
@@ -240,7 +239,6 @@ class AdminPage
 
         if ( ! $this->context->getOption('admin_footer_text_rated') ) {
             $footer_text = sprintf(
-                /* translators: Wdp rating link*/
                 __( 'If you like %1$s please leave us a %2$s rating. A huge thanks in advance!', 'advanced-dynamic-pricing-for-woocommerce' ),
                 sprintf( '<strong>%s</strong>', 'Advanced Dynamic Pricing for WooCommerce' ),
                 '<a href="https://wordpress.org/support/plugin/advanced-dynamic-pricing-for-woocommerce/reviews?rate=5#new-post" target="_blank" class="wdp-rating-link" aria-label="' . esc_attr__( 'five star', 'advanced-dynamic-pricing-for-woocommerce' ) . '" data-rated="' . esc_attr__( 'Thanks!', 'advanced-dynamic-pricing-for-woocommerce' ) . '">&#9733;&#9733;&#9733;&#9733;&#9733;</a>'

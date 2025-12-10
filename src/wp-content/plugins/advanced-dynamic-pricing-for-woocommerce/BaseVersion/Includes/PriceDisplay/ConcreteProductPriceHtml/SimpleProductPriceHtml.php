@@ -193,18 +193,10 @@ class SimpleProductPriceHtml implements ConcreteProductPriceHtml
         $settings = $this->context->getSettings();
         $useRegularPrice = $settings->getOption('regular_price_for_striked_price');
         if ($this->striked) {
-            $price = $useRegularPrice ? $product->get_regular_price('edit') : $processedProduct->getOriginalPriceToDisplay();
-
-            if(apply_filters('adp_use_sale_price_in_package', false)
-                && $product->is_on_sale('edit') 
-                && $product->get_sale_price('edit') !== '') {
-                    $price = floatval($product->get_sale_price('edit'));
-            }
-            
             $origPrice = $priceFunc->getPriceToDisplay(
                 $product,
                 array(
-                    'price' => $price,
+                    'price' => $useRegularPrice ? $product->get_regular_price('edit') : $processedProduct->getOriginalPriceToDisplay(),
                     'qty'   => $qty
                 )
             );

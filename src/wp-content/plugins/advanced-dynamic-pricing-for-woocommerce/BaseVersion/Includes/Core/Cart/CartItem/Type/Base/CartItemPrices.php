@@ -7,7 +7,6 @@ class CartItemPrices
     protected $originalPrice;
     protected $originalPriceToDisplay;
     protected $minDiscountRangePrice;
-    protected $maxDiscountRangePrice;
     protected $trdPartyAdjustmentsTotal;
 
     public static function ofOriginalPrices(
@@ -19,7 +18,6 @@ class CartItemPrices
         $obj->originalPrice = $originalPrice;
         $obj->originalPriceToDisplay = $originalPriceToDisplay;
         $obj->minDiscountRangePrice = null;
-        $obj->maxDiscountRangePrice = null;
         $obj->trdPartyAdjustmentsTotal = 0.0;
 
         return $obj;
@@ -78,37 +76,12 @@ class CartItemPrices
     }
 
     /**
-     * @return mixed
-     */
-    public function getMaxDiscountRangePrice()
-    {
-        return $this->maxDiscountRangePrice;
-    }
-
-    /**
      * @param mixed $minDiscountRangePrice
      * @return CartItemPrices
      */
     public function setMinDiscountRangePrice($minDiscountRangePrice)
     {
         $this->minDiscountRangePrice = $minDiscountRangePrice;
-        return $this;
-    }
-
-    /**
-     * @param mixed $minDiscountRangePrice
-     * @return CartItemPrices
-     */
-    public function setDiscountRangePrice($discountRangePrice)
-    {
-        if($this->minDiscountRangePrice == null || $discountRangePrice < $this->minDiscountRangePrice) {
-            $this->minDiscountRangePrice = $discountRangePrice;
-        }
-
-        if($this->maxDiscountRangePrice == null || $discountRangePrice > $this->maxDiscountRangePrice) {
-            $this->maxDiscountRangePrice = $discountRangePrice;
-        }
-
         return $this;
     }
 

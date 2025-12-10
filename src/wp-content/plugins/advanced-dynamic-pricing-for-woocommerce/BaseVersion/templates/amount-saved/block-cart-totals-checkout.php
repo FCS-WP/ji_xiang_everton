@@ -16,7 +16,6 @@ if (!empty($additionalArgs['afterTotals'])): ?>
             echo esc_attr($title); ?></span>
         <div class="wc-block-components-totals-item__value"><span
                 class="wc-block-formatted-money-amount wc-block-components-formatted-money-amount wc-block-components-totals-footer-item-tax-value"><?php
-                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 echo wc_price($amount_saved); ?></span>
         </div>
         <div class="wc-block-components-totals-item__description"></div>
@@ -28,7 +27,6 @@ else: ?>
                 class="wc-block-components-totals-item__label"><?php
                 echo esc_attr($title); ?></span><span
                 class="wc-block-formatted-money-amount wc-block-components-formatted-money-amount wc-block-components-totals-item__value"><?php
-                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 echo wc_price($amount_saved); ?></span>
             <div class="wc-block-components-totals-item__description"></div>
         </div>

@@ -35,10 +35,6 @@ class ConditionsCheckStrategy
             return true;
         }
 
-        if( apply_filters("adp_apply_rule_custom_conditions_check", false, $conditions, $cart, $this->rule) ) {
-            return true;
-        }
-
         $relationship = $this->rule->getConditionsRelationship();
         $result       = false;
 

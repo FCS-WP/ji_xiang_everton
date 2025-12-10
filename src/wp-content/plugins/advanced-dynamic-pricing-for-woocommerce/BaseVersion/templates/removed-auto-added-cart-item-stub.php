@@ -15,19 +15,16 @@ defined('ABSPATH') or exit;
         <td colspan="<?php echo ( ! isset($options["dont_show_restore_link"]) || ! $options["dont_show_restore_link"]) ? "3" : "5"; ?>"
             class="adp-autoadd-cart-item-removed-stub-text" style="vertical-align: middle">
             <?php
-            /* translators: Message about the deletion of an automatically added product*/
-            echo sprintf(esc_html__('You have deleted %d auto added products from the cart.',
-                'advanced-dynamic-pricing-for-woocommerce'), esc_html($qty));
+            echo sprintf(__('You have deleted %d auto added products from the cart.',
+                'advanced-dynamic-pricing-for-woocommerce'), $qty);
             ?>
         </td>
         <?php
         if ( ! isset($options["dont_show_restore_link"]) || ! $options["dont_show_restore_link"]) {
             ?>
             <td colspan="2" class="adp-autoadd-cart-item-removed-stub-url">
-                <a href="<?php
-                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                    echo $cartUrl; ?>">
-                    <?php esc_html_e("Restore", 'advanced-dynamic-pricing-for-woocommerce'); ?>
+                <a href="<?php echo $cartUrl; ?>">
+                    <?php _e("Restore", 'advanced-dynamic-pricing-for-woocommerce'); ?>
                 </a>
             </td>
             <?php

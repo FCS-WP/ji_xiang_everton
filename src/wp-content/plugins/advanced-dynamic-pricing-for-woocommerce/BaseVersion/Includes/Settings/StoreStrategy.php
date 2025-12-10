@@ -5,7 +5,6 @@ namespace ADP\BaseVersion\Includes\Settings;
 use ADP\Settings\Exceptions\KeyNotFound;
 use ADP\Settings\Interfaces\StoreStrategyInterface;
 use ADP\Settings\OptionsList;
-use ADP\BaseVersion\Includes\Cache\CacheHelper;
 
 defined('ABSPATH') or exit;
 
@@ -20,7 +19,7 @@ class StoreStrategy implements StoreStrategyInterface
     {
         if ($optionsList->getOptionsArray()) {
             update_option(self::OPTION_KEY, $optionsList->getOptionsArray());
-            CacheHelper::flush();
+            wp_cache_flush();
         }
     }
 

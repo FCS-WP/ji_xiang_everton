@@ -12,7 +12,6 @@ class ProductsAdjustment
         Discount::TYPE_AMOUNT,
         Discount::TYPE_FIXED_VALUE,
         Discount::TYPE_PERCENTAGE,
-        Discount::TYPE_EXPRESSION_PRICE,
     );
 
     /**

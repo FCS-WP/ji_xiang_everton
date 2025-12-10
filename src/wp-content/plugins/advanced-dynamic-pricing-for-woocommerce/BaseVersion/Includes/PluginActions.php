@@ -48,7 +48,7 @@ class PluginActions
                 __('Support', 'advanced-dynamic-pricing-for-woocommerce')
             ],
             [
-                'https://docs.algolplus.com/category/algol_pricing/',
+                'https://docs.algolplus.com/category/algol_pricingnew/',
                 __('Plugin documentation', 'advanced-dynamic-pricing-for-woocommerce'),
                 __('Docs', 'advanced-dynamic-pricing-for-woocommerce')
             ],
@@ -94,7 +94,6 @@ class PluginActions
         global $wpdb;
 
         if (is_multisite() && $networkWide) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
             $blog_ids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
             foreach ($blog_ids as $blog_id) {
                 switch_to_blog($blog_id);

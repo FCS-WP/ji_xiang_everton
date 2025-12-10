@@ -213,16 +213,13 @@ class InCartWcProductProcessor implements IWcProductProcessor
                 $loopProductVariationAttributes = $loopProduct->get_variation_attributes();
 
                 foreach ($product->get_variation_attributes() as $key => $value) {
-                    $key_item = strtolower($key);
-                    if( !isset($loopProductVariationAttributes[$key_item]) || $loopProductVariationAttributes[$key_item] !== $value )
-                        $condition = false;
+                    $condition &= !isset($loopProductVariationAttributes[$key]) || $loopProductVariationAttributes[$key] !== $value;
                 }
             }
 
             // cart item data
             foreach ($loopItem->getWcItem()->getThirdPartyData() as $key => $value) {
-                if( !isset($cartItemData[$key]) || $cartItemData[$key] !== $value )
-                    $condition = false;
+                $condition &= !isset($cartItemData[$key]) || $cartItemData[$key] !== $value;
             }
 
             // addons

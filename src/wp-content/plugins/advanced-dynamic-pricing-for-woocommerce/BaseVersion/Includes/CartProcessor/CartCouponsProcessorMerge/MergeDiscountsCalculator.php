@@ -98,10 +98,8 @@ class MergeDiscountsCalculator
         // and wc notice will be generated, we need to remove it
         $newNotices = [];
         $couponRemovedText = sprintf(
-
-            /* translators: Invalid coupon message */
-            //phpcs:ignore WordPress.WP.I18n.TextDomainMismatch, WordPress.WP.I18n.MissingTranslatorsComment
-            __('Sorry, it seems the coupon "%s" is invalid - it has now been removed from your order.', 'woocommerce'),
+            __('Sorry, it seems the coupon "%s" is invalid - it has now been removed from your order.',
+                'woocommerce'),
             esc_html($coupon->getCode())
         );
         foreach (wc_get_notices() as $type => $notices) {
@@ -116,7 +114,6 @@ class MergeDiscountsCalculator
         wc_set_notices($newNotices);
 
         if ($method === null) {
-            //phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             throw new \Exception(sprintf("Implementation is missing for class %s", get_class($coupon)));
         }
 
@@ -224,7 +221,6 @@ class MergeDiscountsCalculator
             $newAmount = $coupon->getValue() * $coupon->getAffectedCartItemQty();
             $mergeCouponBuilder->typeFreeItem();
         } else {
-            //phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             throw new \Exception(sprintf("Incorrect coupon type: %s", $coupon->getType()));
         }
 
