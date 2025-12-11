@@ -69,7 +69,7 @@ class AdminPage
     {
         add_action('admin_menu', function () {
             add_submenu_page(
-                'woocommerce',
+                'zippy-bookings',
                 __('Pricing Rules', 'advanced-dynamic-pricing-for-woocommerce'),
                 __('Pricing Rules', 'advanced-dynamic-pricing-for-woocommerce'),
                 'manage_woocommerce',
