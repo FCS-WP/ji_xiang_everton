@@ -364,8 +364,8 @@ jQuery(document).ready(function ($) {
 
 	wpc_postboxes._on_close = function (new_rule, data) {
 		new_rule.find('.rule-trigger-coupon-code input').prop('readonly', true);
-    new_rule.find('.rule-date-from-to input[name="rule[additional][date_from]"]').datepicker( "option", "disabled", true ).css("background-color", "#f0f0f1");
-    new_rule.find('.rule-date-from-to input[name="rule[additional][date_to]"]').datepicker( "option", "disabled", true ).css("background-color", "#f0f0f1");
+    new_rule.find('.rule-date-from-to input[name="rule[additional][date_from]"]').datepicker( "option", "disabled", false ).css("background-color", "#f0f0f1");
+    new_rule.find('.rule-date-from-to input[name="rule[additional][date_to]"]').datepicker( "option", "disabled", false ).css("background-color", "#f0f0f1");
 	};
 
   function initWdpTooltips() {
@@ -1036,7 +1036,7 @@ jQuery(document).ready(function ($) {
 
           jqDateFrom.datepicker("option", "maxDate", maxDate);
         },
-        disabled: true,
+        // disabled: true,
       }).css("background-color", "#f0f0f1");
 
       jqDateTo.removeClass('hasDatepicker').datepicker({
@@ -1047,7 +1047,7 @@ jQuery(document).ready(function ($) {
 
           jqDateTo.datepicker("option", "minDate", minDate);
         },
-        disabled: true,
+        // disabled: true,
       }).css("background-color", "#f0f0f1");
       }
 
@@ -3794,7 +3794,6 @@ jQuery(document).ready(function ($) {
         var disabled = $toggler.val() === 'off';
         title.toggleClass('wdp-title-disabled', disabled);
         $rule.toggleClass('disabled', disabled);
-
         // check if bulk rule repeated
         var repeat = false;
         var $checkbox_repeat = $rule.find('.wdp-adjustments-repeat');
