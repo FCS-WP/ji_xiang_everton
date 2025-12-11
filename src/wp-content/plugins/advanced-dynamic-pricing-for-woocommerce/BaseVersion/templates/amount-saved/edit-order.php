@@ -8,7 +8,7 @@ defined('ABSPATH') or exit;
  */
 ?>
 <tr>
-    <td class="label"><?php echo $title ?>:</td>
+    <td class="label"><?php echo esc_html($title) ?>:</td>
     <td width="1%"></td>
     <td class="total">
         <?php echo wc_price($amount_saved, array('currency' => $currency)); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>

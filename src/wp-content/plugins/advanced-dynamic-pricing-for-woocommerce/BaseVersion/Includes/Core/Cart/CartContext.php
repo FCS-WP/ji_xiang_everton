@@ -84,7 +84,7 @@ class CartContext
      */
     public function datetime($format)
     {
-        return date($format, $this->environment['timestamp']);
+        return gmdate($format, $this->environment['timestamp']);
     }
 
     /**
@@ -144,7 +144,9 @@ class CartContext
     public function getCountOfRuleUsagesPerCustomerData($ruleId)
     {
         $data = array();
+        //phpcs:ignore WordPress.Security.NonceVerification.Missing
         if (isset($_POST['post_data'])) {
+            //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
             parse_str(wp_unslash($_POST['post_data']), $postData);
             $data['customer_email'] = $postData['billing_email'];
             $data['customer_first_name'] = $postData['billing_first_name'];

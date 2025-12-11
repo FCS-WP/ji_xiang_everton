@@ -48,7 +48,7 @@ jQuery(document).ready(function ($) {
 							return;
 						}
 
-						jQItem.html(jQuery(response.data).children())
+						jQItem.html(jQuery(response.data).children()).trigger('update');
 					});
 					init_custom_event();
 					if (product_id === variable_id) {
@@ -57,6 +57,7 @@ jQuery(document).ready(function ($) {
 				} else {
 					get_table(variable_id);
 				}
+
 			},
 			error: function (response) {
 				get_table(variable_id);

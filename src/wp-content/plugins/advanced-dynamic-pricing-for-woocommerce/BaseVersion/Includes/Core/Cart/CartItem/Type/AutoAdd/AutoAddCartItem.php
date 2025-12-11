@@ -98,6 +98,7 @@ class AutoAddCartItem
     public function __construct($product, $qty, $ruleId, $associatedHash)
     {
         if ( ! ($product instanceof \WC_Product)) {
+            //phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             throw new \Exception(sprintf("Unsupported class of the product: %s", gettype($product)));
         }
 

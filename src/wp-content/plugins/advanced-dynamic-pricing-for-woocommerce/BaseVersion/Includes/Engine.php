@@ -5,6 +5,7 @@ namespace ADP\BaseVersion\Includes;
 use ADP\BaseVersion\Includes\CartProcessor\CartProcessor;
 use ADP\BaseVersion\Includes\CartProcessor\FreeAutoAddItemsController;
 use ADP\BaseVersion\Includes\Compatibility\CTXFeedCmp;
+use ADP\BaseVersion\Includes\Compatibility\GermanMarketCmp;
 use ADP\BaseVersion\Includes\Compatibility\KlarnaCmp;
 use ADP\BaseVersion\Includes\Compatibility\SmartCouponsCmp;
 use ADP\BaseVersion\Includes\Compatibility\WcSubscriptionsCmp;
@@ -75,6 +76,7 @@ class Engine
         } elseif ($this->context->getOption("process_product_strategy") === "after") {
             $this->productProcessor = new InCartWcProductProcessor();
         } else {
+            //phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             throw new \Exception("Missing process product strategy for value: " . $this->context->getOption("process_product_strategy"));
         }
 
@@ -100,6 +102,11 @@ class Engine
         $wcQuoteCmp = new WcQuoteCmp();
         if ($wcQuoteCmp->isActive()) {
             $wcQuoteCmp->prepareHooks();
+        }
+
+        $germanMarket = new GermanMarketCmp();
+        if ($germanMarket->isActive()) {
+            $germanMarket->prepareHooks();
         }
     }
 
@@ -138,7 +145,7 @@ class Engine
     public function installCartProcessAction()
     {
         add_action('wp_loaded', array($this, 'firstTimeProcessCart'), 15);
-        $this->cartProcessor->installActionFirstProcess();
+        $this->cartProcessor->installActionFirstProcess(true);
     }
 
     public function installProductProcessorWithEmptyCart()

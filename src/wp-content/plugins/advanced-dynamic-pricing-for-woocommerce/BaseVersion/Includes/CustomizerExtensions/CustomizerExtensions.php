@@ -346,6 +346,29 @@ class CustomizerExtensions
                         'css_option_name' => 'background-color',
                         'layout'          => 'any',
                     ),
+                    'higlight_background_color'                  => array(
+                        'label'             => __('Background higlight color', 'advanced-dynamic-pricing-for-woocommerce'),
+                        'default'           => '#efefef',
+                        'sanitize_callback' => 'sanitize_hex_color',
+                        'control_class'     => 'WP_Customize_Color_Control',
+                        'priority'          => 90,
+
+                        'apply_type'      => 'css',
+                        'selector'        => '.wdp_bulk_table_content table thead td',
+                        'css_option_name' => 'higlight_background_color-color',
+                        'layout'          => 'any',
+                    ),
+                    "higlight_text_color"      => array(
+                        'label'             => __('Text higlight color', 'advanced-dynamic-pricing-for-woocommerce'),
+                        'default'           => '#6d6d6d',
+                        'sanitize_callback' => 'sanitize_hex_color',
+                        'control_class'     => '\WP_Customize_Color_Control',
+                        'priority'          => 10,
+                        'apply_type'      => 'css',
+                        'selector'        => '.wdp_bulk_table_content table thead td',
+                        'css_option_name' => 'higlight_text_color',
+                        'layout'          => 'any',
+                    ),
                 ),
             ),
             ProductBulkTableThemeProperties\StyleBodyMenu::KEY    => array(
@@ -606,7 +629,7 @@ class CustomizerExtensions
                         'control_type' => 'select',
                         'choices'      => apply_filters("wdp_" . "cart" . "_discount_message_places",
                             array(
-                                'woocommerce_cart_totals_before_shipping' => __('After subtotal',
+                                'woocommerce_cart_totals_before_shipping' => __('Before shipping',
                                     'advanced-dynamic-pricing-for-woocommerce'),
                                 'woocommerce_cart_totals_before_order_total' => __('Before order total',
                                     'advanced-dynamic-pricing-for-woocommerce'),
@@ -654,7 +677,7 @@ class CustomizerExtensions
                                     'advanced-dynamic-pricing-for-woocommerce'),
                                 'woocommerce_review_order_after_cart_contents'  => __('After cart contents',
                                     'advanced-dynamic-pricing-for-woocommerce'),
-                                'woocommerce_review_order_before_shipping'    => __('After subtotal',
+                                'woocommerce_review_order_before_shipping'    => __('Before shipping',
                                     'advanced-dynamic-pricing-for-woocommerce'),
                                 'woocommerce_review_order_before_order_total'    => __('Before order total',
                                     'advanced-dynamic-pricing-for-woocommerce'),
@@ -718,7 +741,9 @@ class CustomizerExtensions
         }
         ?>
         <style type="text/css">
-            <?php echo join(' ', $css); ?>
+            <?php
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo join(' ', $css); ?>
         </style>
         <?php
 
@@ -731,7 +756,9 @@ class CustomizerExtensions
     {
         if ( ! did_action('wp_loaded')) {
             _doing_it_wrong(__FUNCTION__,
-                sprintf(__('%1$s should not be called before the %2$s action.', 'woocommerce'),
+                /* translators: Message about the load order*/
+                //phpcs:ignore WordPress.WP.I18n.TextDomainMismatch, WordPress.WP.I18n.MissingTranslatorsComment
+                sprintf(esc_html__('%1$s should not be called before the %2$s action.', 'woocommerce'),
                     __NAMESPACE__ . '/Customizer::getThemeOptions', 'wp_loaded'), '2.2.2');
 
             return null;
@@ -833,6 +860,8 @@ class CustomizerExtensions
         $obj->discountedPriceColumnTitleForFixedPriceRule = $data['discount_column_title_for_fixed_price'];
         $obj->discountedPriceColumnTitle                  = $data['discounted_price_title'];
         $obj->headerBackgroundColor                       = $data['header_background_color'];
+        $obj->higlightBackgroundColor                     = $data['higlight_background_color'];
+        $obj->higlightTextColor                           = $data['higlight_text_color'];
 
         $obj                  = $themeProperties->productBulkTable->styleBody;
         $data                 = $props[$themeProperties->productBulkTable::KEY][$obj::KEY];
@@ -1033,7 +1062,7 @@ class CustomizerExtensions
             'wc-plc-customizer-control-js',
             $baseVersionUrl . 'assets/js/customize-controls.js',
             ['jquery'],
-            WC_ADP_VERSION
+            WC_ADP_VERSION, true
         );
     }
 

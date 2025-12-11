@@ -5,6 +5,7 @@ namespace ADP\BaseVersion\Includes\CartProcessor;
 use ADP\BaseVersion\Includes\ProductExtensions\ProductExtension;
 use ADP\BaseVersion\Includes\WC\WcCartItemFacade;
 use ADP\BaseVersion\Includes\Context;
+use ADP\BaseVersion\Includes\Compatibility\Addons\TmExtraOptionsCmp;
 use Exception;
 use ReflectionClass;
 use ReflectionException;

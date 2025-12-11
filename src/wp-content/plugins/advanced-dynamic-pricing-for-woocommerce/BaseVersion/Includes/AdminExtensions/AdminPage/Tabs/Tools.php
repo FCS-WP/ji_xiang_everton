@@ -4,12 +4,14 @@ namespace ADP\BaseVersion\Includes\AdminExtensions\AdminPage\Tabs;
 
 use ADP\BaseVersion\Includes\Core\Rule\Rule;
 use ADP\BaseVersion\Includes\Helpers\Helpers;
+use ADP\BaseVersion\Includes\Cache\CacheHelper;
 use ADP\BaseVersion\Includes\ImportExport\Importer;
 use ADP\BaseVersion\Includes\ImportExport\Exporter;
 use ADP\BaseVersion\Includes\ImportExport\ImporterCSV;
 use ADP\BaseVersion\Includes\Context;
 use ADP\BaseVersion\Includes\AdminExtensions\AdminPage\AdminTabInterface;
 use ADP\BaseVersion\Includes\Database\Repository\RuleRepository;
+use ADP\BaseVersion\Includes\Database\Repository\PersistentRuleRepository;
 use ADP\Factory;
 use Exception;
 
@@ -17,6 +19,7 @@ defined('ABSPATH') or exit;
 
 class Tools implements AdminTabInterface
 {
+    const IMPORT_TYPE_DEBUG = 'debug';
     const IMPORT_TYPE_OPTIONS = 'options';
     const IMPORT_TYPE_RULES = 'rules';
 
@@ -70,9 +73,10 @@ class Tools implements AdminTabInterface
 
     protected function checkNonceOrDie()
     {
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
         if (wp_verify_nonce($_REQUEST[$this->nonceParam] ?? null, $this->nonceName) === false) {
-            wp_die(__('Invalid nonce specified', 'advanced-dynamic-pricing-for-woocommerce'),
-                __('Error', 'advanced-dynamic-pricing-for-woocommerce'), ['response' => 403]);
+            wp_die(esc_html__('Invalid nonce specified', 'advanced-dynamic-pricing-for-woocommerce'),
+                esc_html__('Error', 'advanced-dynamic-pricing-for-woocommerce'), ['response' => 403]);
         }
     }
 
@@ -88,12 +92,14 @@ class Tools implements AdminTabInterface
         foreach ($els as $el) {
             fputcsv($fp, (array)$el);
         }
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
         fclose($fp);
         die();
     }
 
     public function exportJsonSettings()
     {
+        //phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
         $export = $_REQUEST['export_select'] ?? false;
 
         if($export === false) {
@@ -122,14 +128,26 @@ class Tools implements AdminTabInterface
         $this->checkNonceOrDie();
 
         $repo = new RuleRepository();
-        wp_send_json_success("Done: " . $repo->migrateSuitableCommonRulesToPersistence() . " affected");
+        $count = $repo->migrateSuitableCommonRulesToPersistence();
+
+        CacheHelper::flush();
+        wp_send_json_success("Done: $count affected");
     }
 
     public function migrateProductOnlyToCommon() {
         $this->checkNonceOrDie();
 
         $repo = new RuleRepository();
-        wp_send_json_success("Done: " . $repo->migrateSuitablePersistenceRulesToCommon() . " affected");
+        $count = $repo->migrateSuitablePersistenceRulesToCommon();
+
+        // should clear database cache too
+        $persistentRuleRepository = new PersistentRuleRepository();
+        $persistentRuleRepository->truncate();
+        $persistentRuleRepository->clearCacheInProductMetaData();
+
+        CacheHelper::flush();
+
+        wp_send_json_success("Done: $count affected");
     }
 
     public function withContext(Context $context)
@@ -154,35 +172,44 @@ class Tools implements AdminTabInterface
 
     public function handleSubmitAction()
     {
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         if(isset($_POST['wdp-import-data-optimize-import'])) {
             add_filter("adp_import_merge_rules","__return_false");
         }
-        if (isset($_POST['wdp-import']) && ! empty($_POST['wdp-import-data']) && ! empty($_POST['wdp-import-type'])) {
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
+        if (isset($_POST['wdp-import']) && ! empty($_POST['wdp-import-data'])) {
             $this->checkNonceOrDie();
 
             $data = json_decode(
                 str_replace('\\', '',
+                    //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
                     str_replace('\\"', '', wp_unslash($_POST['wdp-import-data']))
                 ),
                 true
             );
-            $import_data_type = $_POST['wdp-import-type'];
+
+            $import_data_type = $this::recognizeImportJsonType($data);
+
             set_transient(
                 'import-result',
                 $this->actionGroups($data, $import_data_type) ? 'The operation completed successfully.' : 'The operation is failed.'
             );
-            wp_redirect($_SERVER['HTTP_REFERER']);
+            //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+            wp_safe_redirect($_SERVER['HTTP_REFERER']);
             exit();
+            //phpcs:ignore WordPress.Security.NonceVerification.Missing
         } else if (isset($_POST['wdp-import-bulk-ranges'])) {
             $this->checkNonceOrDie();
-
+            //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
             $csvFilePath = $_FILES['rules-to-import']['tmp_name'];
             $elements = $this->prepareCSV($csvFilePath);
             $this->actionReimportRulesWithBulkRanges($elements);
+            //phpcs:ignore WordPress.Security.NonceVerification.Missing
         } else if(isset($_POST['wdp-import-csv']) && !empty($_FILES['rules-to-import'])){
             $this->checkNonceOrDie();
-
+            //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
             $data = ImporterCSV::prepareCSV($_FILES['rules-to-import']['tmp_name']);
+            //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
             ImporterCSV::importRules($data, $_POST['wdp-import-data-rule-import']);
         }
     }
@@ -250,7 +277,9 @@ class Tools implements AdminTabInterface
 
     protected function actionGroups($data, $importDataType)
     {
-        return $this->actionOptionsGroup($data, $importDataType) || $this->actionRulesGroup($data, $importDataType);
+        return $this->actionOptionsGroup($data, $importDataType)
+            || $this->actionRulesGroup($data, $importDataType)
+            || $this->actionDebugGroup($data, $importDataType);
     }
 
     protected function actionOptionsGroup($data, $importDataType)
@@ -273,6 +302,18 @@ class Tools implements AdminTabInterface
 
         $settings->save();
         return true;
+    }
+
+    protected function actionDebugGroup($data, $importDataType)
+    {
+        if ($importDataType !== self::IMPORT_TYPE_DEBUG) {
+            return false;
+        }
+
+        $result = $this::actionOptionsGroup($data['options']['wdp'], $this::IMPORT_TYPE_OPTIONS);
+        $result = $this::actionRulesGroup($data['rules'], $this::IMPORT_TYPE_RULES) || $result;
+
+        return $result;
     }
 
     protected function prepareExportGroups()
@@ -301,7 +342,7 @@ class Tools implements AdminTabInterface
         if ($importDataType !== self::IMPORT_TYPE_RULES) {
             return false;
         }
-
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing
         return count(Importer::importRules($data, $_POST['wdp-import-data-reset-rules'])) > 0;
     }
 
@@ -339,6 +380,27 @@ class Tools implements AdminTabInterface
             }
         }
         return $rules;
+    }
+
+    protected function recognizeImportJsonType ($data) {
+        $type = null;
+
+        if (isset($data['show_matched_bulk'])) {
+            $type = $this::IMPORT_TYPE_OPTIONS;
+        } else if (isset($data['rules'], $data['options'], $data['options']['wdp'])) {
+            $type = $this::IMPORT_TYPE_DEBUG;
+        } else if (!$this::is_assoc_array($data) && count($data) > 0) {
+            $firstElement = $data[0];
+            if (isset($firstElement['rule_type'])) {
+                $type = $this::IMPORT_TYPE_RULES;
+            }
+        }
+
+        return $type;
+    }
+
+    protected static function is_assoc_array( $arr ) {
+        return array_keys( $arr ) !== range( 0, count( $arr ) - 1 );
     }
 
     protected function actionReimportRulesWithBulkRanges($data)
@@ -427,7 +489,7 @@ class Tools implements AdminTabInterface
      *
      * @return array|string
      */
-    protected function convertElementsFromIdToName($items, $type)
+    static function convertElementsFromIdToName($items, $type)
     {
         if (empty($items)) {
             return $items;

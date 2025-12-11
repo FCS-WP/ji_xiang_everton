@@ -156,7 +156,7 @@ class ProcessedProductSimple
      *
      * @return float|null
      */
-    public function getCalculatedPrice($pos = null)
+    public function getCalculatedPrice($pos = null, $dontOverrideCentsForItem = false)
     {
         $item = $this->getItemByPos($pos);
 
@@ -171,7 +171,7 @@ class ProcessedProductSimple
             $price = $item->getOriginalPrice() - $totalAdjustments;
         }
 
-        return $this->overrideCentsStrategy->maybeOverrideCentsForItem($price, $item);
+        return $dontOverrideCentsForItem ? $price : $this->overrideCentsStrategy->maybeOverrideCentsForItem($price, $item);
     }
 
     /**
@@ -375,6 +375,22 @@ class ProcessedProductSimple
         }
 
         return $item->prices()->getMinDiscountRangePrice();
+    }
+
+    /**
+     * @param int|null $pos
+     *
+     * @return float|null
+     */
+    public function getMaxDiscountRangePrice($pos = null)
+    {
+        $item = $this->getItemByPos($pos);
+
+        if ( ! isset($item)) {
+            return null;
+        }
+
+        return $item->prices()->getMaxDiscountRangePrice();
     }
 
     /**

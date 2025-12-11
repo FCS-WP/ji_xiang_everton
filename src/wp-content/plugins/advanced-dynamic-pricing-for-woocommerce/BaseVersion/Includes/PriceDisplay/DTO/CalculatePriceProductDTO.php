@@ -48,7 +48,7 @@ class CalculatePriceProductDTO
         }
         $productId = $data['product_id'];
         if (!is_numeric($productId)) {
-            throw new \Exception("Product id is not a number: " . $productId);
+            throw new \Exception("Product id is not a number: " . esc_html($productId));
         }
         $productId = intval($productId);
 
@@ -58,7 +58,7 @@ class CalculatePriceProductDTO
         }
         $qty = $data['qty'];
         if (!is_numeric($qty)) {
-            throw new \Exception("Qty is not a number: " . $qty);
+            throw new \Exception("Qty is not a number: " . esc_html($qty));
         }
         $qty = floatval($qty);
 

@@ -52,7 +52,7 @@ class WcffCmp
         $baseVersionUrl = WC_ADP_PLUGIN_URL . "/BaseVersion/";
         if ($context->is($context::WC_PRODUCT_PAGE) || $context->is($context::PRODUCT_LOOP)) {
             wp_enqueue_script('wdp-wc-fields-factory', $baseVersionUrl . 'assets/js/wdp-wc-fields-factory.js', array('jquery'),
-                WC_ADP_VERSION);
+                WC_ADP_VERSION, true);
         }
     }
 

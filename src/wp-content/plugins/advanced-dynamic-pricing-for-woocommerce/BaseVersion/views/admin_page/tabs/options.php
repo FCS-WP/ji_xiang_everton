@@ -34,8 +34,12 @@ defined('ABSPATH') or exit;
             ?>
             <li>
                 <a class="section_choice"
-                   data-section="<?php echo $index; ?>" href="#section=<?php echo $index; ?>">
-                    <?php echo $section_title; ?>
+                   data-section="<?php
+                   // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    echo $index; ?>" href="#section=<?php
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    echo $index; ?>">
+                    <?php echo esc_html($section_title); ?>
                 </a>
             </li>
         <?php endforeach; ?>
@@ -46,8 +50,8 @@ defined('ABSPATH') or exit;
             </script>
         <form method="post">
             <input type="hidden" name="action" value="wdp">
-            <input type="hidden" name="tab" value="<?php echo $tabHandler::getKey(); ?>"/>
-            <input type="hidden" name="<?php echo $security_param; ?>" value="<?php echo $security; ?>"/>
+            <input type="hidden" name="tab" value="<?php echo esc_attr($tabHandler::getKey()); ?>"/>
+            <input type="hidden" name="<?php echo esc_attr($security_param); ?>" value="<?php echo esc_attr($security); ?>"/>
             <div class="wdp-settings-search-results-wrapper">
                 <h1 class="title hide"><?php esc_html_e('Search results', 'advanced-dynamic-pricing-for-woocommerce') ?></h1>
                 <div class="empty-results hide"><?php esc_html_e('No options found', 'advanced-dynamic-pricing-for-woocommerce') ?></div>
@@ -58,8 +62,8 @@ defined('ABSPATH') or exit;
                 $label = $section['title'];
                 $docLink = $section['doc_link'] ?? '';
                 ?>
-                <div class="section settings-section" id="<?php echo $id; ?>">
-                    <h2 style="display: inline-block"><?php echo $label; ?></h2>
+                <div class="section settings-section" id="<?php echo esc_attr($id); ?>">
+                    <h2 style="display: inline-block"><?php echo esc_html($label); ?></h2>
                     <?php if ($docLink) : ?>
                         <a style="display: inline-block; margin-left: 15px" href="<?php echo esc_url($docLink); ?>" target="_blank">
                             <?php esc_html_e('Read docs', 'advanced-dynamic-pricing-for-woocommerce'); ?>
@@ -79,11 +83,11 @@ defined('ABSPATH') or exit;
                 </div>
             <?php endforeach; ?>
 
-            <a href="https://algolplus.com/plugins/downloads/advanced-dynamic-pricing-woocommerce-pro/?currency=USD"
-               target=_blank><?php _e('Need more settings?', 'advanced-dynamic-pricing-for-woocommerce') ?></a>
+            <a href="https://algolplus.com/plugins/downloads/advanced-dynamic-pricing-woocommerce-pro/"
+               target=_blank><?php esc_html_e('Need more settings?', 'advanced-dynamic-pricing-for-woocommerce') ?></a>
 
             <p class="wdp-settings-button">
-                <button type="submit" class="button button-primary" name="save-options"><?php _e('Save changes',
+                <button type="submit" class="button button-primary" name="save-options"><?php esc_html_e('Save changes',
                         'advanced-dynamic-pricing-for-woocommerce') ?></button>
             </p>
         </form>

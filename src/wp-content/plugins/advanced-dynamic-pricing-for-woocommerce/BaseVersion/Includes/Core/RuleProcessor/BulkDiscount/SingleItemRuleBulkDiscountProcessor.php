@@ -93,6 +93,7 @@ class SingleItemRuleBulkDiscountProcessor
 
                 $meta[] = $facade->getProductId();
                 $meta[] = $facade->getVariationId();
+                $meta[] = $facade->getVariation();
 
                 $key = md5(json_encode($meta));
 
@@ -155,6 +156,7 @@ class SingleItemRuleBulkDiscountProcessor
                         return 0.0;
                     };
                     $this->context->handleError(
+                        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
                         new \Exception("Unknown measurement value: " . var_export($measurement, true))
                     );
                 }
@@ -292,15 +294,7 @@ class SingleItemRuleBulkDiscountProcessor
                     continue;
                 }
 
-                $minPrice = $item->prices()->getMinDiscountRangePrice();
-
-                if ($minPrice !== null) {
-                    if ($price < $minPrice) {
-                        $item->prices()->setMinDiscountRangePrice($price);
-                    }
-                } else {
-                    $item->prices()->setMinDiscountRangePrice($price);
-                }
+                $item->prices()->setDiscountRangePrice($price);
             }
         }
 

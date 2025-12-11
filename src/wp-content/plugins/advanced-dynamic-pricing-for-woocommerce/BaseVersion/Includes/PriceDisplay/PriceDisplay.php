@@ -212,10 +212,12 @@ class PriceDisplay
         if ($context->getOption('show_onsale_badge') && $this->priceHtmlIsModifyNeeded()) {
             add_filter('woocommerce_product_is_on_sale', array($this, 'hookIsOnSale'), $priority, 2);
             add_filter('woocommerce_product_get_sale_price', array($this, 'hookGetSalePrice'), $priority, 2);
-            add_filter('woocommerce_product_get_regular_price', array($this, 'hookGetRegularPrice'), $priority, 2);
+            if (!$context->getOption('regular_price_for_striked_price')) {
+                add_filter('woocommerce_product_get_regular_price', array($this, 'hookGetRegularPrice'), $priority, 2);
+            }
         }
 
-        if ($context->isBaseVersion() AND apply_filters('adp_show_onsale_badge_for_variable', false)) {
+        if (!$context->isBaseVersion() AND apply_filters('adp_show_onsale_badge_for_variable', false)) {
             add_filter('woocommerce_product_variation_get_sale_price', array($this, 'hookGetSalePrice'), $priority,
                 2);
             add_filter('woocommerce_product_variation_get_regular_price', array($this, 'hookGetRegularPrice'),
@@ -311,7 +313,12 @@ class PriceDisplay
 
         if ($processed->areRulesApplied()) {
             if ($processed instanceof ProcessedProductSimple) {
+                if(defined('WOOCO_PREMIUM') && get_class($processed) == ProcessedProductContainer::class) {
+                    return $value;
+                }
                 $value = $processed->getCalculatedPrice();
+            } elseif ($processed instanceof ProcessedVariableProduct) {
+                $value = $processed->getLowestPrice();
             }
         }
 
@@ -379,6 +386,13 @@ class PriceDisplay
         // if ( ! $context->is( $context::WC_CART_PAGE ) ) {
         // 	return $cartSubtotalHtml;
         // }
+
+        // Compatible with GP Premium (GeneratePress theme)
+        if ( defined('GP_PREMIUM_VERSION') ) {
+            if (generatepress_wc_get_setting( 'cart_menu_item' )) {
+                return $cartSubtotalHtml;
+            }
+        }
 
         if ($compound || $wcCart->is_empty()) {
             return $cartSubtotalHtml;

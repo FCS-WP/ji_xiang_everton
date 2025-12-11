@@ -87,11 +87,6 @@ class WpcBundleCmp extends AbstractContainerCompatibility
         $property = $reflection->getProperty('data');
         $property->setAccessible(true);
         $basePrice = (float)$property->getValue($product)['price'];
-        $thirdPartyData = $facade->getThirdPartyData();
-        if (!empty($thirdPartyData['woosb_discount'])) {
-            $basePrice *= (100 - (float)$thirdPartyData['woosb_discount']) / 100;
-            $basePrice = round($basePrice, (int)apply_filters('woosb_price_decimals', wc_get_price_decimals()));
-        }
 
         return floatval($basePrice);
     }
@@ -121,7 +116,7 @@ class WpcBundleCmp extends AbstractContainerCompatibility
     {
         $thirdPartyData = $facade->getThirdPartyData();
         $parentProduct = $facade->getProduct();
-        if (!empty($thirdPartyData['woosb_discount'])) {
+        if (!empty($thirdPartyData['woosb_discount']) && empty($thirdPartyData['woosb_price'])) {
             $_price = floatval(CartProcessor::getProductPriceDependsOnPriceMode($parentProduct));
             $_price   *=  (float) $thirdPartyData['woosb_discount']  / 100;
             return -$_price;

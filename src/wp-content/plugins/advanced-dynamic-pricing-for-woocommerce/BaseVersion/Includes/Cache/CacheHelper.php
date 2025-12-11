@@ -39,18 +39,54 @@ class CacheHelper
         return wp_cache_flush();
     }
 
+    public static function applyLanguageCurrency($key) {
+        if( function_exists('get_locale'))
+            $key .= "|".get_locale();
+        if( function_exists('get_woocommerce_currency'))
+            $key .= "|".get_woocommerce_currency();
+        return $key;
+    }
+
     public static function cacheGet($key, $group = '', $force = false, &$found = null)
     {
-        return wp_cache_get($key, $group, $force, $found);
+        return wp_cache_get(self::applyLanguageCurrency($key), $group, $force, $found);
     }
 
     public static function cacheSet($key, $data, $group = '', $expire = 0)
     {
         if( apply_filters("adp_cache_enabled",true) )
-            return wp_cache_set($key, $data, $group, (int)$expire);
+            return wp_cache_set( self::applyLanguageCurrency($key), $data, $group, (int)$expire);
         else
             return false;
     }
+
+    public static function cacheDelete($key, $group = '')
+    {
+        return wp_cache_delete( self::applyLanguageCurrency($key), $group );
+    }
+
+    public static function cacheFlushGroup($group)
+    {
+        if ( wp_cache_supports( 'flush_group' ) ) {
+            wp_cache_flush_group( $group );
+        } else {
+            wp_cache_flush();
+        }
+    }
+
+    public static function flushRulesCache()
+    {
+        self::cacheDelete(self::KEY_ACTIVE_RULES_COLLECTION);
+        self::cacheFlushGroup(self::GROUP_RULES_CACHE);
+        self::cacheFlushGroup(self::GROUP_PROCESSED_PRODUCTS_TO_DISPLAY);
+    }
+
+    public static function flushCollectionsCache()
+    {
+        self::cacheFlushGroup(self::GROUP_COLLECTIONS);
+        self::flushRulesCache();
+    }
+
 
     /**
      * @param null $deprecated
@@ -240,15 +276,6 @@ class CacheHelper
         return $product_data ? $product_data->meta : array();
     }
 
-    public static function flushRulesCache()
-    {
-        if ( wp_cache_supports( 'flush_group' ) ) {
-            wp_cache_flush_group( self::GROUP_RULES_CACHE );
-        } else {
-            wp_cache_flush();
-        }
-    }
-
     /**
      * @param int $productId
      * @param array $variationAttributes
@@ -294,7 +321,7 @@ class CacheHelper
         $variationAttributes = $product instanceof \WC_Product_Variation ? $product->get_variation_attributes() : array();
         $hash                = self::calcHashProcessedProduct($productId, $variationAttributes, $qty, $cartItemData,
             $cart, $calc);
-        self::cacheSet($hash, $processed, self::GROUP_PROCESSED_PRODUCTS_TO_DISPLAY);
+        self::cacheSet($hash, $processed, self::GROUP_PROCESSED_PRODUCTS_TO_DISPLAY, 60 * 10 );
     }
 
     /**
@@ -307,14 +334,24 @@ class CacheHelper
      *
      * @return string
      */
-    protected static function calcHashProcessedProduct(
-        $productId,
+    public static function calcHashProcessedProduct(
+        $theProduct,
         $variationAttributes,
         $qty,
         $cartItemData,
         $cart,
         $calc
     ) {
+        if ($theProduct instanceof WC_Product) {
+            $productId = $theProduct->get_id();
+        } elseif (is_numeric($theProduct)) {
+            $productId = $theProduct;
+        } elseif ($theProduct instanceof \WP_Post) {
+            $productId = $theProduct->ID;
+        } else {
+            $productId = $theProduct;
+        }
+
         $parts = array($productId, $qty);
 
         foreach ($variationAttributes as $key => $value) {
@@ -341,7 +378,14 @@ class CacheHelper
             $parts[] = md5(serialize($rule));
         }
 
-        return md5(implode('_', $parts));
+        $parts[]= md5( json_encode( $cart->getContext()->getCustomer()->getJson() ) );
+
+        $parts = apply_filters("adp_calculate_processed_product_hash", $parts,
+                    $theProduct, $variationAttributes, $qty, $cartItemData, $cart, $calc);
+
+        $hash = md5(implode('_', $parts));
+
+        return $hash;
     }
 
     /**
@@ -431,6 +475,8 @@ class CacheHelper
             }
             $parts[] = $cartItemDataKey;
         }
+
+        $parts = apply_filters("adp_calculate_persistent_rule_product_hash", $parts);
 
         return md5(implode('_', $parts));
     }

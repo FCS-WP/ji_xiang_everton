@@ -10,11 +10,13 @@ use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Container\ContainerPartCart
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\ICartItem;
 use ADP\BaseVersion\Includes\Core\RuleProcessor\Listener;
 use ADP\BaseVersion\Includes\Core\RuleProcessor\RuleProcessor;
+use ADP\BaseVersion\Includes\Core\RuleProcessor\PersistentRuleProcessor;
 use ADP\BaseVersion\Includes\Database\Repository\PersistentRuleRepository;
 use ADP\BaseVersion\Includes\Database\Repository\PersistentRuleRepositoryInterface;
 use ADP\BaseVersion\Includes\Database\RulesCollection;
 use ADP\BaseVersion\Includes\Core\Cart\CartItem\Type\Basic\BasicCartItem;
 use ADP\BaseVersion\Includes\SpecialStrategies\CompareStrategy;
+use ADP\BaseVersion\Includes\Core\Cart\CartItem\CartItemPriceAdjustment\CartItemPriceAdjustment;
 
 defined('ABSPATH') or exit;
 
@@ -187,14 +189,30 @@ class CartCalculator implements ICartCalculator
                 if (!is_null($wcSalePrice) && $wcSalePrice < $productPrice) {
                     $newItem = self::recreateItem($item, $wcSalePrice);
                     $item->copyAttributesTo($newItem);
-                    $newItem->setPriceAdjustments($item->getPriceAdjustments());
+
+                    $priceAdjustments = array_map(function($adj) use($wcSalePrice) {
+                        if($wcSalePrice > $adj->getNewPrice()) {
+                            return $adj;
+                        }
+
+                        return new CartItemPriceAdjustment(
+                            $adj->getType(),
+                            $adj->getSource(),
+                            $adj->getOriginalPrice(),
+                            0,
+                            $wcSalePrice,
+                            $adj->getRuleId()
+                        );
+                    }, $item->getPriceAdjustments());
+
+                    $newItem->setPriceAdjustments($priceAdjustments);
 
                     if ($minDiscountRangePrice !== null) {
-                        $minDiscountRangePrice = min($minDiscountRangePrice, $wcSalePrice);
-                        $newItem->prices()->setMinDiscountRangePrice($minDiscountRangePrice);
+                        $minPrice = min(array_filter([$minDiscountRangePrice, $wcSalePrice]));
+                        $newItem->prices()->setMinDiscountRangePrice($minPrice);
                     }
-
                     $item = $newItem;
+
                 }
 
                 $newItems[] = $item;
@@ -262,7 +280,7 @@ class CartCalculator implements ICartCalculator
                 $wcSalePrice += $item->getAddonsAmount();
             }
         }
-        return $wcSalePrice;
+        return apply_filters('adp_get_wc_sale_price', $wcSalePrice, $product, $item, $prodPropsWithFilters);
 
         //Failed code, caused infinite loop  -  some plugins add hook for 'view' context
         /** Always remember about scheduled WC sales */
@@ -384,13 +402,14 @@ class CartCalculator implements ICartCalculator
         $newItems = [];
 
         $initialItems = $cart->getItems();
+        $roles = $cart->getContext()->getCustomer()->getRoles();
 
         foreach ($cart->getItems() as $item) {
             $newItem = clone $item;
             $newItems[] = $newItem;
 
             $persistentQty = $mappingQty[$item->getHash()] ?? 1.0;
-            $objects = $this->persistentRuleRepository->getCache($item, $persistentQty);
+            $objects = $this->persistentRuleRepository->getCache($item, $persistentQty, $roles);
 
             $object = null;
             $processor = null;
@@ -403,7 +422,7 @@ class CartCalculator implements ICartCalculator
                 }
             }
 
-            if ( ! $object || ! $object->rule || ! $object->price ) {
+            if ( ! $object || ! $object->rule || ! $object->price || !($processor instanceof PersistentRuleProcessor) ) {
                 continue;
             }
 

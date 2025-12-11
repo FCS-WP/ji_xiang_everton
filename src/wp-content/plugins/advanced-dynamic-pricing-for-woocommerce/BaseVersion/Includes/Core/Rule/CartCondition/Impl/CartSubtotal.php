@@ -54,6 +54,11 @@ class CartSubtotal extends AbstractCondition implements ValueComparisonCondition
         return __('Subtotal (exc. VAT)', 'advanced-dynamic-pricing-for-woocommerce');
     }
 
+    public static function getIndex()
+    {
+        return 1;
+    }
+
     public static function getTemplatePath()
     {
         return WC_ADP_PLUGIN_VIEWS_PATH . 'conditions/cart/subtotal.php';
