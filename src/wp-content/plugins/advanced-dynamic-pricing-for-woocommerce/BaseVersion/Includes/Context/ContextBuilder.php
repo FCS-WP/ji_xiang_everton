@@ -5,6 +5,7 @@ namespace ADP\BaseVersion\Includes\Context;
 use ADP\BaseVersion\Includes\Compatibility\Addons\TmExtraOptionsCmp;
 use ADP\BaseVersion\Includes\Compatibility\AeliaSwitcherCmp;
 use ADP\BaseVersion\Includes\Compatibility\AlgWcCurrencySwitcherCmp;
+use ADP\BaseVersion\Includes\Compatibility\Container\AsanaEasyBundlesCmp;
 use ADP\BaseVersion\Includes\Compatibility\Container\MixAndMatchCmp;
 use ADP\BaseVersion\Includes\Compatibility\Container\SomewhereWarmCompositesCmp;
 use ADP\BaseVersion\Includes\Compatibility\Container\SomewhereWarmBundlesCmp;
@@ -36,6 +37,7 @@ class ContextBuilder
     {
         $context->getContainerCompatibilityManager()->register(new SomewhereWarmBundlesCmp($context));
         $context->getContainerCompatibilityManager()->register(new WpcBundleCmp($context));
+        $context->getContainerCompatibilityManager()->register(new AsanaEasyBundlesCmp($context));
         $context->getContainerCompatibilityManager()->register(new WpcCompositeCmp($context));
         $context->getContainerCompatibilityManager()->register(new MixAndMatchCmp($context));
         $context->getContainerCompatibilityManager()->register(new YithBundlesCmp($context));
@@ -78,6 +80,10 @@ class ContextBuilder
             $priceBasedOnCountryCmp->modifyContext($context);
         }
 
+        $asanaEasyBundlesCmp = new AsanaEasyBundlesCmp($context);
+        if($asanaEasyBundlesCmp->isActive()) {
+            $asanaEasyBundlesCmp->prepareHooks();
+        }
         $wcMultiCurrencyCmp = new WooCommerceMultiCurrencyCmp($context);
     }
 

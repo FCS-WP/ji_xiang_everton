@@ -3,6 +3,7 @@
 namespace ADP\BaseVersion\Includes\WC;
 
 use ADP\BaseVersion\Includes\Compatibility\Addons\TmExtraOptionsCmp;
+use ADP\BaseVersion\Includes\Compatibility\WcsAttCmp;
 use ADP\BaseVersion\Includes\Compatibility\WcSubscriptionsCmp;
 use ADP\BaseVersion\Includes\Compatibility\BeRocketMinMaxQuantitiesCmp;
 use ADP\BaseVersion\Includes\Context;
@@ -19,6 +20,8 @@ class WcNoFilterWorker
     const FLAG_ALLOW_PRICE_HOOKS = 'allow_price_hooks';
     const FLAG_ALLOW_TOTALS_HOOKS = 'allow_totals_hooks';
     const FLAG_DISALLOW_SHIPPING_CALCULATION = 'disallow_shipping_calculation';
+    const FLAG_DISALLOW_CALCULATION_HOOKS = 'disallow_calculation_hooks';
+
 
     /**
      * @param WC_Cart $wcCart
@@ -49,6 +52,12 @@ class WcNoFilterWorker
                 $filters[] = 'woocommerce_calculate_totals';
                 $filters[] = 'woocommerce_calculated_total';
             }
+
+            if ( in_array(self::FLAG_DISALLOW_CALCULATION_HOOKS, $flags)) {
+                $filters[] = 'woocommerce_before_calculate_totals';
+                $filters[] = 'woocommerce_after_calculate_totals';
+            }
+
 
             $tmp_filters = array();
 

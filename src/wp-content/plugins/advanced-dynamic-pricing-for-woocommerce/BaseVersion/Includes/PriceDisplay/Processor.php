@@ -121,14 +121,22 @@ class Processor implements IWcProductProcessor
         }
 
         //try cache
-        $key = array( $product->get_id() , $qty, json_encode($cartItemData) );
-        foreach ($this->cart->getItems() as $item) {
-            $key[] = "T".$item->getHash();
-        }
-        foreach ($this->calc->getRulesCollection()->getRules() as $rule) {
-            $key[] = "R".$rule->getId();
-        }
-        $key = md5(implode('_', $key));
+        // $key = array( $product->get_id() , $qty, json_encode($cartItemData) );
+        // foreach ($this->cart->getItems() as $item) {
+        //     $key[] = "T".$item->getHash();
+        // }
+        // foreach ($this->calc->getRulesCollection()->getRules() as $rule) {
+        //     $key[] = "R".$rule->getId();
+        // }
+        // foreach ($this->cart->getContext()->getCustomer()->getRoles() as $role) {
+        //     $key[] = "U".$role;
+        // }
+        // $key = apply_filters("adp_calculate_product_hash", $key);
+
+        // $key = md5(implode('_', $key));
+
+        $key = CacheHelper::calcHashProcessedProduct($product, [], $qty, $cartItemData, $this->cart, $this->calc);
+
         if( $key == $last_product_key )
             return $last_product_result;
 
@@ -159,7 +167,7 @@ class Processor implements IWcProductProcessor
                 'wc_products_array_filter_visible_grouped'
             );
             foreach ($children as $childId) {
-                $processedChild = $this->checkCacheFroProcessedProduct($childId, $qty, [], $cartItemData);
+                $processedChild = $this->checkCacheForProcessedProduct($childId, $qty, [], $cartItemData);
 
                 if (is_null($processedChild)) {
                     $processedChild = $this->calculateSimpleProductWrapper(
@@ -192,7 +200,7 @@ class Processor implements IWcProductProcessor
             }
 
             foreach ($children as $childId) {
-                $processedChild = $this->checkCacheFroProcessedProduct($childId, $qty, [], $cartItemData);
+                $processedChild = $this->checkCacheForProcessedProduct($childId, $qty, [], $cartItemData);
 
                 if (is_null($processedChild)) {
                     $processedChild = $this->calculateSimpleProductWrapper(
@@ -213,7 +221,7 @@ class Processor implements IWcProductProcessor
             }
         } elseif ( WcProductProcessorHelper::isCalculatingPartOfContainerProduct($product) ) {
             $containerProduct = WcProductProcessorHelper::getBundleProductFromBundled($product);
-            $processedParent = $this->checkCacheFroProcessedProduct($containerProduct, $qty, [], $cartItemData);
+            $processedParent = $this->checkCacheForProcessedProduct($containerProduct, $qty, [], $cartItemData);
 
             if ( is_null($processedParent) ) {
                 $processedParent = $this->calculateSimpleProductWrapper(
@@ -231,7 +239,7 @@ class Processor implements IWcProductProcessor
                 }
             }
         } else {
-            $processed = $this->checkCacheFroProcessedProduct($product, $qty, [], $cartItemData);
+            $processed = $this->checkCacheForProcessedProduct($product, $qty, [], $cartItemData);
 
             if ( is_null($processed) ) {
                 $processed = $this->calculateSimpleProductWrapper(
@@ -288,7 +296,7 @@ class Processor implements IWcProductProcessor
     }
 
 
-    protected function checkCacheFroProcessedProduct($prodID, $qty, $variationAttributes, $cartItemData)
+    protected function checkCacheForProcessedProduct($prodID, $qty, $variationAttributes, $cartItemData)
     {
         if ($prodID && $processedProduct = CacheHelper::maybeGetProcessedProductToDisplay(
                 $prodID,

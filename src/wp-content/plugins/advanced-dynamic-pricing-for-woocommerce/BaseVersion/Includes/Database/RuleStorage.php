@@ -30,8 +30,6 @@ use ADP\BaseVersion\Includes\Core\Rule\Structures\RoleDiscount;
 use ADP\BaseVersion\Includes\Core\Rule\Structures\SetDiscount;
 use ADP\BaseVersion\Includes\Core\RuleProcessor\BulkDiscount\BulkMeasurementEnum;
 use ADP\BaseVersion\Includes\Core\RuleProcessor\OptionsConverter;
-use ADP\BaseVersion\Includes\Enums\AutoAddChoiceTypeEnum;
-use ADP\BaseVersion\Includes\Enums\AutoAddModeEnum;
 use ADP\BaseVersion\Includes\Enums\Exceptions\UnexpectedValueException;
 use ADP\BaseVersion\Includes\Enums\GiftChoiceTypeEnum;
 use ADP\BaseVersion\Includes\Enums\GiftModeEnum;
@@ -100,6 +98,8 @@ class RuleStorage
             $this->wpmlCmp->replaceVariationDataStore();
             $this->wpmlCmp->addFilterPreloadedListLanguages();
             $this->wpmlCmp->modifyContext($this->context);
+        } else if ( $this->wpmlCmp->isActiveWcWpml()) {
+            $this->wpmlCmp->setCurrency($this->context);
         }
         $this->priceBasedOnCountryCmp = new PriceBasedOnCountryCmp();
 
@@ -190,7 +190,7 @@ class RuleStorage
 
             $rule->setBlocks($row->additional['blocks'] ?? []);
 
-            $rules[] = apply_filters('adp_rule_loaded', $rule, $row->getData());
+            $rules[$rule->getId()] = apply_filters('adp_rule_loaded', $rule, $row->getData());
         }
 
         return new RulesCollection($rules);
@@ -331,6 +331,7 @@ class RuleStorage
         }
 
         $this->installProductAdjustment($rule, $ruleData);
+        $this->installRoleDiscounts($rule, $ruleData);
 
         $this->installFreeItems($rule, $ruleData);
 
@@ -738,6 +739,8 @@ class RuleStorage
                             }
                         } elseif ($bulkData['discount_type'] === 'discount__amount') {
                             $discount = new Discount($this->context, Discount::TYPE_AMOUNT, $range['value']);
+                        } elseif ($bulkData['discount_type'] === 'discount__expression_price') {
+                            $discount = new Discount($this->context, Discount::TYPE_EXPRESSION_PRICE, $range['value']);
                         } else {
                             $discount = new Discount($this->context, Discount::TYPE_PERCENTAGE, $range['value']);
                         }
@@ -843,6 +846,8 @@ class RuleStorage
                     $discount = new Discount($this->context, Discount::TYPE_AMOUNT, $value);
                 } elseif ($discountType === 'discount__amount_per_item') {
                     $discount = new Discount($this->context, Discount::TYPE_AMOUNT_PER_ITEM, $value);
+                }elseif ($discountType === 'discount__expression_price') {
+                    $discount = new Discount($this->context, Discount::TYPE_EXPRESSION_PRICE, $value);
                 } else {
                     return;
                 }
@@ -956,7 +961,9 @@ class RuleStorage
                 $type = Discount::TYPE_PERCENTAGE;
             } elseif ($type === 'discount__amount') {
                 $type = Discount::TYPE_AMOUNT;
-            } elseif ($type === 'price__fixed') {
+            } elseif ($type === 'discount__expression_price') {
+                $type = Discount::TYPE_EXPRESSION_PRICE;
+            }elseif ($type === 'price__fixed') {
                 if ( $value === '' ) {
                     $type = Discount::TYPE_PERCENTAGE;
                     $value = 0;

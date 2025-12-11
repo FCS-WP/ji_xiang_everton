@@ -62,6 +62,7 @@ class Factory
         try {
             $class = new \ReflectionClass($className);
         } catch (\ReflectionException $e) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             echo $e->getMessage();
 
             return null;
@@ -127,4 +128,8 @@ class Factory
             return false;
         }
     }
+}
+
+if (!class_exists('\ADPFactory')) {
+    class_alias(__NAMESPACE__ . '\Factory', '\ADPFactory');
 }

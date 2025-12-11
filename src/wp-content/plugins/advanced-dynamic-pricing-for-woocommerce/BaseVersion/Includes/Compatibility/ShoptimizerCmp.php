@@ -84,8 +84,12 @@ class ShoptimizerCmp
 
             if( isset( $percentage ) && $percentage > 0 ) {
                 if ( 'bubble' === $shoptimizer_layout_woocommerce_display_badge_type ) {
+                    /* translators: Percentage optimization of sales*/
+                    //phpcs:ignore WordPress.WP.I18n
                     $shoptimizer_sale_badge .= sprintf( __( '<span class="sale-item product-label type-bubble">-%s</span>', 'shoptimizer' ), $percentage );
                 } else {
+                    /* translators: Percentage optimization of sales*/
+                    //phpcs:ignore WordPress.WP.I18n
                     $shoptimizer_sale_badge .= sprintf( __( '<span class="sale-item product-label type-circle">-%s</span>', 'shoptimizer' ), $percentage );
                 }
             }
@@ -93,6 +97,7 @@ class ShoptimizerCmp
         }
 
         if ( true === $shoptimizer_layout_woocommerce_display_badge ) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             echo shoptimizer_safe_html( $shoptimizer_sale_badge );
         }
 

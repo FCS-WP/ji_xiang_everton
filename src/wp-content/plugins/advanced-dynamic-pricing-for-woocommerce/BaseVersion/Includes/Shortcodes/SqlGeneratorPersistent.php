@@ -169,6 +169,7 @@ class SqlGeneratorPersistent
         }
 
         $sql = $this->getSql();
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $products = $wpdb->get_results($sql);
 
         if($mode == 'on_sale' || $mode == 'bogo') {
@@ -181,7 +182,7 @@ class SqlGeneratorPersistent
         return $productIds;
     }
 
-    protected function generateFilterSqlByType($type, $value, $comparisonMethod = ComparisonMethods::IN_LIST, $prop=null)
+    protected function generateFilterSqlByType($type, $value, $comparisonMethod = ComparisonMethods::IN_LIST, $prop=null, $filter=null)
     {
         if (in_array($type, $this->customTaxonomies)) {
             return $this->genSqlCustomTaxonomy($type, $value, $comparisonMethod);
@@ -189,7 +190,7 @@ class SqlGeneratorPersistent
 
         $method_name = "genSql" . ucfirst($type);
 
-        return method_exists($this, $method_name) ? call_user_func([$this, $method_name], $value, $comparisonMethod, $prop) : false;
+        return method_exists($this, $method_name) ? call_user_func([$this, $method_name], $value, $comparisonMethod, $prop, $filter) : false;
     }
 
     protected function genSqlProducts($productIds, $comparisonMethod = ComparisonMethods::IN_LIST)
@@ -307,39 +308,32 @@ class SqlGeneratorPersistent
 
     protected function genSqlProduct_attributes($termIds, $comparisonMethod = ComparisonMethods::IN_LIST)
     {
-        static $i =0;
         global $wpdb;
 
-        //TODO check_lookup_table_exists
-        $data_store      = wc_get_container()->get( LookupDataStore::class );
-        $lookupTable     = $data_store->get_lookup_table_name();
+        $ids = implode(', ', $termIds);
+        $where = $this->compareToSql("{$wpdb->terms}.term_id", ComparisonMethods::IN_LIST, $termIds);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $items = $wpdb->get_results("SELECT taxonomy, {$wpdb->terms}.slug, {$wpdb->terms}.term_id
+                                    FROM {$wpdb->term_taxonomy} 
+                                    INNER JOIN {$wpdb->terms} 
+                                    USING (term_id) 
+                                    WHERE {$where}");
 
-        $where = $this->compareToSql("term_id", ComparisonMethods::IN_LIST, $termIds);
-        $taxanomies = $wpdb->get_results("SELECT DISTINCT term_id, taxonomy FROM {$lookupTable} WHERE {$where} ");
+        $where = [];
+        foreach ($items as $item) {
+            $tmp_where   = [
+                $this->compareToSql("meta_key", ComparisonMethods::EQ, "attribute_{$item->taxonomy}"),
+                $this->compareToSql("meta_value", ComparisonMethods::EQ, $item->slug),
+            ];
 
-        $termIdsByTaxanomy = [];
-        foreach ($taxanomies as $obj) {
-            if(!isset($termIdsByTaxanomy[$obj->taxonomy])) {
-                $termIdsByTaxanomy[$obj->taxonomy] = [];
-            }
-
-            $termIdsByTaxanomy[$obj->taxonomy][] = $obj->term_id;
+            $where[] = "(" . implode(" AND ", $tmp_where) . ")";
         }
+        $where = "( " . implode(' OR ', $where) . " )";
+        
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $productIds = $wpdb->get_col("SELECT post_id FROM {$wpdb->postmeta} WHERE {$where}");
 
-        $productIds = [];
-        foreach ($termIdsByTaxanomy as $taxanomy => $termIds) {
-            $where = $this->compareToSql("term_id", ComparisonMethods::IN_LIST, $termIds);
-            $products = $wpdb->get_results("SELECT product_id, product_or_parent_id FROM {$lookupTable} WHERE {$where} ");
-
-            $productIds[] = wp_parse_id_list(array_merge(
-                wp_list_pluck($products, 'product_id'),
-                array_diff(wp_list_pluck($products, 'product_or_parent_id'), array(0))
-            ));
-        }
-
-        $productIds = \array_values(array_intersect(...$productIds));
-
-        return $this->genSqlProducts($productIds, $comparisonMethod);
+        return  $this->compareToSql('post_children.ID', $comparisonMethod, $productIds);
     }
 
     protected function genSqlCustomTaxonomy($taxName, $values, $comparisonMethod = ComparisonMethods::IN_LIST)
@@ -449,10 +443,10 @@ class SqlGeneratorPersistent
                     $sql_value = "'%{$esc_value}%'";
                     break;
                 case ComparisonMethods::LATER:
-                    $sql_method = ComparisonMethods::LT;
+                    $sql_method = ComparisonMethods::MT;
                     break;
                 case ComparisonMethods::EARLIER:
-                    $sql_method = ComparisonMethods::MT;
+                    $sql_method = ComparisonMethods::LT;
                     break;
                 case in_array($comparisonMethod, ComparisonMethods::BASIC_METHODS):
                     $sql_method = $comparisonMethod;

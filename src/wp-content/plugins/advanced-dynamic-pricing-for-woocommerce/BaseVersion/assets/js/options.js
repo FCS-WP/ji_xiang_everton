@@ -61,16 +61,23 @@ jQuery(document).ready(function ($) {
         })
         $('.wdp-settings-search-results-wrapper .empty-results').addClass('hide')
         $('.wdp-settings-button').removeClass('hide')
+
+        var count = 0;
         if (search) {
             $('.wdp-settings-search-results-wrapper .title').removeClass('hide')
-            $('.titledesc').each(function () {
-                if ($(this).text().trim().match(new RegExp(search, 'ig'))) {
-                    $(this).html($(this).text().trim().replace(new RegExp('(' + search + ')', 'ig'), '<span class="search-match">$1</span>'))
+            $('.titledesc, .section-settings select option, .section-settings input').each(function () {
+                var text = $(this).is('input') ? $(this).val() : $(this).text();
+                if (text.trim().match(new RegExp(search, 'ig'))) {
+                    if($(this).hasClass('titledesc')) {
+                        $(this).html($(this).text().trim().replace(new RegExp('(' + search + ')', 'ig'), '<span class="search-match">$1</span>'))
+                    }
                     $(this).closest('.settings-section').addClass('active')
                     $(this).closest('tr').removeClass('hide')
+                    count++;
                 }
             })
-            if (!$('.titledesc .search-match').length) {
+
+            if (!count) {
                 $('.wdp-settings-search-results-wrapper .empty-results').removeClass('hide')
                 $('.wdp-settings-button').addClass('hide')
             }
@@ -119,6 +126,22 @@ jQuery(document).ready(function ($) {
     $('#reset-options').on('click', function(e) {
         if(!confirm(wdp_data.labels.are_you_sure_to_reset_settings)) {
             e.preventDefault();
+        }
+    });
+
+    $('.wdp-settings-template-textarea').on('click', function(e) {
+        let $parent = $(this).closest('.wdp-settings-template-wrap');
+        if(!$parent.hasClass('wdp-settings-template-active')) {
+            $('.wdp-settings-template-wrap').removeClass('wdp-settings-template-active');
+            $('.wdp-settings-template-textarea').css('height', '');
+            $parent.addClass('wdp-settings-template-active');
+        }
+    });
+
+    $(document).on('mousedown', function(e) {
+        if(!$(e.target).closest('.wdp-settings-template-wrap').length) {
+            $('.wdp-settings-template-wrap').removeClass('wdp-settings-template-active');
+            $('.wdp-settings-template-textarea').css('height', '');
         }
     });
 

@@ -81,9 +81,10 @@ class PriceAjax
 
     protected function checkNonceOrDie()
     {
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
         if (wp_verify_nonce($_REQUEST[$this->nonceParam] ?? null, $this->nonceName) === false) {
-            wp_die(__('Invalid nonce specified', 'advanced-dynamic-pricing-for-woocommerce'),
-                __('Error', 'advanced-dynamic-pricing-for-woocommerce'), ['response' => 403]);
+            wp_die(esc_html__('Invalid nonce specified', 'advanced-dynamic-pricing-for-woocommerce'),
+                esc_html__('Error', 'advanced-dynamic-pricing-for-woocommerce'), ['response' => 403]);
         }
     }
 
@@ -118,6 +119,7 @@ class PriceAjax
         $this->checkNonceOrDie();
 
         try {
+            //phpcs:ignore WordPress.Security.NonceVerification.Recommended
             $request = CalculateProductPriceRequest::fromArray($_REQUEST);
         } catch (\Exception $e) {
             wp_send_json_error($e->getMessage());
@@ -144,6 +146,13 @@ class PriceAjax
         if ($result === null) {
             wp_send_json_error();
         } else {
+            $result['external_plugins'] = apply_filters(
+                'adp_price_qty_changed_external_plugins',
+                array(),
+                $result['discounted_price'],
+                wc_get_product($request->getProduct()->getProductId())
+            );
+
             wp_send_json_success($result);
         }
     }
@@ -153,6 +162,7 @@ class PriceAjax
         $this->checkNonceOrDie();
 
         try {
+            //phpcs:ignore WordPress.Security.NonceVerification.Recommended
             $request = CalculateSeveralProductPriceRequest::fromArray($_REQUEST);
         } catch (\Exception $e) {
             wp_send_json_error($e->getMessage());
@@ -248,7 +258,7 @@ class PriceAjax
                 );
             } elseif (!$processedProduct->areRulesAppliedAtAll()) {
                 return array(
-                    'price_html' => $prodPriceDisplay->getFormattedPriceHtml($prodPriceDisplay->getPriceHtml()),
+                    'price_html' => $prodPriceDisplay->getPriceHtmlWithoutFormatting($prodPriceDisplay->getPriceHtml()),
                     'subtotal_html' => $prodPriceDisplay->getFormattedSubtotalHtml($qty),
                     'total_price_html' => $totalProductPriceFormatter->getHtmlAreRulesNotApplied($product, $qty),
                     'original_price' => $prodPriceDisplay->getOriginalPrice(),
@@ -258,7 +268,7 @@ class PriceAjax
                 );
             } else {
                 return array(
-                    'price_html' => $prodPriceDisplay->getFormattedPriceHtml($prodPriceDisplay->getPriceHtml()),
+                    'price_html' => $prodPriceDisplay->getPriceHtmlWithoutFormatting($prodPriceDisplay->getPriceHtml()),
                     'subtotal_html' => $prodPriceDisplay->getFormattedSubtotalHtml($qty),
                     'total_price_html' => $totalProductPriceFormatter->getHtmlProcessedProductSimple($processedProduct),
                     'original_price' => $prodPriceDisplay->getOriginalPrice(),
@@ -368,7 +378,7 @@ class PriceAjax
                 );
             }
         }
-
+        //phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         throw new \Exception("Unsupported type of processed product: " . get_class($prodPriceDisplay));
     }
 }

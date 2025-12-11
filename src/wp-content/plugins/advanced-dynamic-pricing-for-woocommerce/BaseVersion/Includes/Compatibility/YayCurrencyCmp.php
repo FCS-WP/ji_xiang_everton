@@ -43,11 +43,12 @@ class YayCurrencyCmp
         if (! did_action('plugins_loaded')) {
             _doing_it_wrong(
                 __FUNCTION__, sprintf(
-                    __(
+                    /* translators: Message about the load order*/
+                esc_html__(
                         '%1$s should not be called earlier the %2$s action.',
                         'advanced-dynamic-pricing-for-woocommerce'
                     ), 'load_requirements', 'plugins_loaded'
-                ), WC_ADP_VERSION
+                ), esc_html(WC_ADP_VERSION)
             );
         }
 
@@ -56,7 +57,7 @@ class YayCurrencyCmp
         }
 
         $this->convertedCurrency = YayCurrencyHelper::converted_currency();
-        
+
         if(method_exists('\Yay_Currency\Helpers\YayCurrencyHelper', 'detect_current_currency')) {
             $this->applyCurrency     = YayCurrencyHelper::detect_current_currency();
         } else if(method_exists('\Yay_Currency\Helpers\YayCurrencyHelper', 'get_apply_currency')) {

@@ -13,7 +13,7 @@ defined('ABSPATH') or exit;
 class YoastSEOCmp
 {
     static function isNewPriceSpecification() {
-        return defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '9.5.0' ) >= 0;
+        return defined( 'WPSEO_WOO_VERSION' ) && version_compare( WPSEO_WOO_VERSION, '16.6' ) >= 0;
     }
 
     public function applyCompatibility()
@@ -46,38 +46,69 @@ class YoastSEOCmp
 
             add_filter('wpseo_schema_offer', function($offer) use ($processedProduct, $decimals) {
                 $childPrices = YoastSEOCmp::getChildPrices($processedProduct, $decimals);
-                if(isset($childPrices)) {
-                    if (isset($offer['priceSpecification'][0])) {
-                        $priceSpecification = $offer['priceSpecification'][0];
-                    } else {
-                        $priceSpecification = $offer['priceSpecification'];
-                    }
+                
+                if(!isset($childPrices) || count($childPrices) === 0) {
+                    return $offer;
+                }
 
-                    foreach($childPrices as $child) {
-                        if (isset($offer['priceSpecification'][0])) {
-                            $offer['priceSpecification'] = [ $priceSpecification ];
+                $newPriceSpecification = $offer['priceSpecification'];
+                $originalPriceSpecification = $newPriceSpecification;
+
+                if ($this::isNewPriceSpecification()) {
+                    $originalPriceSpecification = $newPriceSpecification[0];
+                }
+
+                foreach($childPrices as $child) {
+                    $specPrices = $this::getSpecificationPrices($newPriceSpecification);
+
+                    if(
+                        isset($child['priceOriginal'], $child['price'], $child['url'])
+                        && $child['priceOriginal'] !== $child['price']
+                        && $offer['url'] === $child['url']
+                        && !in_array(floatval($child['price']), $specPrices)
+                    ) {
+                        $newSpecUnit = array(
+                            '@type' => "UnitPriceSpecification",
+                            "price" => $child['price'],
+                            "priceCurrency" => $originalPriceSpecification['priceCurrency']
+                        );
+
+                        if ($this::isNewPriceSpecification()) {
+                            $newPriceSpecification[] = $newSpecUnit;
                         } else {
-                            $offer['priceSpecification'] = $priceSpecification;
-                        }
-                        $priceSpecification = $offer['priceSpecification'];
-
-                        if(
-                            isset($child['priceOriginal'])
-                            && isset($priceSpecification['price'])
-                            && isset($child['price'])
-                            && $child['priceOriginal'] === $priceSpecification['price']
-                        ) {
-                            $priceSpecification['price'] = $child['price'];
-
-                            if (YoastSEOCmp::isNewPriceSpecification()) {
-                                $offer['priceSpecification'] = [ $priceSpecification ];
-                            } else {
-                                $offer['priceSpecification'] = $priceSpecification;
-                            }
+                            $newPriceSpecification = $newSpecUnit;
                         }
                     }
                 }
 
+                if ($this::isNewPriceSpecification() && count($newPriceSpecification) > 1) {
+                    $maxPriceSpec = $newPriceSpecification[0];
+                    $minPriceSpec = $newPriceSpecification[0];
+
+                    foreach($newPriceSpecification as $priceSpec) {
+                        if (floatval($priceSpec['price']) >= floatval($maxPriceSpec['price'])) {
+                            $maxPriceSpec = $priceSpec;
+                        } else {
+                            $minPriceSpec = $priceSpec;
+                        }
+                    }
+
+                    if ($maxPriceSpec['price'] == $minPriceSpec['price']) {
+                        unset($minPriceSpec['priceType']);
+                        $newPriceSpecification = [ $minPriceSpec ];
+                    } else {
+                        $newPriceSpecification = [
+                            array_merge($maxPriceSpec, [
+                                'priceType' => 'https://schema.org/ListPrice'
+                            ]),
+                            array_merge($minPriceSpec, [
+                                'priceType' => 'https://schema.org/SalePrice'
+                            ]),
+                        ];
+                    }
+                }
+
+                $offer['priceSpecification'] = $newPriceSpecification;
                 return $offer;
             });
         }, 10, 3);
@@ -94,9 +125,28 @@ class YoastSEOCmp
         foreach ($processedProduct->getChildren() as $child) {
             $price = $child->getPrice();
             $priceOriginal = $child->getOriginalPrice();
-            $childPrices[] = ['price' => wc_format_decimal($price, $decimals), 'priceOriginal' => wc_format_decimal($priceOriginal, $decimals)];
+            $childProduct = $child->getProduct();
+            $childPrices[] = [
+                'price' => wc_format_decimal($price, $decimals),
+                'priceOriginal' => wc_format_decimal($priceOriginal, $decimals),
+                'url' => $childProduct->get_permalink(),
+            ];
         }
         return $childPrices;
+    }
+
+    /**
+     * @param $priceSpecifications
+     *
+     * @return array
+     */
+    private static function getSpecificationPrices($priceSpecifications) {
+        if (!isset($priceSpecifications[0])) {
+            return [ $priceSpecifications['price'] ];
+        }
+        return array_map(function ($spec) {
+            return floatval($spec['price']);
+        }, $priceSpecifications);
     }
 
     public function isActive()

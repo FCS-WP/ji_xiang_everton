@@ -45,16 +45,9 @@ class Database
             '_sku',
         );
         $requiredKeys = "'" . implode("','", $requiredKeys) . "'";
-
-        $meta_list = $wpdb->get_results("
-			SELECT post_id, meta_key, meta_value
-			FROM $wpdb->postmeta
-			WHERE
-				post_id IN (SELECT ID FROM $wpdb->posts WHERE post_parent = $parentId )
-				AND
-				(meta_key IN ( $requiredKeys ) OR meta_key LIKE 'attribute_%')
-			ORDER BY post_id ASC", ARRAY_A);
-
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $meta_list = $wpdb->get_results("SELECT post_id, meta_key, meta_value FROM $wpdb->postmeta WHERE post_id IN (SELECT ID FROM $wpdb->posts WHERE post_parent = $parentId ) AND (meta_key IN ( $requiredKeys ) OR meta_key LIKE 'attribute_%') ORDER BY post_id ASC", ARRAY_A);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $post_data = $wpdb->get_results("SELECT * FROM $wpdb->posts WHERE post_parent = $parentId ", OBJECT_K);
 
         $required_data = array();
@@ -95,17 +88,9 @@ class Database
             '_sku',
         );
         $requiredKeys = "'" . implode("','", $requiredKeys) . "'";
-
-        $metaList = $wpdb->get_results($wpdb->prepare("
-			SELECT post_id, meta_key, meta_value
-			FROM $wpdb->postmeta
-			WHERE
-				post_id = %d
-				AND
-				(meta_key IN ( $requiredKeys ) OR meta_key LIKE 'attribute_%')
-			", $productId)
-            , ARRAY_A);
-
+        // phpcs:ignore WordPress.DB
+        $metaList = $wpdb->get_results($wpdb->prepare("SELECT post_id, meta_key, meta_value FROM $wpdb->postmeta WHERE post_id = %d AND (meta_key IN ( $requiredKeys ) OR meta_key LIKE 'attribute_%')", $productId), ARRAY_A);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $postData = $wpdb->get_row(
             $wpdb->prepare("SELECT * FROM $wpdb->posts WHERE ID = %d", $productId)
         );

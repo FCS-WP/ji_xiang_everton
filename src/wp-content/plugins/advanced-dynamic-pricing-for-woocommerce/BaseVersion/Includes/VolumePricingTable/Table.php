@@ -3,6 +3,7 @@
 namespace ADP\BaseVersion\Includes\VolumePricingTable;
 
 use ADP\BaseVersion\Includes\Context;
+use ADP\BaseVersion\Includes\Core\RuleProcessor\BulkDiscount\BulkMeasurementEnum;
 use ADP\BaseVersion\Includes\TemplateLoader;
 
 defined('ABSPATH') or exit;
@@ -40,6 +41,18 @@ class Table
     protected $tableFooter;
 
     /**
+     * @var BulkMeasurementEnum
+     */
+
+    protected $measurement;
+
+    /**
+     * @var string
+     */
+
+    protected $layout;
+
+    /**
      * @param null $deprecated
      */
     public function __construct($deprecated = null)
@@ -51,6 +64,8 @@ class Table
         $this->rows        = array();
         $this->dataRows   = array();
         $this->tableFooter = '';
+        $this->measurement = '';
+        $this->layout      = '';
     }
 
     public function getHtml()
@@ -76,9 +91,12 @@ class Table
             'rows'         => $this->rows,
             'data_rows'    => $this->dataRows,
             'footer_html'  => $this->tableFooter,
+            'measurement'  => $this->measurement,
+            'layout'       => $this->layout
         );
 
         ob_start();
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo TemplateLoader::wdpGetTemplate("bulk-table.php", $args);
 
         return ob_get_clean();
@@ -118,6 +136,22 @@ class Table
         } else {
             $this->dataRows[$key] = $data_row;
         }
+    }
+
+    /**
+     * @param BulkMeasurementEnum $measurement
+     */
+
+    public function setMeasurement($measurement) {
+        $this->measurement = $measurement;
+    }
+
+    /**
+     * @param string $layout
+     */
+
+    public function setLayout($layout) {
+        $this->layout = $layout;
     }
 
     /**

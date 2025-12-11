@@ -49,14 +49,19 @@ class WcSubscriptionsCmp
     public function loadRequirements()
     {
         if ( ! did_action('plugins_loaded')) {
-            _doing_it_wrong(__FUNCTION__, sprintf(__('%1$s should not be called earlier the %2$s action.',
-                'advanced-dynamic-pricing-for-woocommerce'), 'loadRequirements', 'plugins_loaded'), WC_ADP_VERSION);
+            /* translators: Message about the load order*/
+            _doing_it_wrong(__FUNCTION__, sprintf(esc_html__('%1$s should not be called earlier the %2$s action.',
+                'advanced-dynamic-pricing-for-woocommerce'), 'loadRequirements', 'plugins_loaded'), esc_html(WC_ADP_VERSION));
         }
 
         $this->isActive = class_exists("\WC_Subscriptions") && defined("WCS_INIT_TIMESTAMP");
         if($this->isActive) {
             add_action( 'woocommerce_subscription_cart_after_grouping', [$this,"setRecurringCalculationType"], 10 );
             add_filter( 'woocommerce_subscriptions_calculated_total', [$this,"setNoneCalculationType"], 10 );
+
+            if(defined('BOS_IS_PLUGIN')) {
+                add_filter('adp_get_wc_sale_price', [$this,"getBOSWCSalePrice"], 10, 4);
+            }
         }
 
     }
@@ -160,4 +165,11 @@ class WcSubscriptionsCmp
         \WC_Subscriptions_Cart::remove_calculation_price_filter();
     }
 
+    public function getBOSWCSalePrice($wcSalePrice, $product, $item, $prodPropsWithFilters) {
+        if(apply_filters( 'bos_use_regular_price', false )) {
+            return null;
+        }
+        return $wcSalePrice;
+    }
+    
 }

@@ -82,7 +82,7 @@ class RangeDiscountTableDisplay
     public function echoProductTableContent()
     {
         global $product;
-
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo $this->getProductTableContent($product);
     }
 
@@ -99,7 +99,15 @@ class RangeDiscountTableDisplay
     {
         $attributes = [];
         foreach ($product->get_variation_attributes() as $attrName => $options) {
-            $attributes[wc_variation_attribute_name($attrName)] = $product->get_variation_default_attribute($attrName);
+            $queryKey = wc_variation_attribute_name($attrName);
+
+			 //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            if (isset($_GET[$queryKey])) {
+				//phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
+                $attributes[$queryKey] = wc_clean(wp_unslash($_GET[$queryKey]));
+            } else {
+                $attributes[$queryKey] = $product->get_variation_default_attribute($attrName);
+            }
         }
 
         $variationId = \WC_Data_Store::load('product')->find_matching_product_variation($product, $attributes);
@@ -109,6 +117,7 @@ class RangeDiscountTableDisplay
 
     public function echoCategoryTableContent()
     {
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo $this->rangeDiscountTable->getCategoryTableContent();
     }
 
@@ -131,7 +140,7 @@ class RangeDiscountTableDisplay
                 'wdp_deals',
                 $baseVersionUrl . 'assets/js/frontend.js',
                 ['jquery'],
-                WC_ADP_VERSION
+                WC_ADP_VERSION, true
             );
         }
 

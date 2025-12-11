@@ -52,7 +52,7 @@ jQuery(document).ready(function ($) {
 				return;
 			}
 
-			const PAGE_SIZE = selector == 'recalculate_persistence_cache' ? 100 : 1;
+			const PAGE_SIZE = 1;
 			let processedCount = 0;
 
 			async function processPartial(from) {

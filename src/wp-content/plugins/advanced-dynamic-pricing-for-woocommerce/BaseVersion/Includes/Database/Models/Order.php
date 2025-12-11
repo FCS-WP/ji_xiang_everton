@@ -172,6 +172,7 @@ class Order
         global $wpdb;
 
         $tableName = $wpdb->prefix . self::TABLE_NAME;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $wpdb->query("DROP TABLE IF EXISTS $tableName");
     }
 }

@@ -198,13 +198,13 @@ class CartExtensions
         if(!$this->context->is($this->context::WC_CHECKOUT_PAGE) && !$this->context->is($this->context::WC_CART_PAGE)) {
             return;
         }
-        
+
         if ($this->ruleRepository->hasActiveRulesDependOnShipping()) {
             wp_enqueue_script(
                 'wdp_update_cart',
                 $baseVersionUrl . 'assets/js/update-cart.js',
                 array('wc-cart'),
-                WC_ADP_VERSION
+                WC_ADP_VERSION, true
             );
         }
     }

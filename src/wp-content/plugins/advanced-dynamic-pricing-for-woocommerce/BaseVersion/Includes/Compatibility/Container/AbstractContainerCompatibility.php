@@ -17,6 +17,10 @@ abstract class AbstractContainerCompatibility implements ContainerCompatibility
 {
     abstract protected function getContext(): Context;
 
+    public function addFilters()
+    {
+    }
+
     abstract public function calculatePartOfContainerPrice(WcCartItemFacade $facade): float;
 
     /**

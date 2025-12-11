@@ -12,7 +12,6 @@ use ADP\BaseVersion\Includes\Helpers\Helpers;
 use ADP\BaseVersion\Includes\ImportExport\KeyKeeperDB;
 use ADP\BaseVersion\Includes\SpecialStrategies\CompareStrategy;
 use ADP\Factory;
-use ADP\ProVersion\Includes\Database\Repository\CollectionRepository;
 
 class Rule
 {
@@ -219,7 +218,7 @@ class Rule
         $rule['cart_adjustments']  = stripslashes_deep($rule['cart_adjustments']);
         $rule['condition_message'] = stripslashes_deep($rule['condition_message']);
 
-        return new self(
+        return new static(
             $rule['id'],
             $rule['deleted'],
             (new CompareStrategy())->isStringBool($rule['enabled']),
@@ -328,7 +327,7 @@ class Rule
             return "";
         }
 
-        $rule = $rulesCol->getRules()[0];
+        $rule = $rulesCol->getFirst();
 
         $pieces = [];
         if ($rule->getTitle()) {
@@ -424,11 +423,6 @@ class Rule
                     array("ADP\\BaseVersion\\Includes\\Helpers\\Helpers", "getAttributeTitle"),
                     $filter->getValue()
                 );
-            } elseif ($filter::TYPE_COLLECTIONS === $filter->getType()) {
-                $collectionRepository = new CollectionRepository();
-                foreach ($collectionRepository::getProductCollectionsByIds($filter->getValue()) as $collection ) {
-                    $result[] = $collection->title;
-                }
             }
         }
 
@@ -482,6 +476,7 @@ class Rule
         global $wpdb;
 
         $tableName = $wpdb->prefix . self::TABLE_NAME;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $wpdb->query("DROP TABLE IF EXISTS $tableName");
     }
 

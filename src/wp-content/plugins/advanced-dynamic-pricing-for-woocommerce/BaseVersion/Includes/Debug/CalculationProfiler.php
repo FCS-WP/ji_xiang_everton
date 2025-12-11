@@ -126,6 +126,7 @@ class CalculationProfiler
             'active_hooks'       => (new Collectors\ActiveHooks())->collect(),
 
             'rules' => $activeRulesAsDict,
+            'product_collections' => (Factory::get("Debug_Collectors_Collections"))->collect()
         );
 
         foreach ($reports as $report_key => $report) {
@@ -155,8 +156,10 @@ class CalculationProfiler
     {
         if ( ! did_action('wp_loaded')) {
             _doing_it_wrong(__FUNCTION__,
-                sprintf(__('%1$s should not be called before the %2$s action.', 'woocommerce'), 'create_import_key',
-                    'wp_loaded'), WC_ADP_VERSION);
+                /* translators: Message about the load order*/
+                //phpcs:ignore WordPress.WP.I18n.TextDomainMismatch, WordPress.WP.I18n.MissingTranslatorsComment
+                sprintf(esc_html__('%1$s should not be called before the %2$s action.', 'woocommerce'), 'create_import_key',
+                    'wp_loaded'), esc_html(WC_ADP_VERSION));
 
             return null;
         }

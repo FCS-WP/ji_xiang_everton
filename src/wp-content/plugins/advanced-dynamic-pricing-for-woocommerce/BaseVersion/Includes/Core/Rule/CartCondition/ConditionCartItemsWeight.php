@@ -7,8 +7,8 @@ use ADP\BaseVersion\Includes\Core\Rule\CartCondition\Interfaces\ValueComparisonC
 use ADP\BaseVersion\Includes\Core\Rule\Internationalization\FilterTranslator;
 use ADP\BaseVersion\Includes\WC\WcCartItemFacade;
 use ADP\Factory;
-use ADP\ProVersion\Includes\Core\Cart\Cart;
-use ADP\ProVersion\Includes\Core\RuleProcessor\ProductFiltering;
+use ADP\BaseVersion\Includes\Core\Cart\Cart;
+use ADP\BaseVersion\Includes\Core\RuleProcessor\ProductFiltering;
 
 class ConditionCartItemsWeight implements ListComparisonCondition, ValueComparisonCondition
 {

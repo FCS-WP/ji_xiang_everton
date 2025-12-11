@@ -97,6 +97,22 @@ class CartCustomer
     }
 
     /**
+     * @return array
+     */
+    public function getJson()
+    {
+        return [
+            'id'                      => $this->getId(),
+            'billingAddress'          => $this->getBillingAddress(),
+            'shippingAddress'         => $this->getShippingAddress(),
+            'selectedPaymentMethod'   => $this->getSelectedPaymentMethod(),
+            'selectedShippingMethods' => $this->getSelectedShippingMethods(),
+            'isVatExempt'             => $this->isVatExempt(),
+            'roles'                   => $this->getRoles(),
+        ];
+    }
+
+    /**
      * @param array $metaArray
      */
     public function setMetaData($metaArray)

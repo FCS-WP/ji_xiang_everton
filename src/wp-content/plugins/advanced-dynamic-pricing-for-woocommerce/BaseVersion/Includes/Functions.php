@@ -188,8 +188,10 @@ class Functions
     {
         if ( ! did_action('wp_loaded')) {
             _doing_it_wrong(__FUNCTION__,
-                sprintf(__('%1$s should not be called before the %2$s action.', 'woocommerce'),
-                    'getDiscountedProductsForCart', 'wp_loaded'), WC_ADP_VERSION);
+                /* translators: Message about the load order*/
+                //phpcs:ignore WordPress.WP.I18n.TextDomainMismatch, WordPress.WP.I18n.MissingTranslatorsComment
+                sprintf(esc_html__('%1$s should not be called before the %2$s action.', 'woocommerce'),
+                    'getDiscountedProductsForCart', 'wp_loaded'), esc_html(WC_ADP_VERSION));
 
             return array();
         }
@@ -456,7 +458,7 @@ class Functions
             FROM {$wpdb->postmeta}
             WHERE meta_key = '_sale_price_adp'
         ";
-
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
         $ids = $wpdb->get_col($query);
 
         return array_map('intval', $ids);

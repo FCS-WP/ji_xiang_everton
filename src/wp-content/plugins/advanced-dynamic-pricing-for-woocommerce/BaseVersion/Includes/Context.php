@@ -293,6 +293,7 @@ class Context
 
     protected static function isProcessingUpdatePlugin()
     {
+        //phpcs:ignore WordPress.Security.NonceVerification.Recommended
         return wp_doing_ajax() && isset($_REQUEST['action']) && $_REQUEST['action'] === 'update-plugin';
     }
 
@@ -335,9 +336,9 @@ class Context
         if ( ! isset($_SERVER["HTTP_REFERER"])) {
             return false;
         }
-
-        $referer = parse_url($_SERVER["HTTP_REFERER"]);
-        $admin   = parse_url(admin_url("admin.php"));
+        //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+        $referer = wp_parse_url($_SERVER["HTTP_REFERER"]);
+        $admin   = wp_parse_url(admin_url("admin.php"));
 
         return isset($referer['path'], $admin['path']) && ($referer['path'] === $admin['path']);
     }
@@ -434,6 +435,7 @@ class Context
 
     public function isPluginAdminPage()
     {
+        //phpcs:ignore WordPress.Security.NonceVerification.Recommended
         return $this->getProp(self::ADMIN) && isset($_GET['page']) && $_GET['page'] === AdminPage::SLUG;
     }
 
@@ -758,7 +760,7 @@ class Context
     }
 
     public function isBaseVersion(): bool {
-        return defined('WC_ADP_PRO_VERSION_PATH');
+        return !defined('WC_ADP_PRO_VERSION_PATH');
     }
 
     public function __serialize() {

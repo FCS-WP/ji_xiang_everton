@@ -50,7 +50,9 @@ class RangeDiscountTableAjax
 
     public function handle()
     {
+        //phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
         $productID = ! empty($_REQUEST['product_id']) ? $_REQUEST['product_id'] : false;
+        //phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
         $attributes = ! empty($_REQUEST['attributes']) ? $_REQUEST['attributes'] : array();
 
         if ( ! $productID) {

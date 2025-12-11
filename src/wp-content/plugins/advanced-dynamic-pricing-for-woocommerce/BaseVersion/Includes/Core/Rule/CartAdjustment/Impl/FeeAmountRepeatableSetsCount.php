@@ -147,8 +147,8 @@ class FeeAmountRepeatableSetsCount extends AbstractCartAdjustment implements Fee
 
     public function translate()
     {
-        $this->feeName = _x(
-            $this->feeName,
+        //phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+        $this->feeName = _x( $this->feeName,
             "Repeatable set count fee name from rule",
             'advanced-dynamic-pricing-for-woocommerce'
         );

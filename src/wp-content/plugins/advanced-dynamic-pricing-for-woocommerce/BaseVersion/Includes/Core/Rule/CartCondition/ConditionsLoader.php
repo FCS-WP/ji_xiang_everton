@@ -19,6 +19,7 @@ class ConditionsLoader
     const LIST_LABEL_KEY = 'label';
     const LIST_TEMPLATE_PATH_KEY = 'path';
     const LIST_PARENT_CLASS_KEY = 'parent_class';
+    const LIST_INDEX_KEY = 'index';
 
     const GROUP_CART_ITEMS = 'cart_items';
     const GROUP_CART = 'cart';
@@ -252,8 +253,23 @@ class ConditionsLoader
                     self::LIST_LABEL_KEY         => $className::getLabel(),
                     self::LIST_TEMPLATE_PATH_KEY => $className::getTemplatePath(),
                     self::LIST_PARENT_CLASS_KEY  => Factory::getShortClassName(get_parent_class($className)),
+                    self::LIST_INDEX_KEY         => $className::getIndex()
                 );
             }
+        }
+
+        foreach ($list as $group => $items) {
+            usort($items, function($a, $b) {
+                $aVal = $a[self::LIST_INDEX_KEY];
+                $bVal = $b[self::LIST_INDEX_KEY];
+
+                if ($aVal == $bVal) {
+                    return 0;
+                }
+            
+                return ($aVal < $bVal) ? -1 : 1;
+            });
+            $list[$group] = $items;
         }
 
         return $list;

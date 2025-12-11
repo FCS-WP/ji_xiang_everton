@@ -115,8 +115,8 @@ class DiscountMessage
         $themeOptions = $customizer->getThemeOptions()->advertisingThemeProperties;
 
         if ( $amountSavedLabel = $themeOptions->global->amountSavedLabel ) {
-            $this->amountSavedLabel = _x(
-                $amountSavedLabel,
+            //phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+            $this->amountSavedLabel = _x( $amountSavedLabel,
                 "theme option 'amount saved label",
                 'advanced-dynamic-pricing-for-woocommerce'
             );
@@ -200,6 +200,7 @@ class DiscountMessage
 
         if ($amount_saved > 0) {
             ob_start();
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             echo $blockContent;
             $this->outputAmountSaved(self::CONTEXT_BLOCK_CART, $amount_saved, '',
                 array('afterTotals' => $afterTotals));
@@ -247,8 +248,10 @@ class DiscountMessage
             if ($cartContentsHook) {
                 $this->outputAmountSaved(self::CONTEXT_BLOCK_CHECKOUT, $amountSaved, '',
                     array('afterTotals' => $afterTotals));
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 echo $blockContent;
             } else {
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 echo $blockContent;
                 $this->outputAmountSaved(self::CONTEXT_BLOCK_CHECKOUT, $amountSaved, '',
                     array('afterTotals' => $afterTotals));
@@ -320,12 +323,15 @@ class DiscountMessage
             return;
         }
 
+        // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
         echo TemplateLoader::wdpGetTemplate($template, array(
+
             'amount_saved'   => $amountSaved,
             'title'          => $this->amountSavedLabel,
             'currency'       => $currency,
             'additionalArgs' => $additionalArgs
         ), 'amount-saved');
+        // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
     }
 
     public function getAmountSaved($includeTax)
