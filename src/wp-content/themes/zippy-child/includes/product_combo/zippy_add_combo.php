@@ -58,6 +58,8 @@ function combo_display_sub_products_on_frontend()
               $min_qty = $sub_products['minimum_quantity'] ?? 0;
               $image_url = get_the_post_thumbnail_url($sub_product->get_id(), 'full');
 
+              $product_pice = !$is_composite_product ? ' (' . $sub_product->get_price_html() . ')' : '';
+
               // $data_group = $group_id !== null ? ' data-group="' . esc_attr($group_id) . '"' : '';
 
               echo '<div class="akk-sub-product">';
@@ -65,7 +67,7 @@ function combo_display_sub_products_on_frontend()
               echo '<a data-fancybox="img-' . esc_attr($sub_product->get_id()) . '" href="' . esc_url($image_url) . '">';
               echo '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($sub_product->get_name()) . '" width="60">';
               echo '</a>';
-              echo '<label>' . esc_html($sub_product->get_name()) . ' (' . $sub_product->get_price_html() . ')</label><br>';
+              echo '<label>' . esc_html($sub_product->get_name()) . $product_pice . '</label><br>';
               echo '</div>';
 
               echo '<div class="sub-product-info">';
