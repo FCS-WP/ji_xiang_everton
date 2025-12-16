@@ -13,8 +13,8 @@ function autofill_from_session($fields)
                 $fields['billing']['billing_address_1']['value'] = $delivery_address;
             }
 
-            if (empty($fields['shipping']['shipping_address_1']['value'])) {
-                $fields['shipping']['shipping_address_1']['value'] = $delivery_address;
+            if (empty($fields['shipping']['shipping_address_2']['value'])) {
+                $fields['shipping']['shipping_address_2']['value'] = $delivery_address;
             }
         }
     }

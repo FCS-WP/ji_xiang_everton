@@ -122,4 +122,14 @@ function set_minimum_order_notice()
   }
 }
 
-remove_action( 'woocommerce_checkout_order_review', 'woocommerce_checkout_payment', 20 );
+remove_action('woocommerce_checkout_order_review', 'woocommerce_checkout_payment', 20);
+
+add_filter('woocommerce_checkout_required_field_notice', 'custom_shipping_address_required_message', 10, 2);
+function custom_shipping_address_required_message($message, $field_label)
+{
+  if (is_checkout() && strpos($message, 'Shipping') !== false && $field_label === __('Shipping Street address', 'woocommerce')) {
+    return __('Unit Number  is required to complete your order.', 'woocommerce');
+  }
+
+  return $message;
+}

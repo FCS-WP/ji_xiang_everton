@@ -68,9 +68,15 @@ if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $m
 						<input type="text" class="input-text" required name="shipping_last_name" id="shipping_last_name" value="<?php echo esc_attr($checkout->get_value('shipping_last_name')); ?>" />
 					</p>
 
+					<p class="form-row form-row-first">
+						<label for="shipping_address_1">Unit Number <abbr class="required" title="required">*</abbr></label>
+						<input type="text" class="input-text" name="shipping_address_1" id="shipping_address_1" required
+							value="" />
+					</p>
+
 					<p class="form-row form-row-wide">
-						<label for="shipping_address_1">Street address <abbr class="required" title="required">*</abbr></label>
-						<input type="text" name="shipping_address_1" id="shipping_address_1" class="input-text noborder" readonly required value="<?php echo esc_attr($delivery_address); ?>" />
+						<label for="shipping_address_2">Street address <abbr class="required" title="required">*</abbr></label>
+						<input type="text" name="shipping_address_2" id="shipping_address_2" class="input-text noborder" readonly required value="<?php echo esc_attr($delivery_address); ?>" />
 					</p>
 
 					<p class="form-row form-row-wide">

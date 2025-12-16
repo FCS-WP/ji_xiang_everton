@@ -9,7 +9,6 @@ function remove_checkout_fields($fields)
   unset($fields['billing']['billing_address_2']);
   unset($fields['shipping']['shipping_city']);
   unset($fields['shipping']['shipping_company']);
-  unset($fields['shipping']['shipping_address_2']);
 
   return $fields;
 }
