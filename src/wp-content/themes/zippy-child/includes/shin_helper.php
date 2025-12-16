@@ -1,6 +1,6 @@
 <?php
 
-use Zippy_Booking\Src\Services\adp\Zippy_Functions;
+use Zippy_Booking\Src\Services\Price_Books\Price_Books_Woocommerce;
 
 function slugify($string)
 {
@@ -243,14 +243,25 @@ function get_pricing_price($product, $display = false)
  * @return array|float|null
  */
 
+// function get_product_pricing_rules($product, $quantity, $user_id = null)
+// {
+//   if (! class_exists(Zippy_Functions::class)) {
+//     return null;
+//   }
+
+//   $adp = new Zippy_Functions();
+//   $product_price = $adp->getDiscountedProductPrice($product, $quantity, true, $user_id);
+//   return $product_price;
+// }
+
 function get_product_pricing_rules($product, $quantity, $user_id = null)
 {
-  if (! class_exists(Zippy_Functions::class)) {
+  if (! class_exists(Price_Books_Woocommerce::class)) {
     return null;
   }
 
-  $adp = new Zippy_Functions();
-  $product_price = $adp->getDiscountedProductPrice($product, $quantity, true, $user_id);
+  $adp = new Price_Books_Woocommerce($product, $user_id);
+  $product_price = $adp->get_price_book_pricing($product);
   return $product_price;
 }
 
