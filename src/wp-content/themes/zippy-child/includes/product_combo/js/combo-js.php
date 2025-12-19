@@ -52,18 +52,14 @@
         return;
       }
 
-      if (extra_price) {
-        total += extra_price;
-      }
-
       if ($addToCartBtn.length) {
-        $addToCartBtn.text('Add $' + total.toFixed(2));
+        $addToCartBtn.text('Add $' + total.toFixed(2) + ' + $' + extra_price.toFixed(2));
       }
 
       if ($comboDisplay.length) {
         $comboDisplay.text(total);
       }
-      
+
       $qtyInputs.each(function() {
         const $input = $(this);
         const currentVal = parseInt($input.val()) || 0;
