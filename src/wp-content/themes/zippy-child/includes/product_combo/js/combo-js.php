@@ -13,6 +13,7 @@
     const originalType = $addToCartBtn.attr('type');
     const $minmaxSelect = $('#min_max_option');
     const $btnContactForSale = $('.contact_for_sale_btn');
+    const extra_price = $('#combo_extra_price').val() ? parseFloat($('#combo_extra_price').val()) : 0;
 
     //Min max options
     const minmaxOptionOther = 'others';
@@ -51,6 +52,10 @@
         return;
       }
 
+      if (extra_price) {
+        total += extra_price;
+      }
+
       if ($addToCartBtn.length) {
         $addToCartBtn.text('Add $' + total.toFixed(2));
       }
@@ -58,6 +63,7 @@
       if ($comboDisplay.length) {
         $comboDisplay.text(total);
       }
+      
       $qtyInputs.each(function() {
         const $input = $(this);
         const currentVal = parseInt($input.val()) || 0;
