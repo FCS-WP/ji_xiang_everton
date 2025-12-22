@@ -132,3 +132,16 @@ add_action('woocommerce_checkout_create_order', function ($order, $data) {
   }
 }, 10, 2);
 
+
+add_action('wp_footer', function () {
+  if (!is_checkout()) return;
+?>
+  <script>
+    jQuery(document).ready(function($) {
+      $('#shipping_unit_number').on('change', function() {
+        $('#init_number').text($(this).val());
+      });
+    });
+  </script>
+<?php
+});
