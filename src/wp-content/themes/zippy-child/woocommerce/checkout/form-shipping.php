@@ -24,7 +24,6 @@ $delivery_address = !empty(WC()->session->get('delivery_address'))
 $date = WC()->session->get('date');
 $time = WC()->session->get('time');
 
-$shipping_city =  WC()->session->get('delivery_address');
 if (!empty($delivery_address) && preg_match('/(\d+)\s*$/', $delivery_address, $matches)) {
 	$extracted_postcode = $matches[1];
 } else {
