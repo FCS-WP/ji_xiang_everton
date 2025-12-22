@@ -1,6 +1,8 @@
 <?php
 
 use Zippy_Booking\Src\Services\Price_Books\Price_Books_Woocommerce;
+use Zippy_Booking\Src\Services\adp\Zippy_Functions;
+
 
 function slugify($string)
 {
