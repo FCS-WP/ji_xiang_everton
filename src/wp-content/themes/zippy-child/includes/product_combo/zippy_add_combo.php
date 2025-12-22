@@ -155,8 +155,10 @@ function restore_combo_price_from_session($cart)
         }
       }
 
-      $extra_price = get_field('extra_price', $main_product_id);
-      $total_price += floatval($extra_price);
+      $extra_price = get_field('extra_price', $main_product_id) ?: 0;
+      if (!empty($extra_price)) {
+        $total_price += floatval($extra_price);
+      }
 
       if ($total_price > 0) {
         $cart->cart_contents[$cart_item_key]['data']->set_price($total_price);
