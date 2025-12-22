@@ -27,6 +27,13 @@ function akk_display_selected_in_cart($item_data, $cart_item)
                 );
             }
         }
+
+        if (isset($cart_item['combo_extra_price'])) {
+            $item_data[] = array(
+                'name'  => esc_html__('Extra Price', 'zippy'),
+                'value' => wc_price(floatval($cart_item['combo_extra_price']))
+            );
+        }
     }
     return $item_data;
 }

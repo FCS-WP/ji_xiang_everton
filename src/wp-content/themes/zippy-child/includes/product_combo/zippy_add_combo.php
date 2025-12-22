@@ -29,7 +29,7 @@ function render_extra_price_input()
   if (empty($extra_price)) {
     $extra_price = 0;
   }
-  echo '<input type="hidden" id="combo_extra_price" value="' . esc_attr($extra_price) . '">';
+  echo '<input type="hidden" id="combo_extra_price" name="combo_extra_price" value="' . esc_attr($extra_price) . '">';
 }
 
 add_action('woocommerce_before_add_to_cart_button', 'combo_display_sub_products_on_frontend');
@@ -127,8 +127,13 @@ function capture_selected_sub_products($cart_item_data, $product_id)
       $cart_item_data['unique_key'] = md5(json_encode($selected));
     }
   }
+
   if (!empty($_POST['packing_instructions'])) {
     $cart_item_data['packing_instructions'] = $_POST['packing_instructions'];
+  }
+
+  if (!empty($_POST['combo_extra_price'])) {
+    $cart_item_data['combo_extra_price'] = sanitize_text_field($_POST['combo_extra_price']);
   }
 
   return $cart_item_data;
