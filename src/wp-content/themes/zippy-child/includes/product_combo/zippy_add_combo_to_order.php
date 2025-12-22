@@ -19,6 +19,10 @@ function add_selected_sub_products_to_order_item($item, $cart_item_key, $values,
   if (!empty($values['packing_instructions'])) {
     $item->add_meta_data('packing_instructions', $values['packing_instructions'], true);
   }
+
+  if (!empty($values['combo_extra_price'])) {
+    $item->add_meta_data('combo_extra_price', $values['combo_extra_price'], true);
+  }
 }
 
 add_filter('woocommerce_hidden_order_itemmeta', function ($hidden_meta) {
@@ -28,6 +32,9 @@ add_filter('woocommerce_hidden_order_itemmeta', function ($hidden_meta) {
 add_filter('woocommerce_order_item_get_formatted_meta_data', function ($formatted_meta, $item) {
   foreach ($formatted_meta as $key => $meta) {
     if ($meta->key === 'packing_instructions') {
+      unset($formatted_meta[$key]);
+    }
+    if ($meta->key === 'combo_extra_price') {
       unset($formatted_meta[$key]);
     }
   }
@@ -86,6 +93,7 @@ function show_combo_below_item_in_thankyou_page($item_id)
 {
   $sub_products = wc_get_order_item_meta($item_id, 'akk_selected', true);
   $packing = wc_get_order_item_meta($item_id, 'packing_instructions', true);
+  $combo_extra_price = wc_get_order_item_meta($item_id, 'combo_extra_price', true);
 
   if (!empty($sub_products) && is_array($sub_products)) {
     echo '<div class="akk-sub-products" style="margin-top: 5px;font-size: 0.9em">';
@@ -102,6 +110,9 @@ function show_combo_below_item_in_thankyou_page($item_id)
     echo '</div>';
   }
 
+  if (!empty($combo_extra_price)) {
+    echo '<div style="margin-top:5px;font-size: 0.9em;"><strong>Extra price:</strong> ' . esc_html($combo_extra_price) . '</div>';
+  }
   if (!empty($packing)) {
     echo '<div style="margin-top:5px;font-size: 0.9em;"><strong>Packing instructions:</strong> ' . esc_html($packing) . '</div>';
   }
