@@ -99,6 +99,13 @@ $priceShippingIncludeTax = Zippy_Wc_Calculate_Helper::get_total_price_including_
                       </p>
                     <?php endforeach; ?>
                   </div>
+
+                  <?php if (!empty($cart_item['combo_extra_price'])): ?>
+                    <p class="combo-extra-price">
+                      Extra Price: <?php echo wc_price($cart_item['combo_extra_price']); ?>
+                    </p>
+                  <?php endif; ?>
+
                 <?php endif; ?>
               <?php endif; ?>
 
