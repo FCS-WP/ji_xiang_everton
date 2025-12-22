@@ -243,27 +243,27 @@ function get_pricing_price($product, $display = false)
  * @return array|float|null
  */
 
-// function get_product_pricing_rules($product, $quantity, $user_id = null)
-// {
-//   if (! class_exists(Zippy_Functions::class)) {
-//     return null;
-//   }
-
-//   $adp = new Zippy_Functions();
-//   $product_price = $adp->getDiscountedProductPrice($product, $quantity, true, $user_id);
-//   return $product_price;
-// }
-
 function get_product_pricing_rules($product, $quantity, $user_id = null)
 {
-  if (! class_exists(Price_Books_Woocommerce::class)) {
+  if (! class_exists(Zippy_Functions::class)) {
     return null;
   }
 
-  $adp = new Price_Books_Woocommerce($product, $user_id);
-  $product_price = $adp->get_price_book_pricing($product);
+  $adp = new Zippy_Functions();
+  $product_price = $adp->getDiscountedProductPrice($product, $quantity, true, $user_id);
   return $product_price;
 }
+
+// function get_product_pricing_rules($product, $quantity, $user_id = null)
+// {
+//   if (! class_exists(Price_Books_Woocommerce::class)) {
+//     return null;
+//   }
+
+//   $adp = new Price_Books_Woocommerce($product, $user_id);
+//   $product_price = $adp->get_price_book_pricing($product);
+//   return $product_price;
+// }
 
 /**
  * Default price rules from ADP plugin
