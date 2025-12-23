@@ -127,7 +127,7 @@ remove_action('woocommerce_checkout_order_review', 'woocommerce_checkout_payment
 add_action('woocommerce_checkout_create_order', function ($order, $data) {
   if (! empty($data['shipping_unit_number'])) {
     $order->set_shipping_address_2(
-      trim($data['shipping_unit_number'] . ', ' . $order->get_shipping_address_2())
+      trim("#" . $data['shipping_unit_number'] . ', ' . $order->get_shipping_address_2())
     );
   }
 }, 10, 2);
@@ -139,7 +139,8 @@ add_action('wp_footer', function () {
   <script>
     jQuery(document).ready(function($) {
       $('#shipping_unit_number').on('change', function() {
-        $('#init_number').text($(this).val());
+        let unitNumber = "#" + $(this).val();
+        $('#init_number').text(unitNumber);
       });
     });
   </script>
