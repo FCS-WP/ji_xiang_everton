@@ -42,6 +42,29 @@ $shipping_address_2 = implode(' ', [$building, "SINGAPORE", $extracted_postcode]
 
 ?>
 <?php if (is_delivery()): ?>
+	<style>
+		.unit-wrapper {
+			position: relative;
+			display: inline-block;
+			width: 100%;
+		}
+
+		.unit-wrapper::before {
+			content: "#";
+			position: absolute;
+			left: 10px;
+			top: 50%;
+			bottom: -0.75em;
+			transform: translateY(-50%);
+			color: #555;
+			font-weight: bold;
+			pointer-events: none;
+		}
+
+		.unit-wrapper input {
+			padding-left: 24px;
+		}
+	</style>
 	<div class="woocommerce-shipping-fields">
 		<?php if (true === WC()->cart->needs_shipping_address()) : ?>
 
@@ -74,8 +97,19 @@ $shipping_address_2 = implode(' ', [$building, "SINGAPORE", $extracted_postcode]
 					</p>
 
 					<p class="form-row form-row-first">
-						<label for="shipping_unit_number">Unit Number <abbr class="required" title="required">*</abbr></label>
-						<input type="text" class="input-text" placeholder="e.g. #18-00" required name="shipping_unit_number" id="shipping_unit_number" value="" />
+						<label for="shipping_unit_number">
+							Unit Number <abbr class="required">*</abbr>
+						</label>
+
+						<span class="unit-wrapper">
+							<input
+								type="text"
+								class="input-text"
+								placeholder="e.g. 18-00"
+								required
+								name="shipping_unit_number"
+								id="shipping_unit_number" />
+						</span>
 					</p>
 
 					<p class="form-row form-row-wide">
