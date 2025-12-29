@@ -69,7 +69,7 @@ function combo_display_sub_products_on_frontend()
               $min_qty = $sub_products['minimum_quantity'] ?? 0;
               $image_url = get_the_post_thumbnail_url($sub_product->get_id(), 'full');
 
-              $product_pice = !$is_composite_product ? ' (' . $sub_product->get_price_html() . ')' : '';
+              $product_pice = !$is_composite_product ? ' (' . wc_price(get_product_pricing_rules($sub_product, 1)) . ')' : '';
 
               // $data_group = $group_id !== null ? ' data-group="' . esc_attr($group_id) . '"' : '';
 
