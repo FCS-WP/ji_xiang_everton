@@ -105,13 +105,19 @@ function get_minimum_price_for_combo($product)
 
   if (!is_array($product_combo)) return $product->get_price_html();
 
-  $sub_product_obj = $product_combo[0];
+  $price_range = [];
+  foreach ($product_combo as $sub_product_obj) {
 
-  $sub_product_id = $sub_product_obj["product"]->ID ?? null;
+    if (empty($sub_product_obj)) continue;
 
-  $sub_product = wc_get_product($sub_product_id);
+    $sub_product_id = $sub_product_obj["product"]->ID ?? null;
 
-  // if (!is_object($sub_product)) return $product->get_price_html();
+    $sub_product = wc_get_product($sub_product_id);
 
-  return $sub_product->get_price_html();
+    $price_range[] = get_product_pricing_rules($sub_product, 1);
+  }
+
+  $price = min($price_range);
+
+  return wc_price($price);
 }
