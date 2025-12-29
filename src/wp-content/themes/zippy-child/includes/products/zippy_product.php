@@ -11,9 +11,13 @@ function custom_product_short_description_and_price()
 
   $product_id = $product->get_id();
 
+  $price = $product->get_price_html();
+
+  $product_short_des = str_replace('${price}', $price, $product->get_short_description());
+
   // Display short description
   if ($product->get_short_description()) {
-    echo '<div class="product-short-description">' . wp_trim_words($product->get_short_description(), 20) . '</div>';
+    echo '<div class="product-short-description">' . wp_trim_words($product_short_des, 20) . '</div>';
   }
 
   // Display product price
@@ -92,3 +96,29 @@ add_filter('woocommerce_quantity_input_args', function ($args, $product) {
   }
   return $args;
 }, 10, 2);
+
+add_filter('woocommerce_short_description', 'display_dynamic_price_in_short_description', 10, 1);
+
+function display_dynamic_price_in_short_description($post_excerpt)
+{
+  var_dump($post_excerpt);
+
+  if (is_admin()) return $post_excerpt;
+
+  global $product;
+
+  // if (! is_a($product, 'WC_Product')) {
+  //   return $post_excerpt;
+  // }
+
+  if (defined('REST_REQUEST') && REST_REQUEST) {
+    $price = html_entity_decode(strip_tags($product->get_price_html()));
+  } else {
+    $price = $product->get_price_html();
+  }
+
+  $post_excerpt = str_replace('${price}', $price, $post_excerpt);
+
+
+  return $post_excerpt;
+}
