@@ -14,9 +14,11 @@ function my_custom_lightbox_content()
   if (! $product) return;
 
   echo '<div class="custom-lightbox-summary">';
+  $price = get_minimum_price_for_combo($product);
 
+  $description = str_replace('${price}', $price, $product->get_description());
   echo '<div class="custom-description">';
-  echo wpautop($product->get_description());
+  echo wpautop($description);
   echo '</div>';
   echo '<div class="custom-price">';
   echo '<p style="font-size: 14px; font-weight:700; margin-bottom: 10px; color: #c0392b">' . "If you have any packing preferences, do leave the packing instructions below." . '</p>';
