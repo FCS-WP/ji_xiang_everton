@@ -22,7 +22,7 @@ if (! defined('ABSPATH')) {
 	exit; // Exit if accessed directly.
 }
 
-$total_order = floatval(get_subtotal_cart());
+$total_order = floatval(get_total_cart());
 $minimum_order = floatval(get_option('minimum_order', true));
 
 ?>
@@ -31,9 +31,9 @@ $minimum_order = floatval(get_option('minimum_order', true));
 <?php else: ?>
 	<?php
 	$order_date = !empty(WC()->session->get('date')) ? WC()->session->get('date') : '';
-	$order_time = !empty(WC()->session->get('time')['from']) ? WC()->session->get('time')[''] : '';
+	$order_time = zippy_get_delivery_time();
 	?>
-	<?php $order_text = sprintf('Proceed to Checkout Page<br>Order for %s %s', format_date_DdMY($order_date),	$order_time);
+	<?php $order_text = sprintf('Proceed to Checkout Page<br>Order for %s </br> %s', format_date_DdMY($order_date),	$order_time);
 	?>
 	<a href="<?php echo esc_url(wc_get_checkout_url()); ?>" class="button checkout wc-forward button-checkout-minicart"><?php echo $order_text; ?></a>
 

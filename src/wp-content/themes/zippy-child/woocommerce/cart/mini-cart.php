@@ -25,7 +25,7 @@ defined('ABSPATH') || exit;
 if (is_admin()) return;
 $total_quantity = WC()->cart->get_cart_contents_count();
 $rules = get_minimum_rule_by_order_mode();
-$total_order = floatval(get_subtotal_cart());
+$total_order = floatval(get_total_cart());
 $minimum_order = floatval(get_option('minimum_order', true));
 $conditions = array(
   'total_cart' => $total_order,
