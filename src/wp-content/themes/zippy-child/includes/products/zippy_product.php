@@ -11,7 +11,7 @@ function custom_product_short_description_and_price()
 
   $product_id = $product->get_id();
 
-  $price = $product->get_price_html();
+  $price = get_minimum_price_for_combo($product);
 
   $product_short_des = str_replace('${price}', $price, $product->get_short_description());
 
@@ -97,28 +97,21 @@ add_filter('woocommerce_quantity_input_args', function ($args, $product) {
   return $args;
 }, 10, 2);
 
-add_filter('woocommerce_short_description', 'display_dynamic_price_in_short_description', 10, 1);
 
-function display_dynamic_price_in_short_description($post_excerpt)
+function get_minimum_price_for_combo($product)
 {
-  var_dump($post_excerpt);
+  // Check have the combo or not 
+  $product_combo = get_field('product_combo', $product->get_id());
 
-  if (is_admin()) return $post_excerpt;
+  if (!is_array($product_combo)) return $product->get_price_html();
 
-  global $product;
+  $sub_product_obj = $product_combo[0];
 
-  // if (! is_a($product, 'WC_Product')) {
-  //   return $post_excerpt;
-  // }
+  $sub_product_id = $sub_product_obj["product"]->ID ?? null;
 
-  if (defined('REST_REQUEST') && REST_REQUEST) {
-    $price = html_entity_decode(strip_tags($product->get_price_html()));
-  } else {
-    $price = $product->get_price_html();
-  }
+  $sub_product = wc_get_product($sub_product_id);
 
-  $post_excerpt = str_replace('${price}', $price, $post_excerpt);
+  // if (!is_object($sub_product)) return $product->get_price_html();
 
-
-  return $post_excerpt;
+  return $sub_product->get_price_html();
 }
