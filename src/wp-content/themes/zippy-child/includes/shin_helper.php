@@ -104,9 +104,11 @@ function get_tax_inclusive_amount($amount, $rate)
   return wc_format_decimal($tax, wc_get_price_decimals());
 }
 
-function get_subtotal_cart()
+function get_total_cart()
 {
-  return WC()->cart->get_subtotal('');
+  $subtotal = (WC()->cart->get_subtotal());
+  $tax = get_tax_percent();
+  return wc_format_decimal($subtotal * (1 + $tax->tax_rate / 100));
 }
 
 /**

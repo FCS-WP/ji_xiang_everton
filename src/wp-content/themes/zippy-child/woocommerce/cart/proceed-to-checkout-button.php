@@ -22,7 +22,7 @@ if (! defined('ABSPATH')) {
 	exit; // Exit if accessed directly.
 }
 
-$total_order = floatval(get_subtotal_cart());
+$total_order = floatval(get_total_cart());
 $minimum_order = floatval(get_option('minimum_order', true));
 
 ?>
