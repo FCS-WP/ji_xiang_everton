@@ -1,6 +1,6 @@
 <?php
 
-use Zippy_Booking\Src\Services\Price_Books\Price_Books_Woocommerce;
+use Zippy_Booking\Src\Services\Price_Books\Price_Books_Helper;
 
 
 function slugify($string)
@@ -259,13 +259,18 @@ function get_pricing_price($product, $display = false)
 
 function get_product_pricing_rules($product, $quantity, $user_id = null)
 {
-  if (! class_exists(Price_Books_Woocommerce::class)) {
+  if (! class_exists(Price_Books_Helper::class)) {
     return null;
   }
-
-  $adp = new Price_Books_Woocommerce($product, $user_id);
-  $product_price = $adp->get_price_book_pricing($product);
-  return $product_price;
+  $helper = new Price_Books_Helper();
+  $rules  = $helper->get_active_rules_for_current_user();
+  $product_id =  $product->get_id();
+  $regular_price =  $product->get_price();
+  if (isset($rules[$product_id])) {
+    $new_price = $helper->apply_rule_to_price($regular_price, $rules[$product_id]);
+    return $new_price;
+  }
+  return $regular_price;
 }
 
 /**

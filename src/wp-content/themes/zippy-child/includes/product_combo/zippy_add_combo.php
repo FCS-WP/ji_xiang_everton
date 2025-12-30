@@ -39,7 +39,7 @@ function combo_display_sub_products_on_frontend()
 
   $list_sub_products = get_field('product_combo', $product->get_id());
   $combo_name = get_field('combo_name', $product->get_id());
-  $min_order = get_field('min_order', $product->get_id());
+  $min_order = (int) get_field('min_order', $product->get_id());
   $is_composite_product = is_composite_product($product);
   if (empty($min_order)) {
     $min_order = 0;
@@ -58,16 +58,15 @@ function combo_display_sub_products_on_frontend()
           <?php
           foreach ($list_sub_products as $sub_products) {
             if (empty($sub_products) || !is_array($sub_products)) continue;
+            $stock_level = $sub_products['stock_level'] ?? 999;
+            $min_qty = $sub_products['minimum_quantity'] ?? 0;
 
             echo '<div class="akk-sub-products">';
             foreach ($sub_products as $sub_product_post) {
               $product_id = is_object($sub_product_post) ? $sub_product_post->ID : $sub_product_post;
               $sub_product = wc_get_product($product_id);
               if (!$sub_product) continue;
-
-              $stock_level = $sub_products['stock_level'] ?? 999;
-              $min_qty = $sub_products['minimum_quantity'] ?? 0;
-              $image_url = get_the_post_thumbnail_url($sub_product->get_id(), 'full');
+             $image_url = get_the_post_thumbnail_url($sub_product->get_id(), 'full');
 
               $product_pice = !$is_composite_product ? ' (' . wc_price(get_product_pricing_rules($sub_product, 1)) . ')' : '';
 
