@@ -102,7 +102,7 @@ $priceShippingIncludeTax = Zippy_Wc_Calculate_Helper::get_total_price_including_
 
                   <?php if (!empty($cart_item['combo_extra_price'])): ?>
                     <p class="combo-extra-price">
-                      Platter box: <?php echo wc_price($cart_item['combo_extra_price']); ?>
+                      Platter box: <?php echo wc_price($cart_item['combo_extra_price'] * $parent_qty); ?>
                     </p>
                   <?php endif; ?>
 
