@@ -20,8 +20,10 @@ function add_selected_sub_products_to_order_item($item, $cart_item_key, $values,
     $item->add_meta_data('packing_instructions', $values['packing_instructions'], true);
   }
 
+  $quantity = $values['quantity'] ?? 1;
   if (!empty($values['combo_extra_price'])) {
-    $item->add_meta_data('combo_extra_price', $values['combo_extra_price'], true);
+    $total_extra_price = '$' . (floatval($values['combo_extra_price']) * $quantity);
+    $item->add_meta_data('combo_extra_price', $total_extra_price, true);
   }
 }
 
