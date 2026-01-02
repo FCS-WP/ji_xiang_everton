@@ -133,7 +133,7 @@ function capture_selected_sub_products($cart_item_data, $product_id)
   }
 
   if (!empty($_POST['combo_extra_price'])) {
-    $cart_item_data['combo_extra_price'] = '$' . sanitize_text_field($_POST['combo_extra_price']);
+    $cart_item_data['combo_extra_price'] = sanitize_text_field($_POST['combo_extra_price']);
   }
 
   return $cart_item_data;
@@ -160,7 +160,7 @@ function restore_combo_price_from_session($cart)
         }
       }
 
-      $extra_price = get_field('extra_price', $main_product_id) ?: 0;
+      $extra_price = $item['combo_extra_price'] ?? 0;
       if (!empty($extra_price)) {
         $total_price += floatval($extra_price);
       }

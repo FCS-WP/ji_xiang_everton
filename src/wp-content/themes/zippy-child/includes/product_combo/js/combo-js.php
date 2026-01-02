@@ -53,7 +53,8 @@
       }
 
       if ($addToCartBtn.length) {
-        const extraText = extra_price > 0 ? ` + $${extra_price.toFixed(2)}` : '';
+        totalExtraPrice = extra_price > 0 ? productQuantityInput * extra_price : 0;
+        const extraText = totalExtraPrice > 0 ? ` + $${totalExtraPrice.toFixed(2)}` : '';
         $addToCartBtn.text(`Add $${total.toFixed(2)}${extraText}`);
       }
 
