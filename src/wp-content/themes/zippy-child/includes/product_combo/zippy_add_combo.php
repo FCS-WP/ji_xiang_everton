@@ -133,7 +133,7 @@ function capture_selected_sub_products($cart_item_data, $product_id)
   }
 
   if (!empty($_POST['combo_extra_price'])) {
-    $cart_item_data['combo_extra_price'] = sanitize_text_field($_POST['combo_extra_price']);
+    $cart_item_data['combo_extra_price'] = '$' . sanitize_text_field($_POST['combo_extra_price']);
   }
 
   return $cart_item_data;
