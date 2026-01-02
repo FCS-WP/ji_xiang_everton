@@ -1,6 +1,8 @@
 <?php
 
+// use Zippy_Booking\Src\Services\Price_Books\Price_Books_Woocommerce;
 use Zippy_Booking\Src\Services\adp\Zippy_Functions;
+
 
 function slugify($string)
 {
@@ -102,9 +104,11 @@ function get_tax_inclusive_amount($amount, $rate)
   return wc_format_decimal($tax, wc_get_price_decimals());
 }
 
-function get_subtotal_cart()
+function get_total_cart()
 {
-  return WC()->cart->get_subtotal('');
+  $subtotal = (WC()->cart->get_subtotal());
+  $tax = get_tax_percent();
+  return wc_format_decimal($subtotal * (1 + $tax->tax_rate / 100));
 }
 
 /**
@@ -254,6 +258,17 @@ function get_product_pricing_rules($product, $quantity, $user_id = null)
   return $product_price;
 }
 
+// function get_product_pricing_rules($product, $quantity, $user_id = null)
+// {
+//   if (! class_exists(Price_Books_Woocommerce::class)) {
+//     return null;
+//   }
+
+//   $adp = new Price_Books_Woocommerce($product, $user_id);
+//   $product_price = $adp->get_price_book_pricing($product);
+//   return $product_price;
+// }
+
 /**
  * Default price rules from ADP plugin
  * @param mixed $product
@@ -321,4 +336,20 @@ function get_keys_outlet_session()
     'delivery_address',
     'status_popup',
   );
+}
+
+function get_delivery_address()
+{
+
+  $blk_no = WC()->session->get('blk_no') ?? '';
+  $road_name = WC()->session->get('road_name') ?? '';
+  $postal = WC()->session->get('postal') ?? '';
+  $building = WC()->session->get('building') != 'NIL' ? WC()->session->get('building') : '';
+
+  $shipping_address_1 = implode(' ', [$blk_no, $road_name]);
+  $shipping_address_2 = implode(' ', [$building, "SINGAPORE", $postal]);
+
+  $html_unit_number = ' <span id="init_number"></span> ';
+
+  return $shipping_address_1 . $html_unit_number . $shipping_address_2;
 }

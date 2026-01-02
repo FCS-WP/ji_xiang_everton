@@ -14,12 +14,12 @@
       <?php if (is_delivery()) : ?>
         <tr>
           <td>Delivery Address:</td>
-          <td><?php echo WC()->session->get('delivery_address'); ?></td>
+          <td><?php echo get_delivery_address(); ?></td>
         </tr>
         <tr>
           <td> Delivery Date:</td>
           <td>
-            <?php echo WC()->session->get('date'); ?>
+            <?php echo date('D, j M Y', strtotime(WC()->session->get('date'))); ?>
             <input type="hidden" name="_billing_date" id="_billing_date" value="<?php echo esc_attr(zippy_get_wc_session('date') ?? ''); ?>">
           </td>
         </tr>
@@ -37,7 +37,7 @@
         <tr>
           <td> Takeaway Date:</td>
           <td>
-            <?php echo WC()->session->get('date'); ?>
+            <?php echo date('D, j M Y', strtotime(WC()->session->get('date'))); ?>
             <input type="hidden" name="_billing_date" id="_billing_date" value="<?php echo esc_attr(zippy_get_wc_session('date') ?? ''); ?>">
           </td>
         </tr>

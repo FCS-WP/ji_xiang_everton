@@ -11,7 +11,7 @@ function customize_shipping_rates_based_on_order_mode($rates)
   }
 
   $rules = get_minimum_rule_by_order_mode();
-  $cart_subtotal = floatval(get_subtotal_cart());
+  $cart_subtotal = floatval(get_total_cart());
 
   $minimum_for_free_shipping = floatval($rules['minimum_total_to_freeship']);
 
@@ -124,12 +124,25 @@ function set_minimum_order_notice()
 
 remove_action('woocommerce_checkout_order_review', 'woocommerce_checkout_payment', 20);
 
-add_filter('woocommerce_checkout_required_field_notice', 'custom_shipping_address_required_message', 10, 2);
-function custom_shipping_address_required_message($message, $field_label)
-{
-  if (is_checkout() && strpos($message, 'Shipping') !== false && $field_label === __('Shipping Street address', 'woocommerce')) {
-    return __('Unit Number  is required to complete your order.', 'woocommerce');
+add_action('woocommerce_checkout_create_order', function ($order, $data) {
+  if (! empty($data['shipping_unit_number'])) {
+    $order->set_shipping_address_2(
+      trim("#" . $data['shipping_unit_number'] . ', ' . $order->get_shipping_address_2())
+    );
   }
+}, 10, 2);
 
-  return $message;
-}
+
+add_action('wp_footer', function () {
+  if (!is_checkout()) return;
+?>
+  <script>
+    jQuery(document).ready(function($) {
+      $('#shipping_unit_number').on('change', function() {
+        let unitNumber = "#" + $(this).val();
+        $('#init_number').text(unitNumber);
+      });
+    });
+  </script>
+<?php
+});

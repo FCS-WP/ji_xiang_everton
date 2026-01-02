@@ -11,9 +11,13 @@ function custom_product_short_description_and_price()
 
   $product_id = $product->get_id();
 
+  $price = get_minimum_price_for_combo($product);
+
+  $product_short_des = str_replace('${price}', $price, $product->get_short_description());
+
   // Display short description
   if ($product->get_short_description()) {
-    echo '<div class="product-short-description">' . wp_trim_words($product->get_short_description(), 20) . '</div>';
+    echo '<div class="product-short-description">' . wp_trim_words($product_short_des, 20) . '</div>';
   }
 
   // Display product price
@@ -92,3 +96,28 @@ add_filter('woocommerce_quantity_input_args', function ($args, $product) {
   }
   return $args;
 }, 10, 2);
+
+
+function get_minimum_price_for_combo($product)
+{
+  // Check have the combo or not 
+  $product_combo = get_field('product_combo', $product->get_id());
+
+  if (!is_array($product_combo)) return $product->get_price_html();
+
+  $price_range = [];
+  foreach ($product_combo as $sub_product_obj) {
+
+    if (empty($sub_product_obj)) continue;
+
+    $sub_product_id = $sub_product_obj["product"]->ID ?? null;
+
+    $sub_product = wc_get_product($sub_product_id);
+
+    $price_range[] = get_product_pricing_rules($sub_product, 1);
+  }
+
+  $price = min($price_range);
+
+  return wc_price($price);
+}
