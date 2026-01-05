@@ -113,7 +113,7 @@ function show_combo_below_item_in_thankyou_page($item_id)
   }
 
   if (!empty($combo_extra_price)) {
-    echo '<div style="margin-top:5px;font-size: 0.9em;"><strong>Platter box:</strong> ' . esc_html($combo_extra_price) . '</div>';
+    echo '<div style="margin-top:5px;font-size: 0.9em;"><strong>Platter Plate:</strong> ' . esc_html($combo_extra_price) . '</div>';
   }
   if (!empty($packing)) {
     echo '<div style="margin-top:5px;font-size: 0.9em;"><strong>Packing instructions:</strong> ' . esc_html($packing) . '</div>';
