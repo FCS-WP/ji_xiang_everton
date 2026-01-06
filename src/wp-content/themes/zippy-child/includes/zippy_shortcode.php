@@ -42,3 +42,71 @@ function script_rule_popup_session()
 <?php
 }
 add_action('wp_head', 'script_rule_popup_session');
+
+add_shortcode('categories_render', 'categories_render_callback');
+
+function categories_render_callback()
+{
+    $restricted_categories = ['combo-6', 'ala-carte-menu', 'festive-menu'];
+
+    $current_user = wp_get_current_user();
+    $is_vendor_tier_1 = in_array('vendor_tier_1', (array) $current_user->roles);
+
+    $terms = get_terms(array(
+        'taxonomy'   => 'product_cat',
+        'hide_empty' => true,
+        'orderby'    => 'name',
+        'order'      => 'ASC',
+    ));
+
+    if (is_wp_error($terms) || empty($terms)) {
+        return '';
+    }
+
+    ob_start();
+    ?>
+    <div class="ux-menu stack stack-col justify-start menu_link_category">
+        <?php foreach ($terms as $term): ?>
+
+            <?php
+            // Vendor Tier 1 → ONLY see restricted categories
+            if ($is_vendor_tier_1 && !in_array($term->slug, $restricted_categories)) {
+                continue;
+            }
+
+            // Normal users → CANNOT see restricted categories
+            if (!$is_vendor_tier_1 && in_array($term->slug, $restricted_categories)) {
+                continue;
+            }
+            ?>
+
+            <div class="ux-menu-link flex menu-item">
+                <a class="ux-menu-link__link flex" href="#<?php echo esc_attr($term->slug); ?>">
+                    <span class="ux-menu-link__text">
+                        <?php echo esc_html($term->name); ?>
+                    </span>
+                </a>
+            </div>
+
+        <?php endforeach; ?>
+    </div>
+    <?php
+
+    return ob_get_clean();
+}
+
+
+
+add_filter('body_class', function ($classes) {
+  $current_user = wp_get_current_user();
+
+  $is_vendor_tier_1 = in_array('vendor_tier_1', (array) $current_user->roles);
+
+  if (!$is_vendor_tier_1) {
+    $classes[] = 'not-vendor-tier-1';
+  } else {
+    $classes[] = 'vendor-tier-1';
+  }
+
+  return $classes;
+});
