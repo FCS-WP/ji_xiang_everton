@@ -263,7 +263,7 @@ function get_product_pricing_rules($product, $quantity, $user_id = null)
     return null;
   }
   $helper = new Price_Books_Helper();
-  $rules  = $helper->get_active_rules_for_current_user();
+  $rules  = $helper->get_active_rules_for_current_user(null, $user_id);
   $product_id =  $product->get_id();
   $regular_price =  $product->get_price();
   if (isset($rules[$product_id])) {
