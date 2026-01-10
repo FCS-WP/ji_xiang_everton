@@ -43,11 +43,89 @@ function script_rule_popup_session()
 }
 add_action('wp_head', 'script_rule_popup_session');
 
+add_shortcode('categories_render_mobile', 'categories_render_mobile_callback');
+
+function categories_render_mobile_callback()
+{
+  $restricted_categories = ['combo-6', 'ala-carte', 'festive'];
+
+  $current_user = wp_get_current_user();
+  $is_vendor_tier_1 = in_array('vendor_tier_1', (array) $current_user->roles);
+
+  $terms = get_terms(array(
+    'taxonomy'   => 'product_cat',
+    'hide_empty' => true,
+    'orderby'    => 'menu_order',
+    'order'      => 'ASC',
+  ));
+
+  if (is_wp_error($terms) || empty($terms)) {
+    return '';
+  }
+  $i = 0;
+  ob_start();
+?>
+  <div class="categoryBar">
+
+    <?php foreach ($terms as $term): ?>
+
+      <?php
+      // Vendor Tier 1 → ONLY see restricted categories
+      if ($is_vendor_tier_1 && !in_array($term->slug, $restricted_categories)) {
+        continue;
+      }
+
+      // Normal users → CANNOT see restricted categories
+      if (!$is_vendor_tier_1 && in_array($term->slug, $restricted_categories)) {
+        continue;
+      }
+      ?>
+
+      <?php if ($i === 0): ?>
+        <div class="sticky_menu_product_category">
+          <div id="currentCategory"><?php echo esc_html($term->name); ?></div>
+          <div id="accordingCategoryMenu">
+            <button id="openCateSticky">More</button>
+          </div>
+        </div>
+      <?php endif; ?>
+
+      <?php $i++; ?>
+
+    <?php endforeach; ?>
+
+    <ul id="categoryList" style="display: none;">
+
+      <?php foreach ($terms as $term): ?>
+
+
+        <?php
+        // Vendor Tier 1 → ONLY see restricted categories
+        if ($is_vendor_tier_1 && !in_array($term->slug, $restricted_categories)) {
+          continue;
+        }
+
+        // Normal users → CANNOT see restricted categories
+        if (!$is_vendor_tier_1 && in_array($term->slug, $restricted_categories)) {
+          continue;
+        }
+        ?>
+
+        <li><a class="" href="#<?php echo esc_attr($term->slug); ?>"> <?php echo esc_html($term->name); ?></a></li>
+      <?php endforeach; ?>
+    </ul>
+
+  </div>
+
+<?php
+
+  return ob_get_clean();
+}
 add_shortcode('categories_render', 'categories_render_callback');
 
 function categories_render_callback()
 {
-  $restricted_categories = ['combo-6', 'ala-carte-menu', 'festive-menu'];
+  $restricted_categories = ['combo-6', 'ala-carte', 'festive'];
 
   $current_user = wp_get_current_user();
   $is_vendor_tier_1 = in_array('vendor_tier_1', (array) $current_user->roles);
