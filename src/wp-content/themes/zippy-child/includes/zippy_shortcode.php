@@ -79,6 +79,10 @@ function categories_render_mobile_callback()
       if (!$is_vendor_tier_1 && in_array($term->slug, $restricted_categories)) {
         continue;
       }
+      // No one can see 'uncategorized' category
+      if ($term->slug === 'uncategorized') {
+        continue;
+      }
       ?>
 
       <?php if ($i === 0): ?>
@@ -109,6 +113,10 @@ function categories_render_mobile_callback()
         if (!$is_vendor_tier_1 && in_array($term->slug, $restricted_categories)) {
           continue;
         }
+        // No one can see 'uncategorized' category
+        if ($term->slug === 'uncategorized') {
+          continue;
+        }
         ?>
 
         <li><a class="" href="#<?php echo esc_attr($term->slug); ?>"> <?php echo esc_html($term->name); ?></a></li>
@@ -125,7 +133,7 @@ add_shortcode('categories_render', 'categories_render_callback');
 
 function categories_render_callback()
 {
-  $restricted_categories = ['combo-6', 'ala-carte', 'festive','uncategorized'];
+  $restricted_categories = ['combo-6', 'ala-carte', 'festive', 'uncategorized'];
 
   $current_user = wp_get_current_user();
   $is_vendor_tier_1 = in_array('vendor_tier_1', (array) $current_user->roles);
