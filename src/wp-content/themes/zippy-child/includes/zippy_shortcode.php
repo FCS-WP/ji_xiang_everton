@@ -47,7 +47,7 @@ add_shortcode('categories_render_mobile', 'categories_render_mobile_callback');
 
 function categories_render_mobile_callback()
 {
-  $restricted_categories = ['combo-6', 'ala-carte', 'festive'];
+  $restricted_categories = ['combo-6', 'ala-carte', 'festive', 'uncategorized'];
 
   $current_user = wp_get_current_user();
   $is_vendor_tier_1 = in_array('vendor_tier_1', (array) $current_user->roles);
@@ -125,7 +125,7 @@ add_shortcode('categories_render', 'categories_render_callback');
 
 function categories_render_callback()
 {
-  $restricted_categories = ['combo-6', 'ala-carte', 'festive'];
+  $restricted_categories = ['combo-6', 'ala-carte', 'festive','uncategorized'];
 
   $current_user = wp_get_current_user();
   $is_vendor_tier_1 = in_array('vendor_tier_1', (array) $current_user->roles);
