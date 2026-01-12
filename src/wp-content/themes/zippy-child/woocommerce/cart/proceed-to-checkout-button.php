@@ -23,8 +23,7 @@ if (! defined('ABSPATH')) {
 }
 
 $total_order = floatval(get_total_cart());
-$minimum_order = floatval(get_option('minimum_order', true));
-
+$minimum_order = floatval(zippy_get_minimum_order_by_user_delivery());
 ?>
 <?php if ($total_order < $minimum_order && is_delivery()) : ?>
 	<a disabled class="button checkout wc-forward disabled-button-custom">Hit Minimum Order to Checkout</a>
