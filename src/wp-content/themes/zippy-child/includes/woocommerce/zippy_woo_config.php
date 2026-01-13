@@ -21,3 +21,14 @@ function remove_checkout_fields($fields)
   return $fields;
 }
 add_filter('woocommerce_checkout_fields', 'remove_checkout_fields');
+
+
+add_action('template_redirect', 'zippy_redirect_shop_to_home');
+
+function zippy_redirect_shop_to_home()
+{
+  if (is_shop() && !is_admin()) {
+    wp_safe_redirect(home_url(), 301);
+    exit;
+  }
+}
