@@ -91,12 +91,15 @@ function display_sub_products_in_admin_order($item_id, $item, $product)
 
 
 add_action('woocommerce_order_item_meta_end', 'show_combo_below_item_in_thankyou_page', 10, 4);
-function show_combo_below_item_in_thankyou_page($item_id)
+function show_combo_below_item_in_thankyou_page($item_id, $item)
 {
   $sub_products = wc_get_order_item_meta($item_id, 'akk_selected', true);
+
   $packing = wc_get_order_item_meta($item_id, 'packing_instructions', true);
+
   $combo_extra_price = wc_get_order_item_meta($item_id, 'combo_extra_price', true);
 
+  $quantity = $item->get_quantity();
   if (!empty($sub_products) && is_array($sub_products)) {
     echo '<div class="akk-sub-products" style="margin-top: 5px;font-size: 0.9em">';
     echo '<ul style="margin: 0 0 5px 15px;">';
@@ -113,7 +116,7 @@ function show_combo_below_item_in_thankyou_page($item_id)
   }
 
   if (!empty($combo_extra_price)) {
-    echo '<div class="akk-sub-products" style="margin-top: 5px;font-size: 0.9em"><ul style="margin: 0 0 5px 15px;"><li>Platter Plate: ' . esc_html($combo_extra_price) . '</ul></li></div>';
+    echo '<div class="akk-sub-products" style="margin-top: 5px;font-size: 0.9em"><ul style="margin: 0 0 5px 15px;"><li>Platter Plate ' . ' × ' . intval($quantity) . '</ul></li></div>';
   }
   if (!empty($packing)) {
     echo '<div style="margin-top:5px;font-size: 0.9em;"><strong>Packing instructions:</strong> ' . esc_html($packing) . '</div>';

@@ -15,13 +15,17 @@ function my_custom_lightbox_content()
 
   echo '<div class="custom-lightbox-summary">';
   $price = get_minimum_price_for_combo($product);
-
+  $instruction = get_field('instruction_message', $product->get_id());
   $description = str_replace('${price}', $price, $product->get_description());
   echo '<div class="custom-description">';
   echo wpautop($description);
   echo '</div>';
   echo '<div class="custom-price">';
-  echo '<p style="font-size: 14px; font-weight:700; margin-bottom: 10px; color: #c0392b">' . "If you have any packing preferences, do leave the packing instructions below." . '</p>';
+  if ($instruction) {
+    echo '<p style="font-size: 14px; font-weight:500; margin-bottom: 10px; color: #c0392b">' . esc_html($instruction) . '</p>';
+  } else {
+    echo '<p style="font-size: 14px; font-weight:700; margin-bottom: 10px; color: #c0392b">' . "If you have any packing preferences, do leave the packing instructions below." . '</p>';
+  }
   echo $product->get_price_html();
 
   echo '</div>';

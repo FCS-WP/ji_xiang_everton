@@ -197,8 +197,6 @@ html {
   padding: 0px !important;
 }
 
-
-
 .product-short-description {
   min-height: 42px;
 }
@@ -263,4 +261,18 @@ html {
       }
     }
   }
+}
+
+
+.vendor-tier-1 #ang-ku-kueh,
+.vendor-tier-1 #baby-shower,
+.vendor-tier-1 #seasonal-kueh,
+.vendor-tier-1 #made-to-order {
+  display: none !important;
+}
+
+.not-vendor-tier-1 #combo-6,
+.not-vendor-tier-1 #ala-carte,
+.not-vendor-tier-1 #festive {
+  display: none !important;
 }

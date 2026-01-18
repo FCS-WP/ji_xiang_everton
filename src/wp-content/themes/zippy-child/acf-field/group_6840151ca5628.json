@@ -259,6 +259,26 @@
             "append": ""
         },
         {
+            "key": "field_6966483ff7235",
+            "label": "Instruction message",
+            "name": "instruction_message",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
             "key": "field_6901c429e2068",
             "label": "Min\/Max Configs",
             "name": "",
@@ -339,5 +359,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1767002836
+    "modified": 1768310883
 }
