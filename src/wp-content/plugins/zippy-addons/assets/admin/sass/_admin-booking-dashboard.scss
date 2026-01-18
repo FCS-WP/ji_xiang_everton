@@ -1,0 +1,270 @@
+#zippy-booking-root {
+  #zippy_dashboard {
+    .react-datepicker-wrapper {
+      width: 350px;
+      .react-datepicker__input-container {
+        input {
+          max-width: 100% !important;
+          text-align: center;
+        }
+      }
+    }
+
+    .date-picker {
+      position: relative;
+      .MuiSvgIcon-root {
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        transform: translateY(-50%);
+        z-index: 1;
+      }
+      .form-control {
+        padding-left: 40px;
+      }
+    }
+  }
+
+  #zippy_settings {
+    input[type="email"] {
+      padding: 6px;
+      padding-left: 20px;
+
+      &:focus {
+        box-shadow: none;
+      }
+    }
+    // .react-datepicker-wrapper {
+    //   input {
+    //     width: 110px;
+    //   }
+    // }
+    .holiday-date {
+      .zippy-date-picker {
+        width: 250px;
+      }
+
+      .react-datepicker-wrapper {
+        input {
+          width: 100%;
+        }
+      }
+    }
+    .holiday-label {
+      input {
+        width: 250px;
+      }
+    }
+  }
+
+  input {
+    border: 0px !important;
+    padding: 12px;
+    &:focus {
+      outline: none;
+      box-shadow: none;
+    }
+  }
+  .MuiSelect-select {
+    padding: 12px !important;
+  }
+  .date-picker {
+    position: relative;
+    .MuiSvgIcon-root {
+      position: absolute;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+    .form-control {
+      padding-left: 40px;
+    }
+  }
+}
+
+.add_products_model {
+  .custom-modal_table {
+    border: none !important;
+    .widefat tbody td {
+      text-align: center;
+    }
+    .widefat thead th {
+      text-align: center;
+      padding: 1rem;
+    }
+  }
+  .search-products {
+    label {
+      background: #fff;
+    }
+    input {
+      min-height: 54px;
+    }
+  }
+}
+
+#menu-category {
+  z-index: 9999999999;
+}
+
+.order-status {
+  &.status-completed {
+    background: #2271b1 !important;
+    color: #fff !important;
+  }
+  &.status-pending {
+    background: #ff0000 !important;
+    color: #fff !important;
+  }
+  &.status-cancelled {
+    background: #ffc0cb !important;
+  }
+}
+.wc-order-add-item {
+  .button.add-order-tax {
+    display: none !important;
+  }
+}
+#button_add_products {
+  display: inline-block;
+  .add_new_product {
+    box-shadow: none !important;
+  }
+}
+
+.woocommerce-admin-page {
+  .wrap {
+    .react-datepicker-popper {
+      z-index: 999;
+    }
+    .page-title-action {
+      @media screen and (max-width: 782px) {
+        padding: 0px 10px !important;
+      }
+    }
+    .subsubsub {
+      li a {
+        @media screen and (max-width: 782px) {
+          font-size: 14px;
+        }
+      }
+    }
+    .tablenav.top {
+      @media screen and (max-width: 782px) {
+        margin-top: 0px !important;
+      }
+    }
+    .search-box {
+      @media screen and (max-width: 782px) {
+        margin-bottom: 0px !important;
+        display: flex;
+        flex-wrap: nowrap;
+        width: 100% !important;
+      }
+    }
+    .tablenav-pages {
+      @media screen and (max-width: 782px) {
+        margin-top: 20px;
+        .button {
+          padding: 8px;
+        }
+      }
+    }
+    .react-datepicker__input-container {
+      input {
+        @media screen and (max-width: 782px) {
+          min-height: auto;
+        }
+      }
+    }
+    .actions {
+      @media screen and (max-width: 782px) {
+        margin-bottom: 5px;
+        margin-top: 5px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        #filter-by-date {
+          display: none;
+        }
+      }
+    }
+
+    input[type="checkbox"] {
+      @media screen and (max-width: 782px) {
+        width: 15px !important;
+        height: 15px !important;
+      }
+    }
+
+    #woocommerce-order-items {
+      table {
+        @media screen and (max-width: 782px) {
+          min-width: 800px !important;
+        }
+      }
+    }
+    .order_data_column {
+      @media screen and (max-width: 782px) {
+        width: 100% !important;
+      }
+    }
+  }
+}
+
+.woocommerce_page_wc-orders .wp-list-table thead {
+  @media screen and (max-width: 782px) {
+    th#_billing_time,
+    th#order_status,
+    th#payment_method,
+    th#_billing_date {
+      display: table-cell;
+    }
+    th#order_number {
+      width: 20ch !important;
+    }
+  }
+}
+.woocommerce_page_wc-orders .wp-list-table {
+  @media screen and (max-width: 782px) {
+    overflow-x: auto;
+    display: block;
+    thead,
+    tbody,
+    tfoot {
+      width: 800px;
+    }
+  }
+}
+.woocommerce_page_wc-orders .wp-list-table tbody {
+  @media screen and (max-width: 782px) {
+    td {
+      padding: 5px !important;
+      &::before {
+        display: none !important;
+      }
+    }
+    td._billing_time,
+    td.payment_method,
+    td._billing_date,
+    td.order_status {
+      display: table-cell !important;
+    }
+    td.order_number {
+      .order_status,
+      .toggle-row,
+      .order-preview {
+        display: none !important;
+      }
+    }
+
+    td.order_number {
+      display: flex;
+      flex-direction: column;
+      * {
+        width: 100% !important;
+      }
+    }
+  }
+}

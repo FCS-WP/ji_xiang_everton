@@ -223,7 +223,6 @@ class CartContext
 
     public function getBillingDate()
     {
-
         if (
             isset($_GET['order_id'])
             && isset($_GET['action'])

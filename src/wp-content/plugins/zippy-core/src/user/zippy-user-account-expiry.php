@@ -3,9 +3,7 @@
 namespace Zippy_Core\Src\User;
 
 defined('ABSPATH') or die();
-
 use Zippy_Core\Utils\Zippy_Utils_Core;
-
 class Zippy_User_Account_Expiry
 {
     protected static $_instance = null;
@@ -55,6 +53,7 @@ class Zippy_User_Account_Expiry
 
         add_action('admin_footer', [$this, 'initialize_datepicker']);
         add_action('admin_footer', [$this, 'show_toast_expiry_message']);
+
     }
 
     public function add_expiry_date_field($user)
@@ -191,7 +190,7 @@ class Zippy_User_Account_Expiry
 
     public function initialize_datepicker()
     {
-        // is not user page
+     // is not user page
         if (isset($_GET['user_id'])) : ?>
 
             <script type="text/javascript">

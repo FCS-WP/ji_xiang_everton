@@ -1,38 +1,27 @@
 "use strict";
-var $ = jQuery;
+$ = jQuery;
 
-$(document).ready(function () {
-  $("#openCateSticky").on("click", function () {
-    $("#categoryList").toggle();
-  });
 
-  var headerOffset = 120;
-  var $currentCategory = $("#currentCategory");
-  var $sections = $(".jsScroll");
 
-  function updateCurrentCategory() {
-    var scrollTop = $(window).scrollTop();
-    var currentTitle = "";
+$(document).ready(function(){
 
-    $sections.each(function () {
-      var $section = $(this);
-      var offsetTop = $section.offset().top - headerOffset;
-      var offsetBottom = offsetTop + $section.outerHeight();
+    $("#openCateSticky").click(function(){
+        $("#categoryList").toggle();
+        
+    }); 
 
-      if (scrollTop >= offsetTop && scrollTop < offsetBottom) {
-        currentTitle = $section.data("title");
-        return false; // stop loop
-      }
+    $(window).on("scroll", function() {
+        var scrollTop = $(window).scrollTop();
+        
+        $(".jsScroll").each(function(index,item){
+            let offsetTop = $(item).offset().top;        
+            let dataTitle = $(item).data("title");
+            if(scrollTop >= offsetTop){
+                $("#currentCategory").text(dataTitle);
+            }
+        })
+
     });
-
-    if (currentTitle) {
-      $currentCategory.text(currentTitle);
-    }
-  }
-
-  // Run on scroll
-  $(window).on("scroll", updateCurrentCategory);
-
-  // Run once on page load
-  updateCurrentCategory();
+    
 });
+

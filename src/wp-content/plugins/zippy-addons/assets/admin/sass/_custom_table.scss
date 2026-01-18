@@ -1,0 +1,63 @@
+table {
+  tbody {
+    tr {
+      td {
+        border-bottom: 1px solid #bfd3fe !important;
+      }
+
+      &.has-subrow {
+        td {
+          border-bottom: 0 !important;
+        }
+      }
+      &.sub-row {
+        td {
+          border-bottom: 0 !important;
+          background-color: #f9f9f9;
+        }
+        &.sub-row--last {
+          td {
+            border-bottom: 1px solid #bfd3fe !important;
+          }
+        }
+      }
+    }
+  }
+}
+.slot-input {
+  max-width: 80px !important;
+}
+//Orders Page
+
+#zippy_order_filter {
+  .zippy-date-picker,
+  .react-datepicker-wrapper {
+    height: 30px;
+    overflow: hidden;
+  }
+}
+
+.post-type-shop_order .wp-list-table .column-_billing_date,
+.post-type-shop_order .wp-list-table .column-_billing_time {
+  .sorting-indicators {
+    float: left;
+  }
+  span.billing_date {
+    float: left;
+  }
+  a.sorted.asc .sorting-indicator.asc:before {
+    color: #1d2327;
+  }
+  a.sorted.desc .sorting-indicator.desc:before {
+    color: #1d2327;
+  }
+}
+#edit_order_item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+#edit_order_addon {
+  cursor: pointer;
+}

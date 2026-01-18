@@ -45,11 +45,12 @@ class Zippy_Core
   {
     $phpmailer->Host = 'smtp.gmail.com';
     $phpmailer->Port = 587;
-    $phpmailer->Username = 'dev@zippy.sg';
-    $phpmailer->Password = 'ywvksightnelfksd';
+    $phpmailer->Username = 'care@epos.com.sg';
+    $phpmailer->Password = 'cmgnobfqtkxhcrpm';
     $phpmailer->SMTPAuth = true;
     $phpmailer->SMTPSecure = 'tls';
     $phpmailer->IsSMTP();
+
   }
 
   public function disable_plugin_deactivation($actions, $plugin_file, $plugin_data, $context)
