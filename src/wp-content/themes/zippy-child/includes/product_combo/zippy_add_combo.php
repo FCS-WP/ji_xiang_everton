@@ -66,7 +66,7 @@ function combo_display_sub_products_on_frontend()
               $product_id = is_object($sub_product_post) ? $sub_product_post->ID : $sub_product_post;
               $sub_product = wc_get_product($product_id);
               if (!$sub_product) continue;
-             $image_url = get_the_post_thumbnail_url($sub_product->get_id(), 'full');
+              $image_url = get_the_post_thumbnail_url($sub_product->get_id(), 'full');
 
               $product_pice = !$is_composite_product ? ' (' . wc_price(get_product_pricing_rules($sub_product, 1)) . ')' : '';
 
@@ -131,10 +131,26 @@ function capture_selected_sub_products($cart_item_data, $product_id)
     $cart_item_data['packing_instructions'] = $_POST['packing_instructions'];
   }
 
-  if (!empty($_POST['combo_extra_price'])) {
-    $cart_item_data['combo_extra_price'] = sanitize_text_field($_POST['combo_extra_price']);
-  }
+  // if (!empty($_POST['combo_extra_price'])) {
+  //   $cart_item_data['combo_extra_price'] = sanitize_text_field($_POST['combo_extra_price']);
+  // }
 
+  if (! empty($_POST['min_max_option'])) {
+
+    $min_max_option = intval($_POST['min_max_option']);
+
+    // Price map 
+    $price_map = array(
+      30 => 5,
+      40 => 5.5,
+      50 => 6,
+    );
+
+    if (isset($price_map[$min_max_option])) {
+      $cart_item_data['combo_extra_price'] = $price_map[$min_max_option];
+      // $cart_item_data['min_max_option']    = $min_max_option;
+    }
+  }
   return $cart_item_data;
 }
 
