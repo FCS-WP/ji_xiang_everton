@@ -45,7 +45,9 @@ jobs:
             # Verify node version
             node -v
 
+            #-- Preparation & Permissions ---
             cd /var/www/ji_xiang_everton
+            sudo chown -R deployer:deployer .
 
             # 1. Update code to the specific tag
             git fetch --tags
@@ -61,7 +63,6 @@ jobs:
             echo "WORDPRESS_TABLE_PREFIX=fcs_data_" >> .env
 
             # 3 Build Assets
-            sudo chown -R deployer:deployer .
             echo "Installing dependencies with Yarn..."
             yarn install --frozen-lockfile
 
@@ -78,6 +79,7 @@ jobs:
 
             # 6. Cleanup & Permissions
             docker image prune -f
+            
             sudo chown -R 33:33 src/wp-content
             sudo chmod -R 775 src/wp-content
 
