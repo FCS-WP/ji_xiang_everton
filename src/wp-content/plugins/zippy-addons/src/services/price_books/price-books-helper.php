@@ -163,7 +163,7 @@ class Price_Books_Helper
     $product = wc_get_product($product_id);
     $original_price = (float)$product->get_regular_price();
     $new_price = $this->apply_rule_to_price($original_price, $rules[$product_id]);
-    
+
     if ($original_price == $new_price) {
       return null;
     }
@@ -180,10 +180,8 @@ class Price_Books_Helper
    */
   public function is_product_restricted($product_id)
   {
-    $restricted_categories = ['combo-6', 'ala-carte', 'festive'];
+    $restricted_categories = ['combo-6', 'ala-carte-menu', 'festive-menu'];
 
     return has_term($restricted_categories, 'product_cat', $product_id);
   }
 }
-
-

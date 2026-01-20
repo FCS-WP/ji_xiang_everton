@@ -24,7 +24,6 @@ class Price_Books_Woocommerce
     }
 
     $user_id = get_current_user_id();
-    
     if (! $user_id) {
       // Not logged in
       $current_role = 'customer';
