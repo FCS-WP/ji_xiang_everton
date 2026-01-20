@@ -2,13 +2,6 @@
   jQuery(function($) {
     'use strict';
 
-    // For the Customised Platter
-    const MIN_MAX_PRICE_MAP = {
-      30: 5,
-      40: 5.5,
-      50: 6
-    };
-
     // Init 
     const $document = $(document);
     const $qtyInputs = $('.akk-sub-product-qty');
@@ -18,7 +11,7 @@
     const $minmaxSelect = $('#min_max_option');
     const $btnContactForSale = $('.contact_for_sale_btn');
     const $productCombo = $('.product-combo');
-
+    const MIN_MAX_PRICE_MAP = JSON.parse($('#combo_extra_price').val());
     const originalBtnText = $addToCartBtn.text();
     const minmaxOptionOther = 'others';
 
