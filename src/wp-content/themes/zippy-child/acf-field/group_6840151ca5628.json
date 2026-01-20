@@ -319,8 +319,29 @@
             "sub_fields": [
                 {
                     "key": "field_6901c3fba364b",
-                    "label": "Value",
+                    "label": "Options",
                     "name": "value",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_6901c3d5a364a"
+                },
+                {
+                    "key": "field_696ee995962a6",
+                    "label": "Price",
+                    "name": "extra_price",
                     "aria-label": "",
                     "type": "text",
                     "instructions": "",
@@ -359,5 +380,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1767002836
+    "modified": 1768877112
 }

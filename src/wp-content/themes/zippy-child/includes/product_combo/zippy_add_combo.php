@@ -6,6 +6,7 @@ function render_min_max_option_selector()
   $options = get_field('min_max_options', $product->get_id());
 
   if (empty($options)) return;
+  $price_map = array_column($options, 'extra_price', 'value');
 
   echo '<div class="akk-minmax-option">';
   echo '<label for="min_max_option"><strong>Select Pieces:</strong></label>';
@@ -18,10 +19,18 @@ function render_min_max_option_selector()
   }
 
   echo '</select>';
+  echo '<input
+    type="hidden"
+    id="combo_extra_price"
+    name="combo_extra_price"
+    value=' . htmlspecialchars(json_encode($price_map), ENT_QUOTES, "UTF-8") . '
+>
+';
+
   echo '</div>';
 }
 
-add_action('woocommerce_before_add_to_cart_button', 'render_extra_price_input');
+//add_action('woocommerce_before_add_to_cart_button', 'render_extra_price_input');
 function render_extra_price_input()
 {
   global $product;
@@ -66,7 +75,7 @@ function combo_display_sub_products_on_frontend()
               $product_id = is_object($sub_product_post) ? $sub_product_post->ID : $sub_product_post;
               $sub_product = wc_get_product($product_id);
               if (!$sub_product) continue;
-             $image_url = get_the_post_thumbnail_url($sub_product->get_id(), 'full');
+              $image_url = get_the_post_thumbnail_url($sub_product->get_id(), 'full');
 
               $product_pice = !$is_composite_product ? ' (' . wc_price(get_product_pricing_rules($sub_product, 1)) . ')' : '';
 
@@ -131,24 +140,40 @@ function capture_selected_sub_products($cart_item_data, $product_id)
     $cart_item_data['packing_instructions'] = $_POST['packing_instructions'];
   }
 
-  if (!empty($_POST['combo_extra_price'])) {
-    $cart_item_data['combo_extra_price'] = sanitize_text_field($_POST['combo_extra_price']);
-  }
+  // if (!empty($_POST['combo_extra_price'])) {
+  //   $cart_item_data['combo_extra_price'] = sanitize_text_field($_POST['combo_extra_price']);
+  // }
 
+  if (! empty($_POST['min_max_option'])) {
+
+    $min_max_option = intval($_POST['min_max_option']);
+
+    if (isset($_POST['combo_extra_price'])) {
+      $json = wp_unslash($_POST['combo_extra_price']);
+      $price_map = json_decode($json, true);
+      if (isset($price_map[$min_max_option])) {
+        $cart_item_data['combo_extra_price'] = floatval($price_map[$min_max_option]);
+      }
+    }
+  }
   return $cart_item_data;
 }
 
 add_action('woocommerce_cart_loaded_from_session', 'restore_combo_price_from_session');
+add_action('woocommerce_before_calculate_totals', 'restore_combo_price_from_session');
+
 function restore_combo_price_from_session($cart)
 {
-  if ((defined('REST_REQUEST') && REST_REQUEST) || is_admin()) {
+
+  if (defined('REST_REQUEST') && REST_REQUEST) {
     return;
   }
 
   foreach ($cart->get_cart() as $cart_item_key => $item) {
     $product = $item['data'];
-    $main_product_id = $product->get_id();
+
     if (is_composite_product($product)) continue;
+
     if (isset($item['akk_selected'])) {
       $total_price = 0;
       foreach ($item['akk_selected'] as $product_id => $qty) {
@@ -158,12 +183,10 @@ function restore_combo_price_from_session($cart)
           $total_price += floatval($product_price) * $qty[0];
         }
       }
-
       $extra_price = $item['combo_extra_price'] ?? 0;
       if (!empty($extra_price)) {
         $total_price += floatval($extra_price);
       }
-
       if ($total_price > 0) {
         $cart->cart_contents[$cart_item_key]['data']->set_price($total_price);
       }
