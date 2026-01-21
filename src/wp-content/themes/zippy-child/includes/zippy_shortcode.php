@@ -1,4 +1,7 @@
 <?php
+
+use Zippy_Booking\Src\Services\Catalog_Category\Catalog_Category_Services;
+
 function flatsome_custom_quickview_button($atts)
 {
 
@@ -47,10 +50,9 @@ add_shortcode('categories_render_mobile', 'categories_render_mobile_callback');
 
 function categories_render_mobile_callback()
 {
-  $restricted_categories = ['combo-6', 'ala-carte', 'festive', 'uncategorized'];
-
   $current_user = wp_get_current_user();
-  $is_vendor_tier_1 = in_array('vendor_tier_1', (array) $current_user->roles);
+  $role_user = $current_user->roles[0] ?? '';
+  $categories_can_view = Catalog_Category_Services::get_category_by_role($role_user);
 
   $terms = get_terms(array(
     'taxonomy'   => 'product_cat',
@@ -70,17 +72,7 @@ function categories_render_mobile_callback()
     <?php foreach ($terms as $term): ?>
 
       <?php
-      // Vendor Tier 1 → ONLY see restricted categories
-      if ($is_vendor_tier_1 && !in_array($term->slug, $restricted_categories)) {
-        continue;
-      }
-
-      // Normal users → CANNOT see restricted categories
-      if (!$is_vendor_tier_1 && in_array($term->slug, $restricted_categories)) {
-        continue;
-      }
-      // No one can see 'uncategorized' category
-      if ($term->slug === 'uncategorized') {
+      if (!in_array($term->slug, $categories_can_view)) {
         continue;
       }
       ?>
@@ -104,17 +96,7 @@ function categories_render_mobile_callback()
 
 
         <?php
-        // Vendor Tier 1 → ONLY see restricted categories
-        if ($is_vendor_tier_1 && !in_array($term->slug, $restricted_categories)) {
-          continue;
-        }
-
-        // Normal users → CANNOT see restricted categories
-        if (!$is_vendor_tier_1 && in_array($term->slug, $restricted_categories)) {
-          continue;
-        }
-        // No one can see 'uncategorized' category
-        if ($term->slug === 'uncategorized') {
+        if (!in_array($term->slug, $categories_can_view)) {
           continue;
         }
         ?>
@@ -133,10 +115,9 @@ add_shortcode('categories_render', 'categories_render_callback');
 
 function categories_render_callback()
 {
-  $restricted_categories = ['combo-6', 'ala-carte', 'festive', 'uncategorized'];
-
   $current_user = wp_get_current_user();
-  $is_vendor_tier_1 = in_array('vendor_tier_1', (array) $current_user->roles);
+  $role_user = $current_user->roles[0] ?? '';
+  $categories_can_view = Catalog_Category_Services::get_category_by_role($role_user);
 
   $terms = get_terms(array(
     'taxonomy'   => 'product_cat',
@@ -155,13 +136,7 @@ function categories_render_callback()
     <?php foreach ($terms as $term): ?>
 
       <?php
-      // Vendor Tier 1 → ONLY see restricted categories
-      if ($is_vendor_tier_1 && !in_array($term->slug, $restricted_categories)) {
-        continue;
-      }
-
-      // Normal users → CANNOT see restricted categories
-      if (!$is_vendor_tier_1 && in_array($term->slug, $restricted_categories)) {
+      if (!in_array($term->slug, $categories_can_view)) {
         continue;
       }
       ?>
