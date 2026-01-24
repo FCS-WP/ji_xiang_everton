@@ -5,7 +5,7 @@ $(function () {
     const product_id = $(this).data("product_id");
     $("#lightbox-zippy-form").attr(
       "data-product_id",
-      prod_id ? prod_id : product_id
+      prod_id ? prod_id : product_id,
     );
   });
 
@@ -24,7 +24,9 @@ $(function () {
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
-        window.location.href = "/";
+        setTimeout(function () {
+          window.location.href = "/";
+        }, 1200);
       }
     });
   });
