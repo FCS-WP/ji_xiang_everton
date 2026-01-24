@@ -18,7 +18,7 @@ function initCalendar(updatePrams = Object) {
     actions: {
       clickDay(event, self) {
         let selectedDay = self.selectedDates ? self.selectedDates[0] : 0;
-        $("#selectDateTakeaway").val(selectedDay);
+        $('#selectDateTakeaway').val(selectedDay);
       },
     },
   };
@@ -61,6 +61,7 @@ function activeBoxDate(time) {
   });
 }
 
+
 function chooseDate() {
   // $(".date-box").each(function (index, element) {
   $("body").on("click ", ".date-box", function (e) {
@@ -70,7 +71,7 @@ function chooseDate() {
     $(this).addClass("selected");
 
     let selected_date = $(this).attr("data-date-short");
-    $("#selectDateTakeaway").val(selected_date);
+    $('#selectDateTakeaway').val(selected_date);
 
     initCalendar(partsDate);
   });
@@ -133,7 +134,7 @@ function trigerMainButton() {
     if (time == "") {
       $(".time-select-control").addClass("validation");
       $(".wrapper.pickup-time").append(
-        "<p class='validation'>Please select a time slot</p>",
+        "<p class='validation'>Please select a time slot</p>"
       );
     } else {
       ajaxAddDate(date, time);
@@ -160,29 +161,29 @@ $(document).ready(function () {
 //save_store_to_session
 jQuery(document).ready(function ($) {
   //Quantity mini cart
-  $("body").on("click", ".single_add_to_cart_button", function () {
-    $(document.body).trigger("wc_fragment_refresh");
-    // console.log("first");
-    // $.ajax({c
-    //   type: "POST",
-    //   url: mini_cart_params.ajax_url,
-    //   data: {
-    //     action: "woocommerce_update_cart_item_quantity",
-    //     cart_item_key: cart_item_key,
-    //     quantity: $(this).val(),
-    //     _wpnonce: mini_cart_params.update_cart_nonce,
-    //   },
-    //   success: function (response) {
-    //     $("#cart-items-count").text(
-    //       "You have added " + response.data["cart_count"] + " items"
-    //     );
-    //     // Reload the mini cart
-    //     $(document.body).trigger("wc_fragment_refresh");
-    //   },
-    //   error: function (response) {
-    //     console.log("Error:", response);
-    //   },
-    // });
+  $("body").on("change", ".quantity.buttons_added .qty", function () {
+    var $input = $(this);
+    var cart_item_key = $input.attr("data-cart-item-key");
+    $.ajax({
+      type: "POST",
+      url: mini_cart_params.ajax_url,
+      data: {
+        action: "woocommerce_update_cart_item_quantity",
+        cart_item_key: cart_item_key,
+        quantity: $(this).val(),
+        _wpnonce: mini_cart_params.update_cart_nonce,
+      },
+      success: function (response) {
+        $("#cart-items-count").text(
+          "You have added " + response.data["cart_count"] + " items"
+        );
+        // Reload the mini cart
+        $(document.body).trigger("wc_fragment_refresh");
+      },
+      error: function (response) {
+        console.log("Error:", response);
+      },
+    });
   });
 });
 
@@ -237,7 +238,7 @@ function selectDinningPreferences() {
   $("body").on("click", ".btn.select-dinning-preferences", function (e) {
     e.preventDefault();
     var selectDinningPreferences = document.getElementById(
-      "select-dinning-preferences",
+      "select-dinning-preferences"
     );
     selectDinningPreferences.click();
   });
