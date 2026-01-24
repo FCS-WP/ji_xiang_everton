@@ -11,7 +11,7 @@
     const $minmaxSelect = $('#min_max_option');
     const $btnContactForSale = $('.contact_for_sale_btn');
     const $productCombo = $('.product-combo');
-    const MIN_MAX_PRICE_MAP = JSON.parse($('#combo_extra_price').val());
+    const MIN_MAX_PRICE_MAP = $('#combo_extra_price').val() ? JSON.parse($('#combo_extra_price').val()) : {};
     const originalBtnText = $addToCartBtn.text();
     const minmaxOptionOther = 'others';
 
@@ -174,6 +174,9 @@
         return false;
       }
 
+      console.log(totalQty);
+      console.log(minOrder);
+      console.log($productCombo.length);
       if (totalQty < minOrder && $productCombo.length) {
         e.preventDefault();
         showAlert(`Please select at least ${minOrder} ${comboName} in total!`);
