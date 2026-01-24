@@ -174,9 +174,7 @@
         return false;
       }
 
-      console.log(totalQty);
-      console.log(minOrder);
-      console.log($productCombo.length);
+
       if (totalQty < minOrder && $productCombo.length) {
         e.preventDefault();
         showAlert(`Please select at least ${minOrder} ${comboName} in total!`);
